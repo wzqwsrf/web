@@ -1306,11 +1306,12 @@ Func _onRadioSoftware(ByRef $iSoftware, $RadioYinhe, $RadioHuabao)
   Return $iMax
 EndFunc
 
-Func _disableRadios($RadioCash, $RadioCancel, $RadioRedeem)
+Func _disableRadios($RadioCash, $RadioCancel, $RadioRedeem, $RadioOrderOutTransfer)
   $iState = BitOR($GUI_DISABLE, $GUI_UNCHECKED)
   GUICtrlSetState($RadioCash, $iState)
   GUICtrlSetState($RadioCancel, $iState)
   GUICtrlSetState($RadioRedeem, $iState)
+  GUICtrlSetState($RadioOrderOutTransfer, $iState)
 EndFunc
 
 Func _loadListViewAccount($iSoftware, $idListViewAccount, ByRef $arCheckboxAccount, $iMax)
@@ -1387,8 +1388,9 @@ Func AppMain()
     GUICtrlSetState($RadioCash, _getRadioState($RadioCash, $iMsg, 'Cash', $GUI_UNCHECKED))
     GUICtrlSetState($RadioCancel, _getRadioState($RadioCancel, $iMsg, 'Cancel', $GUI_UNCHECKED))
     GUICtrlSetState($RadioRedeem, _getRadioState($RadioRedeem, $iMsg, 'Redeem', $GUI_UNCHECKED))
+    GUICtrlSetState($RadioOrderOutTransfer, _getRadioState($RadioOrderOutTransfer, $iMsg, 'OrderOutTransfer', $GUI_UNCHECKED))
   Else
-    _disableRadios($RadioCash, $RadioCancel, $RadioRedeem)
+    _disableRadios($RadioCash, $RadioCancel, $RadioRedeem, $RadioOrderOutTransfer)
   EndIf
   GUICtrlCreateGroup("", -99, -99, 1, 1)
 
@@ -1445,7 +1447,7 @@ Func AppMain()
           GUICtrlSetState($RadioCash, $GUI_ENABLE)
           GUICtrlSetState($RadioRedeem, $GUI_ENABLE)
         Else
-          _disableRadios($RadioCash, $RadioCancel, $RadioRedeem)
+          _disableRadios($RadioCash, $RadioCancel, $RadioRedeem, $RadioOrderOutTransfer)
         EndIf
 
       Case $idListViewAccount
