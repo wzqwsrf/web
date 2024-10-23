@@ -23,7 +23,7 @@ function _LayoutTopLeft($bChinese = true, $bAdsense = true)
 function _LayoutBottom($bChinese = true, $bAdsense = true)
 {
 	LayoutBegin();
-	EchoParagraph(GetMyPhotoLinks($bChinese));
+	EchoHtmlElement(GetMyPhotoLinks($bChinese));
 	LayoutEnd();
 	
 	LayoutWoodyMenuArray($bChinese);

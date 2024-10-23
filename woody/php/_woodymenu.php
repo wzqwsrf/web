@@ -80,14 +80,14 @@ function GetBlogMenuLinks($bChinese = true)
 function LayoutWoodyMenuArray($bChinese)
 {
 	LayoutBegin();
-	EchoParagraph(GetCategoryLinks(GetWoodyMenuArray($bChinese), '/woody/', $bChinese));
+	EchoHtmlElement(GetCategoryLinks(GetWoodyMenuArray($bChinese), '/woody/', $bChinese));
 	LayoutEnd();
 }
 
 function LayoutBlogMenuArray($bChinese)
 {
 	LayoutBegin();
-	EchoParagraph(GetBlogMenuLinks($bChinese));
+	EchoHtmlElement(GetBlogMenuLinks($bChinese));
 	LayoutEnd();
 	
 	LayoutWoodyMenuArray($bChinese);
@@ -96,7 +96,7 @@ function LayoutBlogMenuArray($bChinese)
 function LayoutMiaPhotoArray($bChinese)
 {
 	LayoutBegin();
-	EchoParagraph(GetMiaPhotoLinks($bChinese));
+	EchoHtmlElement(GetMiaPhotoLinks($bChinese));
 	LayoutEnd();
 
 	LayoutWoodyMenuArray($bChinese);

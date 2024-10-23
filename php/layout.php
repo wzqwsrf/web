@@ -231,7 +231,7 @@ END;
 function _echoWeixinPay($iType = 0)
 {
 	LayoutBegin();
-	EchoParagraph(GetWeixinPay($iType));
+	EchoHtmlElement(GetWeixinPay($iType));
 	LayoutEnd();
 }
 

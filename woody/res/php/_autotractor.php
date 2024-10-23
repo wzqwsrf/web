@@ -8,7 +8,7 @@ function EchoAll()
 {
 	global $acct;
     
-    EchoParagraph(GetRemarkElement('完整软件安装步骤：'));
+    EchoHtmlElement(GetRemarkElement('完整软件安装步骤：'));
     $strNepturnLink = GetExternalLink('https://www.chinastock.com.cn/newsite/online/downloadCenterDetail.html?softName=neptune', '银河证券官网');
     $strNepturn = GetBoldElement('海王星单独委托版3.16');
     $strHuabaoLink = GetExternalLink('https://www.cnhbstock.com/view/software/software.html?col=0', '华宝证券官网');
@@ -28,13 +28,13 @@ function EchoAll()
    	$strYinheAu3Now = GetInfoElement('yinhe0'.YINHE_AU3_VER.'.au3');
     $str = GetRemarkElement('软件更新：');
     $str .= $strNewLine.'只有'.$strYinheAu3.'文件是会日常更新的，目前版本为'.GetBoldElement('0.'.YINHE_AU3_VER).'。下载前注意清除浏览器的下载文件缓存，确保下载到正确的版本。由于更新时无法覆盖所有的测试，每次下载新版本前注意备份好上一个能用的版本。例如保存成：'.$strYinheAu3Now;
-    EchoParagraph($str);
+    EchoHtmlElement($str);
 
     $str = GetRemarkElement('软件开发：');
     $str .= $strNewLine.'本网站全部源代码都公开放在了全球最大同性交友网站'.GetExternalLink('https://github.com/palmmicro', 'GitHub');
     $str .= '。想自己进一步修改软件的除了上面的.au3文件外，还可能需要去下载制作用户界面时用到的'.GetInfoElement('yinhe.kxf').'和'.GetInfoElement('yinheaccount.kxf').'两个文件。';
     $str .= $strNewLine.GetXueqiuIdLink('2747564710', '磨刀霍霍向猪羊01').'增加了场外申购和场外转托管到场内的'.GetExternalLink('https://github.com/wzqwsrf/web/tree/feature-yufei/autoit', '代码').'，感兴趣的可以自行下载测试。';
-    EchoParagraph($str);
+    EchoHtmlElement($str);
 
     $strAllSoftware = $strNepturn.'或者'.$strHuabao;
     $str = GetRemarkElement('软件执行：');
@@ -43,7 +43,7 @@ function EchoAll()
 	$str .= ImgAutoQuote(PATH_BLOG_PHOTO.'autoit066screen.jpg', '2024年2月4日AutoIt'.AUTO_TRACTOR_DISPLAY.'软件0.66主界面');
     $str .= $strNewLine.'在弹出的用户主界面用鼠标点击'.GetInfoElement('执行自动操作').'按键后，会看到它自动运行'.$strAllSoftware.'，然后一步步在每个打勾的'.GetInfoElement('客户号').'的全部可用账户中各自执行选择的'.GetInfoElement('操作').
     		'。除了按ESC键主动退出和响应AutoIt脚本自己的错误提示消息框外，在结束前不能操作任何键盘或者鼠标，否则脚本可能会出错。';
-    EchoParagraph($str);
+    EchoHtmlElement($str);
     
     $strFund = GetInfoElement('基金代码').'加亮选中基金';
     $strQuantity = GetInfoElement('卖出或者赎回总数量');	// .'或者'.GetQuoteElement('缺省为空').'全部';
@@ -58,7 +58,7 @@ function EchoAll()
 
     $str = GetRemarkElement('管理客户号：');
     $str .= GetWoodyImgQuote('20201029.jpg', '2020年10月29日AutoIt'.AUTO_TRACTOR_DISPLAY.'软件0.1管理客户号界面');
-    EchoParagraph($str);
+    EchoHtmlElement($str);
     
    	$strManageAccount = GetInfoElement('添加或者修改选中客户号');
     echo GetListElement(array('修改：加亮选中'.GetQuoteElement('不是前面打勾').'某客户号时，按鼠标右键，选择'.$strManageAccount.'菜单，会继续弹出对话框修改当前客户号'.GetQuoteElement('上图中是23050008000').'。',

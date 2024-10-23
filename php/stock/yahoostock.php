@@ -535,6 +535,7 @@ function UpdateYahooHistoryChart($ref)
 			$his_sql->DeleteByZeroVolume($strStockId);
 //		}
 		$date_sql->WriteDate($strStockId, $strCurDate);
+		unlinkConfigFile($ref->GetSymbol());
 		return true;
    	}
     return false;

@@ -1,5 +1,5 @@
 <?php
-require_once('sqltable.php');
+require_once('sqlint.php');
 
 define('IP_STATUS_NORMAL', '0');
 define('IP_STATUS_CRAWLER', '1');
@@ -113,6 +113,24 @@ class IpSql extends TableSql
     		return $record['status'];
     	}
     	return false;
+    }
+}
+
+class IpTickSql extends IntSql
+{
+    public function __construct()
+    {
+        parent::__construct('iptick', 'tick');
+    }
+    
+    function WriteTick($strIp, $iTick)
+    {
+    	return $this->WriteInt(GetIpId($strIp), strval($iTick));
+    }
+    
+    function ReadTick($strIp)
+    {
+    	return ($strTick = $this->ReadInt(GetIpId($strIp))) ? intval($strTick) : false;
     }
 }
 

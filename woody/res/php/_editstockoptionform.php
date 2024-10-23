@@ -89,11 +89,7 @@ function _getStockOptionNav($ref, $strSymbol, $strStockId, $strDate)
 {
 	if ($strSymbol == 'KWEB')
 	{
-		if ($strDiff = GetKraneNav($ref))
-		{
-			$his_sql = GetStockHistorySql();
-			return strval_round(floatval($his_sql->GetClose($strStockId, $strDate)) * (1.0 - floatval($strDiff)), FLOAT_PRECISION);
-		}
+		if ($strNav = GetKraneNav($ref))		return $strNav;
 	}
 	return SqlGetNavByDate($strStockId, $strDate);
 }

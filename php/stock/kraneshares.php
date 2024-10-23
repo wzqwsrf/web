@@ -22,7 +22,8 @@ function GetKraneNav($ref)
 	$strPrevDate = $his_sql->GetDatePrev($strStockId, $strDate);
 	if ($strNavDate == $strPrevDate)	return false;		// already up to date
 	
-	$ref->SetTimeZone();
+//	$ref->SetTimeZone();
+	date_default_timezone_set('Europe/London');
 	$strSymbol = $ref->GetSymbol();
 	$strFileName = DebugGetPathName('NAV_'.$strSymbol.'.txt');
 	if (StockNeedFile($strFileName) == false)	return false; 	// updates on every minute
@@ -38,7 +39,16 @@ function GetKraneNav($ref)
 			DebugString('no data');
 			return false;
 		}
-		return $ar[0][1];
+		$ar0 = $ar[0];
+		$iTick = intval($ar0[0]) / 1000;
+        $ymd = new TickYMD($iTick);
+        if ($ymd->GetYMD() != $strPrevDate)
+        {
+        	DebugString($ymd->GetYMD().' '.$strPrevDate.' miss match date');
+        	DebugPrint(localtime($iTick, true));
+        	return false;
+        }
+		return strval_round(floatval($his_sql->GetClose($strStockId, $strPrevDate)) * (1.0 - floatval($ar0[1])), 4);
    	}
     return false;
 }

@@ -2,7 +2,8 @@
 require_once('../../php/csvfile.php');
 require_once('../../php/stockhis.php');
 
-class _YahooHistoryCsvFile extends DebugCsvFile
+//class _YahooHistoryCsvFile extends DebugCsvFile
+class _YahooHistoryCsvFile extends CsvFile
 {
 	var $strStockId;
 
@@ -32,18 +33,18 @@ class _YahooHistoryCsvFile extends DebugCsvFile
     {
     	if (count($arWord) < 7)						return;
     	
-    	$strDate = $arWord[0];
+    	$strDate = SqlCleanString($arWord[0]);
     	if ($strDate == 'Date')						return;
    		if ($this->oldest_ymd->IsTooOld($strDate))	return;
     	if ($strDate == $this->strLastDate)		return;	// future have continue data 23 hours a day
     	$this->strLastDate = $strDate; 
 
     	// Date,Open,High,Low,Close,Adj Close,Volume        		
-    	$strOpen = $arWord[1];
-    	$strHigh = $arWord[2];
-    	$strLow = $arWord[3];
-    	$strClose = $arWord[4]; 
-    	$strVolume = $arWord[6];
+    	$strOpen = SqlCleanString($arWord[1]);
+    	$strHigh = SqlCleanString($arWord[2]);
+    	$strLow = SqlCleanString($arWord[3]);
+    	$strClose = SqlCleanString($arWord[4]); 
+    	$strVolume = SqlCleanString($arWord[6]);
         if ($strClose == '-' || $strClose == 'null')
         {
         	DebugPrint($arWord);	// debug wrong data
@@ -62,7 +63,7 @@ class _YahooHistoryCsvFile extends DebugCsvFile
         if ($this->oldest_ymd->IsInvalid($strDate) == false)
         {
         	$this->iTotal ++;
-        	if ($this->his_sql->WriteHistory($this->strStockId, $strDate, $strClose, $strOpen, $strHigh, $strLow, $strVolume, $arWord[5]))
+        	if ($this->his_sql->WriteHistory($this->strStockId, $strDate, $strClose, $strOpen, $strHigh, $strLow, $strVolume, SqlCleanString($arWord[5])))
         	{
 //        		DebugString(implode(',', $arWord));
         		$this->iModified ++;

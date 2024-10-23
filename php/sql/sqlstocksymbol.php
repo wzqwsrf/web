@@ -247,11 +247,14 @@ function GetStockHistorySql()
 function SqlDeleteStockHistory($strStockId)
 {
 	$his_sql = GetStockHistorySql();
-	$iTotal = $his_sql->Count($strStockId);
-	if ($iTotal > 0)
+	if ($strStockId)
 	{
-		DebugVal($iTotal, 'Stock history existed');
-		$his_sql->DeleteAll($strStockId);
+		$iTotal = $his_sql->Count($strStockId);
+		if ($iTotal > 0)
+		{
+			DebugVal($iTotal, 'Stock history existed');
+			$his_sql->DeleteAll($strStockId);
+		}
 	}
 }
 

@@ -152,7 +152,7 @@ class QdiiGroupAccount extends FundGroupAccount
     	{
     		$ref = $this->GetRef();
     		$strDebug = $ref->DebugLink();
-   			EchoParagraph($strDebug);
+   			EchoHtmlElement($strDebug);
     	}
     }
 } 

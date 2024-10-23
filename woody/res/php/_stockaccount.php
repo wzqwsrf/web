@@ -170,7 +170,7 @@ END;
     				$strQuery = sprintf('groupid=%s&fundid=%s&amount=%s&netvalue=%.3f', $strGroupId, $strStockId, $strAmount, floatval($ref->GetOfficialNav()));
     				$str = GetOnClickLink(PATH_STOCK.'submittransaction.php?'.$strQuery, '确认添加对冲申购记录?', '申购').$strSymbol.'人民币'.$strAmount.'元';
     				$str .= ' '.GetStockOptionLink(STOCK_OPTION_AMOUNT, $strSymbol);
-    				EchoParagraph($str);
+    				EchoHtmlElement($str);
     			}
     		}
     		StockEditTransactionForm($this, STOCK_TRANSACTION_NEW, $strGroupId);

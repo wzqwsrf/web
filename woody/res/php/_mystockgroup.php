@@ -153,7 +153,7 @@ function EchoAll()
 		if ($strLinks = _getSimilarLinks($strPage))		$str .= $strLinks;
 		if ($strBugs = _getOldBugs($strPage))			$str .= $strBugs;
         $str .= ImgStockGroup($strPage);
-        EchoParagraph($str);
+        EchoHtmlElement($str);
     }
     $acct->EchoLinks($strPage);
 }

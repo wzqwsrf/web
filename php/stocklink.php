@@ -109,6 +109,7 @@ function GetHoldingsLink($strSymbol, $bDisplaySymbol = false)
 }
 
 define('STOCK_HISTORY_DISPLAY', '历史价格');
+define('STOCK_HISTORY_UPDATE', '更新历史价格');
 function GetStockHistoryLink($strSymbol, $strDisplay = false)
 {
     return GetStockSymbolLink('stockhistory', $strSymbol, ($strDisplay ? $strDisplay : STOCK_HISTORY_DISPLAY));

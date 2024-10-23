@@ -48,7 +48,7 @@ function _echoAccountProfileMsg($strMsg, $bChinese)
     if ($strMsg)
     {
     	$strPeriod = $bChinese ? '。' : '.';  
-    	EchoParagraph(GetInfoElement($strMsg.$strPeriod));
+    	EchoHtmlElement(GetInfoElement($strMsg.$strPeriod));
     }
 }
 
@@ -62,7 +62,7 @@ function _echoAccountProfileLinks($bChinese)
 	{
 		$strLink = "Change <a href=\"password.php\">password</a>, update <a href=\"updateemail.php\">login email</a>, update <a href=\"editprofile.php\">profile</a>";
 	}
-    EchoParagraph($strLink);
+    EchoHtmlElement($strLink);
 }
 
 function _echoAccountProfileEnglish($member, $strName, $strPhone, $strAddress, $strWeb, $strSignature)

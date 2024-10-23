@@ -6,7 +6,7 @@ function EchoCommentLinkParagraph($str, $strQuery, $bChinese)
 {
     $str = GetRemarkElement($str);
 	if ($strQuery)	$str .= ' '.GetAllCommentLink($strQuery, $bChinese);
-    EchoParagraph($str);
+    EchoHtmlElement($str);
 }
 
 class CommentAccount extends TitleAccount

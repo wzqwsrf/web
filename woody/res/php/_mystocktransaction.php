@@ -15,12 +15,12 @@ function EchoAll()
         if ($strSymbol = $acct->GetSymbol())
         {   // Display transactions of a stock
             $strAllLink = StockGetAllTransactionLink($strGroupId);
-            EchoParagraph($strAllLink.' '.$strStockLinks);
+            EchoHtmlElement($strAllLink.' '.$strStockLinks);
            	EchoTransactionParagraph($acct, $strGroupId, new MyStockReference($strSymbol));
         }
         else
         {   // Display transactions of the whole group
-            EchoParagraph($strStockLinks);
+            EchoHtmlElement($strStockLinks);
            	EchoTransactionParagraph($acct, $strGroupId);
         }
     }

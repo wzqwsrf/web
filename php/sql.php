@@ -1,5 +1,4 @@
 <?php
-require_once('url.php');
 require_once('debug.php');
 require_once('email.php');
 require_once('httplink.php');

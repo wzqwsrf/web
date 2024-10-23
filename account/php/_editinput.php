@@ -555,7 +555,7 @@ function _echoInputResult($acct, $strPage, $strInput, $bChinese)
     }
     
     $str .= ImgAccountTool($strPage);
-    EchoParagraph($str);
+    EchoHtmlElement($str);
 }
 
 function _getDefaultInput($strPage)
@@ -632,7 +632,7 @@ function EchoAll($bChinese = true)
 
 	$str = GetAccountToolLinks($bChinese);
 	if ($bChinese)	$str .= ' '.GetDevLink('entertainment/20100905cn.php#'.$strPage).'<br />'.GetStockMenuLinks();
-    EchoParagraph($str);
+    EchoHtmlElement($str);
 }
 
 function _getAccountToolTitle($strPage, $strQuery, $bChinese)

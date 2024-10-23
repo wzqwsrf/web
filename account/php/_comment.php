@@ -37,9 +37,9 @@ function EchoAll($bChinese = true)
     $iNum = $acct->GetNum();
     $strMenuLink = GetMenuLink($strQuery, $iTotal, $iStart, $iNum, $bChinese);
     
-    EchoParagraph($strLink.' '.$strMenuLink);
+    EchoHtmlElement($strLink.' '.$strMenuLink);
     $acct->EchoComments($strWhere, $iStart, $iNum, $bChinese);
-    EchoParagraph($strMenuLink);
+    EchoHtmlElement($strMenuLink);
 }
 
 function GetTitle($bChinese = true)

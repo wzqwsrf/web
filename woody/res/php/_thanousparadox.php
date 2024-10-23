@@ -29,7 +29,7 @@ function _echoThanousParadoxGraph($csv)
     {
     	$str = $csv->GetLink();
     	$str .= '<br />'.$jpg->GetAllLinks();
-    	EchoParagraph($str);
+    	EchoHtmlElement($str);
     }
 }
 

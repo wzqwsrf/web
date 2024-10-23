@@ -60,7 +60,7 @@ function EchoAll($bChinese = true)
 		$str = $bChinese ? '我们通过登录电子邮件联系你, 务必确认能收到这个地址的电子邮件.' : 'Login email is used to contact you, make sure you can receive email from it.';
 		break;
     }
-   	EchoParagraph($str);
+   	EchoHtmlElement($str);
     EditEmailForm(_getEditEmailSubmit($strPage, $bChinese), $acct->GetLoginEmail(), $acct->IsAdmin());
 }
 

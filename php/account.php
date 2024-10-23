@@ -32,19 +32,30 @@ class Account
     var $page_sql;
     var $visitor_sql;
 
-    var $bAllowCurl;
+    var $bAllowCurl = true;
     
     public function __construct() 
     {
     	session_start();
     	SqlConnectDatabase();
 
+	    $tick_sql = new IpTickSql();
+   		$ymd = GetNowYMD();
+   		$iCurTick = $ymd->GetTick();
+    	
 	    $strIp = UrlGetIp();
 	    $this->ip_sql = new IpSql();
 	    $strStatus = $this->ip_sql->GetStatus($strIp);
 	    if ($strStatus == IP_STATUS_MALICIOUS)	die('403 Forbidden');
-//	    if ($strStatus != IP_STATUS_NORMAL)	die('401 Unauthorized');
-    	$this->bAllowCurl = ($strStatus != IP_STATUS_NORMAL) ? false : true;
+	    else if ($strStatus == IP_STATUS_CRAWLER)
+	    {
+	    	if ($iTick = $tick_sql->ReadTick($strIp))
+	    	{
+	    		if ($iCurTick - $iTick < SECONDS_IN_DAY)		SwitchToLink('/account/code429.php');
+	    	}
+	    	$this->bAllowCurl = false;
+	    }
+//	    SwitchToLink('/account/code429.php');
 
 		$this->ip_sql->InsertIp($strIp);
 
@@ -62,19 +73,21 @@ class Account
 	    	$iPageCount = $this->visitor_sql->CountUniqueDst($strId);
 	    	$strDebug = '访问次数: '.strval($iCount).'<br />不同页面数: '.strval($iPageCount).'<br />';
 	    	if ($this->GetLoginId())						$strDebug .= 'logined!<br />';
-//	    	if ($strStatus == IP_STATUS_CRAWLER)			$strDebug .= '已标注的老爬虫';
-//	    	else
-	    	if ($strStatus != IP_STATUS_CRAWLER)
+	    	if ($strStatus == IP_STATUS_CRAWLER)
+	    	{
+	    		$strDebug .= '已标注的老爬虫';
+	    		$tick_sql->WriteTick($strIp, $iCurTick);
+	    	}
+	    	else
 	    	{
 	    		if ($iPageCount >= ($iCount / 100))		$strDebug .= '疑似爬虫';
 	    		else
 	    		{
 	    			$strDebug .= '新标注爬虫';
 	    			$this->SetCrawler($strIp);
-//	    			$strStatus = IP_STATUS_CRAWLER;
 	    		}
-	    		trigger_error($strDebug);
 	    	}
+			trigger_error($strDebug);
 	    	$this->ip_sql->AddVisit($strIp, $iCount);
 	    	$this->visitor_sql->DeleteBySrc($strId);        
 	    }

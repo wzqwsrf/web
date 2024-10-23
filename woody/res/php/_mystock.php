@@ -168,7 +168,7 @@ function _echoMyStockData($ref, $strStockId, $bAdmin)
    			}
    			$str .= '<br />均线:'.$ref->DebugConfigLink();
     	}
-    	EchoParagraph($str);
+    	EchoHtmlElement($str);
     }
 }
 

@@ -103,10 +103,10 @@ function EchoAll($bChinese = true)
         $iCount = $visitor_sql->CountToday();
         $str = '今日访问: '.strval($iCount);
     }
-    EchoParagraph($str);
+    EchoHtmlElement($str);
     
     _echoBlogVisitorParagraph($strIp, $strId, $visitor_sql, $acct->GetPageSql(), $acct->GetStart(), $acct->GetNum(), $acct->IsAdmin(), $bChinese);
-	if ($bChinese)	EchoParagraph(GetStockMenuLinks());
+	if ($bChinese)	EchoHtmlElement(GetStockMenuLinks());
 }
 
 function GetMetaDescription($bChinese = true)

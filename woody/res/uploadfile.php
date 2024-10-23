@@ -1,6 +1,6 @@
 <?php
 require('php/_uploadfile.php');
 
-   	$acct = new _AdminUploadFileAccount();
-	$acct->AdminRun();
+   	$acct = new _UploadFileAccount();
+	$acct->Run();
 ?>

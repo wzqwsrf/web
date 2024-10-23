@@ -1,4 +1,6 @@
 <?php
+require_once('url.php');
+
 define('DEBUG_TIME_ZONE', 'PRC');
 
 define('SECONDS_IN_MIN', 60);
@@ -137,7 +139,7 @@ function DebugGetFile()
 function DebugIsAdmin()
 {
    	global $acct;
-	if (method_exists($acct, 'IsAdmin'))
+	if ($acct && method_exists($acct, 'IsAdmin'))
 	{
 		return $acct->IsAdmin();
 	}

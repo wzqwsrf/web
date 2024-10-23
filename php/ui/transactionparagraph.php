@@ -9,7 +9,8 @@ function _echoTransactionTableItem($ref, $record, $bReadOnly, $bAdmin)
     
     $ar = array($strDate, $strSymbol, $strQuantity);
     $strPrice = $record['price'];
-    $ar[] = $ref->GetPriceDisplay($strPrice);
+//    $ar[] = $ref->GetPriceDisplay($strPrice);
+    $ar[] = strval_round($strPrice, 4);
     $ar[] = strval_round(floatval($record['fees']), 2);
 
     $strId = $record['id'];
