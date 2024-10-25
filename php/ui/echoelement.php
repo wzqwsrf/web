@@ -1,13 +1,17 @@
 <?php
 require_once('htmlelement.php');
 
-function EchoHtmlElement($strContent, $strTag = 'p', $arAttribute = false)
+function EchoNewLine($str)
 {
-	$str = GetHtmlElement($strContent, $strTag, $arAttribute);
     echo <<<END
 
-	$str
+    $str
 END;
+}
+
+function EchoHtmlElement($strContent, $strTag = 'p', $arAttribute = false)
+{
+	EchoNewLine(GetHtmlElement($strContent, $strTag, $arAttribute));
 }
 
 function EchoTitle($strTitle)
@@ -20,24 +24,35 @@ function EchoHeading($strHeading)
 	EchoHtmlElement($strHeading, 'h1');
 }
 
-function EchoDocType()
+function EchoNobody()
 {
-	echo '<!DOCTYPE html>';
-}
+	$bChinese = UrlIsEnglish() ? false : true;
+	$strLang = $bChinese ? 'zh-Hans' : 'en';
+	
+    echo <<<END
+<!DOCTYPE html>
+<html lang="$strLang">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+END;
 
-function EchoCharset()
-{
-	echo '<meta http-equiv="content-type" content="text/html; charset=UTF-8">';
+	EchoHead($bChinese);
+	
+    echo <<<END2
+
+</head>
+
+END2;
 }
 
 function EchoCSS()
 {
-	echo '<link href="/common/style.css" rel="stylesheet" type="text/css" />';
+	EchoNewLine('<link href="/common/style.css" rel="stylesheet" type="text/css" />');
 }
 
 function EchoViewPort()
 {
-	echo '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
+	EchoNewLine('<meta name="viewport" content="width=device-width, initial-scale=1.0">');
 }
 
 ?>

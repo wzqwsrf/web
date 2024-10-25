@@ -4,37 +4,26 @@ require_once('../php/ui/echoelement.php');
 
 define('DISP_TITLE', '429 Too Many Requests');
 
-function GetRetryAfter()
+function EchoHead($bChinese = true)
 {
-	return 'Retry-After: '.strval(SECONDS_IN_DAY);
-}
-
-function EchoHead()
-{
-	EchoCharset();
 	EchoTitle(DISP_TITLE);
 //	EchoViewPort();
 //	EchoCSS();
 }
 
-function EchoBody()
-{
-	EchoHeading(DISP_TITLE);
-	EchoHtmlElement(GetRetryAfter());
-}
-
 	$acct = false;
+	$strRetry = 'Retry-After: '.strval(SECONDS_IN_DAY);
+	
 	http_response_code(429);
-	header(GetRetryAfter());
+	header($strRetry);
 
-	EchoDocType();
-?>
+	EchoNobody();
+	echo '<body>';
+	EchoHeading(DISP_TITLE);
+	EchoHtmlElement($strRetry);
+    echo <<<END
 
-<html lang="en">
-<head>
-<?php EchoHead(); ?>
-</head>
-<body>
-<?php EchoBody(); ?>
 </body>
 </html>
+END;
+?>

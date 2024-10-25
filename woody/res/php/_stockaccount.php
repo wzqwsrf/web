@@ -111,7 +111,7 @@ class StockAccount extends TitleAccount
     function EchoLinks($strVer = false, $callback = false)
     {
     	$strNewLine = GetBreakElement();
-    	$strWeixinPay = GetHtmlElement(GetWeixinPay(($this->GetPage() == 'autotractor') ? 2 : 0));
+    	$strWechatPay = GetHtmlElement(GetWechatPay(($this->GetPage() == 'autotractor') ? 2 : 0));
     	$bAdmin = $this->IsAdmin();
     	
     	$str = GetStockMenuLinks().$strNewLine.GetAllLofLink().' '.GetAhCompareLink().' '.GetAutoTractorLink().' '.GetAccountToolLink('simpletest').' '.GetDevLink('entertainment/20150818cn.php'.($strVer ? '#'.$strVer : '')).$strNewLine;
@@ -120,7 +120,7 @@ class StockAccount extends TitleAccount
     		$str .= GetMyPortfolioLink().$this->_getPersonalLinks($strLoginId);
     		if ($bAdmin)
     		{
-    			$strWeixinPay = '';
+    			$strWechatPay = GetEmptyElement();
 				$strMemberId = $this->GetMemberId();
     			if (method_exists($this, 'GetGroupId'))
     			{
@@ -144,7 +144,7 @@ class StockAccount extends TitleAccount
 			
 	$strHead
 	$str
-	$strWeixinPay
+	$strWechatPay
 END;
     }
     

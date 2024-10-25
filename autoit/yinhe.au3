@@ -306,7 +306,7 @@ Func AppClose($hWnd, $idDebug)
 EndFunc
 
 Func _addSymbolSpecialKey($idDebug, $strSymbol)
-	If $strSymbol == '160216' Or $strSymbol == '160416' Or $strSymbol == '160717' Or $strSymbol == '161116'  Or $strSymbol == '161125' Or $strSymbol == '161126' Or $strSymbol == '161127' Or $strSymbol == '161128' Or $strSymbol == '161226' Or $strSymbol == '163208' Or $strSymbol == '164824' Or $strSymbol == '164906' Then
+	If $strSymbol == '160216' Or $strSymbol == '160416' Or $strSymbol == '160717' Or $strSymbol == '161116'  Or $strSymbol == '161125' Or $strSymbol == '161126' Or $strSymbol == '161127' Or $strSymbol == '161128' Or $strSymbol == '161130' Or $strSymbol == '161226' Or $strSymbol == '163208' Or $strSymbol == '164824' Or $strSymbol == '164906' Then
 		_DlgClickButton($idDebug, '请选择', '深圳股票')
 	EndIf
 EndFunc
@@ -477,13 +477,15 @@ Func _getFundAmount($strSymbol)
 		Case '161116'
 			$strAmount = '100'
 		Case '161125'
-			$strAmount = '100'
+			$strAmount = '300'
 		Case '161126'
 			$strAmount = '300'
 		Case '161127'
 			$strAmount = '300'
 		Case '161128'
-			$strAmount = '100'
+			$strAmount = '300'
+		Case '161130'
+			$strAmount = '300'
 		Case '161226'
 			$strAmount = '50000'
 		Case '162411'
@@ -1068,7 +1070,7 @@ Func AppMain()
 
 	$idLabelSymbol = GUICtrlCreateLabel("基金代码", 192, 24, 52, 17)
 	$idListSymbol = GUICtrlCreateList("", 192, 48, 121, 97)
-	GUICtrlSetData(-1, '160216|160416|160717|161116|161125|161126|161127|161128|161226|162411|163208|164824|164906|501225|510300', _getProfileString('Symbol', '161116'))
+	GUICtrlSetData(-1, '160216|160416|160717|161116|161125|161126|161127|161128|161130|161226|162411|163208|164824|164906|501225|510300', _getProfileString('Symbol', '161128'))
 
 	$idLabelSellPrice = GUICtrlCreateLabel("卖出价格", 192, 160, 52, 17)
 	$idInputSellPrice = GUICtrlCreateInput("", 192, 184, 121, 21)
@@ -1087,9 +1089,9 @@ Func AppMain()
 
 	$GroupSoftware = GUICtrlCreateGroup("软件", 336, 400, 225, 81)
 	$iSoftware = 0
-	$RadioYinhe = GUICtrlCreateRadio("银河证券海王星单独委托版3.16", 352, 424, 193, 17)
+	$RadioYinhe = GUICtrlCreateRadio("银河证券海王星单独委托版3.20", 352, 424, 193, 17)
 	GUICtrlSetState(-1, _getRadioState($RadioYinhe, $iSoftware, 'Yinhe', $GUI_CHECKED))
-	$RadioHuabao = GUICtrlCreateRadio("华宝证券通达信版独立交易8.19", 352, 448, 193, 17)
+	$RadioHuabao = GUICtrlCreateRadio("华宝证券通达信版独立交易8.21", 352, 448, 193, 17)
 	GUICtrlSetState(-1, _getRadioState($RadioHuabao, $iSoftware, 'Huabao', $GUI_UNCHECKED))
 	GUICtrlCreateGroup("", -99, -99, 1, 1)
 	$iMax = _onRadioSoftware($iSoftware, $RadioYinhe, $RadioHuabao)

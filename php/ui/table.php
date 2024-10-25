@@ -151,6 +151,7 @@ END;
 
 function EchoTableParagraphEnd($str = '')
 {
+	if ($str == '')	$str = '&nbsp;';
     echo <<<END
     	
     		</tbody>

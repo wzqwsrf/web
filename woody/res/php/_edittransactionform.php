@@ -183,6 +183,7 @@ function StockEditTransactionForm($acct, $strSubmit, $strGroupId = false, $strGr
     $strSymbolsList = HtmlGetOption(SqlGetStockGroupItemSymbolArray($item_sql), SqlGetStockSymbol($item_sql->GetStockId($strGroupItemId)));
     $arColumn = GetTransactionTableColumn();
 	echo <<< END
+	
 	<script>
 	    function OnLoad()
 	    {
@@ -265,7 +266,6 @@ function StockEditTransactionForm($acct, $strSubmit, $strGroupId = false, $strGr
 	        }
 	    }
 	</script>
-
 	<form id="transactionForm" name="transactionForm" method="post" action="submittransaction.php{$strPassQuery}">
         <div>
 		<p><SELECT name="symbol" onChange=OnSymbol() size=1> $strSymbolsList </SELECT> 

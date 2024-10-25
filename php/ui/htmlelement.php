@@ -29,6 +29,11 @@ function GetHtmlElement($strContent, $strTag = 'p', $arAttribute = false)
 	return "<$strStart>$strContent</$strTag>";
 }
 
+function GetEmptyElement()
+{
+	return GetHtmlElement('&nbsp;');
+}
+
 function GetLinkElement($strContent, $strPathName, $arExtraAttribute = false)
 {
 	$ar = array('href' => GetDoubleQuotes($strPathName));

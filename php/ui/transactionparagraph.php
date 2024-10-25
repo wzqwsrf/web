@@ -128,6 +128,7 @@ function EchoTransactionParagraph($acct, $strGroupId, $ref = false, $bAll = true
     
     $arColumn = GetTransactionTableColumn();
     echo <<<END
+    
     <p>$str
     <TABLE borderColor=#cccccc cellSpacing=0 width=640 border=1 class="text" id="transaction">
     <tr>

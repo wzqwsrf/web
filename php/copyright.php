@@ -26,8 +26,9 @@ function EchoCopyRight($bMobile, $bChinese)
     echo <<<END
 
 <div id="copyright">
-$str
+	$str
 </div>
+
 END;
 }
 

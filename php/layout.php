@@ -42,7 +42,7 @@ function ResizeJpg($strPathName, $iNewWidth = 300, $iNewHeight = 420)
 }
 
 //	https://ibkr.com/referral/rongrong586
-function GetWeixinPay($iType = 0)
+function GetWechatPay($iType = 0)
 {
 	if ($iType == 0)	$iType = rand(1, 3);
 	switch ($iType)
@@ -62,7 +62,7 @@ function GetWeixinPay($iType = 0)
 		break;
         	
 	case 3:
-		$strPathName = ResizeJpg('/debug/wechat/844b9d9c2aca87df.jpg');
+		$strPathName = ResizeJpg('/debug/wechat/3c91b406966f062c.jpg');
 		$strRemark = '香港保诚保险投保微信群二维码';
 		$strImage = GetImgElement($strPathName, $strRemark);
 		$strText = GetFontElement($strRemark, 'navy');
@@ -125,12 +125,10 @@ function _layoutBanner($bChinese)
 	$strLink = GetLinkElement($strImage, '/index'.($bChinese ? 'cn' : '').'.html');
     
     echo <<<END
-
 <div id="banner">
     <div class="logo">$strLink</div>
     <div class="blue"></div>
 </div>
-
 <script>
 	var width = window.screen.width;
 	var height = window.screen.height;
@@ -152,7 +150,7 @@ function _layoutAboveMenu($iWidth)
 <tr>
 <td width=30 valign=top bgcolor=#66CC66>&nbsp;</td>
 <td width=120 valign=top bgcolor=#66CC66>
-	<div>
+<div>
 END;
 /*    echo <<<END
         <div id="main">
@@ -168,7 +166,7 @@ function _layoutBelowMenu($iWidth)
 	
     echo <<<END
     
-    </div>
+</div>
 </td>
 <td width=30 valign=top bgcolor=#66CC66>&nbsp;</td>
 <td width=50 valign=top bgcolor=#ffffff>&nbsp;</td>
@@ -228,10 +226,10 @@ function LayoutEnd()
 END;
 }
 
-function _echoWeixinPay($iType = 0)
+function _echoWechatPay($iType = 0)
 {
 	LayoutBegin();
-	EchoHtmlElement(GetWeixinPay($iType));
+	EchoHtmlElement(GetWechatPay($iType));
 	LayoutEnd();
 }
 
@@ -241,7 +239,7 @@ function LayoutTail($bChinese = true, $bAdsense = false)
     if ($_SESSION['mobile'])
     {
 		if ($bAdsense)	AdsenseContent();
-   		else				_echoWeixinPay();
+   		else				_echoWechatPay();
     }
     else
     {
@@ -254,15 +252,22 @@ function LayoutTail($bChinese = true, $bAdsense = false)
 <td valign=top>
 END;
     		if ($bAdsense)	AdsenseLeft();
-    		else				_echoWeixinPay();
+    		else				_echoWechatPay();
     	}
     	else
     	{
     		if ($bAdsense)	AdsenseWoodyBlog();
-    		else				_echoWeixinPay();
+    		else				_echoWechatPay();
     	}
+    	echo <<<END2
+
+</td>
+</tr>
+</tbody>
+</table>
+END2;
     	
-        echo '</td></tr></tbody></table>';
+//        echo '</td></tr></tbody></table>';
 //        echo '    </div>';
 //        echo '</div>';
     }

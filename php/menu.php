@@ -40,7 +40,7 @@ function MenuWriteItemLink($iLevel, $strPage, $strType, $strDisplay, $bCheck = f
     {
     	$strLevel .= '../';
     }
-    echo MenuGetLink($strLevel.$strPage.$strType, $strDisplay);
+    EchoNewLine(MenuGetLink($strLevel.$strPage.$strType, $strDisplay));
 }
 
 function MenuWriteLink($strPage, $strType, $strDisplay, $strOutput)
@@ -137,7 +137,7 @@ function MenuTitle($arTitles, $strDir)
 
 function MenuContinueNewLine()
 {
-	EchoHtmlElement('&nbsp;');
+	EchoNewLine(GetEmptyElement());
 }
 
 function MenuBegin()

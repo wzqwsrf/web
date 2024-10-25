@@ -9,8 +9,8 @@ function EchoInsideHead()
 	
     echo <<<END
 
-<link rel="canonical" href="$strCanonical" />
-<link rel="shortcut icon" href="$strFavicon" type="image/x-icon">
+    <link rel="canonical" href="$strCanonical" />
+    <link rel="shortcut icon" href="$strFavicon" type="image/x-icon">
 END;
 
 	if ($_SESSION['mobile'])	EchoViewPort();
@@ -18,14 +18,8 @@ END;
 
 function EchoHead($bChinese = true)
 {
-	EchoCharset();
 	EchoTitle(GetTitle($bChinese));
-	$strMeta = GetMetaDescription($bChinese);
-    echo <<<END
-
-<meta name="description" content="$strMeta">
-END;
-
+	EchoNewLine('<meta name="description" content="'.GetMetaDescription($bChinese).'">');
 	EchoInsideHead();
 	EchoCSS();
 }

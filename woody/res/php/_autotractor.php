@@ -2,7 +2,7 @@
 require_once('_stock.php');
 require_once('../../php/ui/imagedisp.php');
 
-define('YINHE_AU3_VER', '76');
+define('YINHE_AU3_VER', '77');
 
 function EchoAll()
 {
@@ -10,9 +10,9 @@ function EchoAll()
     
     EchoHtmlElement(GetRemarkElement('完整软件安装步骤：'));
     $strNepturnLink = GetExternalLink('https://www.chinastock.com.cn/newsite/online/downloadCenterDetail.html?softName=neptune', '银河证券官网');
-    $strNepturn = GetBoldElement('海王星单独委托版3.16');
+    $strNepturn = GetBoldElement('海王星单独委托版3.20');
     $strHuabaoLink = GetExternalLink('https://www.cnhbstock.com/view/software/software.html?col=0', '华宝证券官网');
-    $strHuabao = GetBoldElement('通达信版独立交易8.19');
+    $strHuabao = GetBoldElement('通达信版独立交易8.21');
     $strAutoIt =  GetBoldElement('AutoIt3.exe');
     $strAutoItFull =  GetBoldElement('C:\Program Files (x86)\AutoIt3\AutoIt3.exe');
     echo GetListElement(array('在'.$strNepturnLink.'下载并在缺省路径C:\中国银河证券海王星独立交易\Tc.exe位置安装'.$strNepturn.'，桌面图标会显示'.GetInfoElement('中国银河证券海王星独立交易').'，注意它不同于'.GetFontElement('海王星金融终端').'软件。VPN下在银河官网下载经常会停留在8M字节不动，要关闭后才能完整下载。',
@@ -31,7 +31,7 @@ function EchoAll()
     EchoHtmlElement($str);
 
     $str = GetRemarkElement('软件开发：');
-    $str .= $strNewLine.'本网站全部源代码都公开放在了全球最大同性交友网站'.GetExternalLink('https://github.com/palmmicro', 'GitHub');
+    $str .= $strNewLine.'本网站全部源代码都公开放在了全球最大同性交友网站'.GetExternalLink('https://github.com/woody152/web/', 'GitHub');
     $str .= '。想自己进一步修改软件的除了上面的.au3文件外，还可能需要去下载制作用户界面时用到的'.GetInfoElement('yinhe.kxf').'和'.GetInfoElement('yinheaccount.kxf').'两个文件。';
     $str .= $strNewLine.GetXueqiuIdLink('2747564710', '磨刀霍霍向猪羊01').'增加了场外申购和场外转托管到场内的'.GetExternalLink('https://github.com/wzqwsrf/web/tree/feature-yufei/autoit', '代码').'，感兴趣的可以自行下载测试。';
     EchoHtmlElement($str);
