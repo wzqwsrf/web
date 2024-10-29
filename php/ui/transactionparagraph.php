@@ -19,7 +19,7 @@ function _echoTransactionTableItem($ref, $record, $bReadOnly, $bAdmin)
    	{
    		if (strlen($strRemark) > 0)
    		{
-			$strRemark = GetOnClickLink(PATH_STOCK.'submittransaction.php?empty='.$strId, '确认清空备注：'.$strRemark.'？', '清空').$strRemark;
+			$strRemark = GetOnClickLink(PATH_STOCK.'submittransaction.php?empty='.$strId, '确认清空'.STOCK_DISP_REMARK.'：'.$strRemark.'？', '清空').$strRemark;
 			if (strpos($strRemark, STOCK_DISP_ORDER) !== false)
 			{
 				$nav_sql = GetNavHistorySql();
@@ -125,23 +125,15 @@ function EchoTransactionParagraph($acct, $strGroupId, $ref = false, $bAll = true
     	$str = StockGetAllTransactionLink($strGroupId, $ref);
         $strMenuLink = '';
     }
-    
-    $arColumn = GetTransactionTableColumn();
-    echo <<<END
-    
-    <p>$str
-    <TABLE borderColor=#cccccc cellSpacing=0 width=640 border=1 class="text" id="transaction">
-    <tr>
-        <td class=c1 width=100 align=center>{$arColumn[0]}</td>
-        <td class=c1 width=80 align=center>{$arColumn[1]}</td>
-        <td class=c1 width=70 align=center>{$arColumn[2]}</td>
-        <td class=c1 width=80 align=center>{$arColumn[3]}</td>
-        <td class=c1 width=60 align=center>{$arColumn[4]}</td>
-        <td class=c1 width=170 align=center>{$arColumn[5]}</td>
-        <td class=c1 width=80 align=center>{$arColumn[6]}</td>
-    </tr>
-END;
 
+	EchoTableParagraphBegin(array(new TableColumnDate(),
+								   new TableColumnSymbol(),
+								   new TableColumnQuantity(),
+								   new TableColumnPrice(),
+								   new TableColumn('费用', 60),
+								   new TableColumnRemark(),
+								   new TableColumn('操作')
+								   ), 'transaction', $str);
     _echoTransactionTableData($sql, $ref, $iStart, $iNum, $acct->IsGroupReadOnly($strGroupId), $acct->IsAdmin());
     EchoTableParagraphEnd($strMenuLink);
 }

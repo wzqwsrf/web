@@ -10,7 +10,7 @@ function _textPriceVolume($ref)
     $strVolume = $ref->GetVolume();
     if (intval($strVolume) > 0)
     {
-        $str .= STOCK_DISP_QUANTITY.':'.$strVolume.'股'.BOT_EOL;
+        $str .= '成交'.STOCK_DISP_QUANTITY.':'.$strVolume.'股'.BOT_EOL;
     }
     return $str;
 }

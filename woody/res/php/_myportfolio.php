@@ -49,9 +49,9 @@ function _transEchoReferenceParagraph($arTrans, $bAdmin)
 function _echoMergeParagraph($arMerge)
 {
 	EchoTableParagraphBegin(array(new TableColumnSymbol(),
-								   new TableColumnTotalShares(),
+								   new TableColumnQuantity(),
 								   new TableColumnTest()
-								   ), 'merge', '合并数量');
+								   ), 'merge', '合并'.GetTableColumnQuantity());
 
 	foreach ($arMerge as $strSymbol => $trans)
 	{
@@ -61,14 +61,12 @@ function _echoMergeParagraph($arMerge)
 			$ar = array();
 		
 			$ref = $trans->GetRef();
-			if ($ref->IsSymbolUS())	$ar[] = GetTradingViewLink($strSymbol);
-			else						$ar[] = RefGetMyStockLink($ref);
-			
+			$ar[] = RefGetMyStockLink($ref);
 			$ar[] = strval($iTotal);
 			switch ($strSymbol)
 			{
 			case 'KWEB':
-				$ar[] = strval($iTotal + 400 - 0);
+				$ar[] = strval($iTotal + 400 - 00);
 				break;
 			}
 			RefEchoTableColumn($ref, $ar);

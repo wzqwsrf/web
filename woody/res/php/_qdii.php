@@ -42,7 +42,6 @@ function EchoAll()
     if ($group = $acct->EchoTransaction()) 
     {
         $acct->EchoMoneyParagraph($group, $cny_ref);
-        $acct->EchoArbitrageParagraph($group);
 	}
 	
     $acct->EchoDebugParagraph();

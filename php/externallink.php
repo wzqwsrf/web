@@ -315,12 +315,6 @@ function GetReferenceRateForexLink($strSymbol)
     return GetExternalLink($strHttp, $strSymbol);
 }
 
-function GetTradingViewLink($strSymbol)
-{
-    $strHttp = 'https://www.tradingview.com/symbols/AMEX-'.$strSymbol.'/';
-    return GetExternalLink($strHttp, $strSymbol);
-}
-
 // http://stockcharts.com/h-sc/ui?s=XOP&p=D&b=5&g=0&id=p39648755011
 function GetStockChartsLink($strSymbol)
 {

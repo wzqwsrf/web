@@ -1,6 +1,5 @@
 <?php
 require_once('_fundgroup.php');
-require_once('../../php/ui/arbitrageparagraph.php');
 require_once('../../php/ui/fundlistparagraph.php');
 
 function TradingUserDefined($strVal = false)
@@ -94,58 +93,6 @@ class QdiiGroupAccount extends FundGroupAccount
         $this->arLeverage = $pair_sql->GetSymbolArray($strEstSymbol);
     }
     
-    function ConvertToEtfTransaction($fund, $fCNY, $etf_convert_trans, $qdii_trans)
-    {
-        $etf_convert_trans->AddTransaction($fund->GetEstQuantity($qdii_trans->iTotalShares), $qdii_trans->fTotalCost / $fCNY);
-    }
-    
-    function ConvertToQdiiTransaction($fund, $fCNY, $qdii_convert_trans, $etf_trans)
-    {
-        $qdii_convert_trans->AddTransaction($fund->GetQdiiQuantity($etf_trans->iTotalShares), $etf_trans->fTotalCost * $fCNY);
-    }
-    
-    function EchoArbitrageParagraph($group)
-    {
-    	$fund = $this->GetRef();
-    	$stock_ref = $fund->GetStockRef();
-    	$est_ref = $fund->GetEstRef();
-    	$cny_ref = $fund->GetCnyRef();
-    	$fCNY = floatval($cny_ref->GetPrice());
-	
-        $qdii_trans = $group->GetStockTransactionCN();
-        $etf_trans = $group->GetStockTransactionNoneCN();
-        $group->OnArbitrage();
-        
-        $strGroupId = $group->GetGroupId();
-        
-        $qdii_convert_trans = new MyStockTransaction($stock_ref, $strGroupId);
-        $qdii_convert_trans->Add($qdii_trans);
-        $this->ConvertToQdiiTransaction($fund, $fCNY, $qdii_convert_trans, $etf_trans);
-        
-        $etf_convert_trans = new MyStockTransaction($est_ref, $strGroupId);
-        $etf_convert_trans->Add($etf_trans);
-        $this->ConvertToEtfTransaction($fund, $fCNY, $etf_convert_trans, $qdii_trans);
-    
-        EchoArbitrageTableBegin();
-		$arbi_trans = $group->arbi_trans;
-        $sym = $arbi_trans->ref;
-        if ($sym->IsSymbolA())
-        {
-            $arbi_convert_trans = new MyStockTransaction($est_ref, $strGroupId);
-            $this->ConvertToEtfTransaction($fund, $fCNY, $arbi_convert_trans, $arbi_trans);
-            EchoArbitrageTableItem2($arbi_trans, $qdii_convert_trans); 
-            EchoArbitrageTableItem2($arbi_convert_trans, $etf_convert_trans); 
-        }
-        else
-        {
-            $arbi_convert_trans = new MyStockTransaction($stock_ref, $strGroupId);
-            $this->ConvertToQdiiTransaction($fund, $fCNY, $arbi_convert_trans, $arbi_trans);
-            EchoArbitrageTableItem2($arbi_convert_trans, $qdii_convert_trans); 
-            EchoArbitrageTableItem2($arbi_trans, $etf_convert_trans); 
-        }
-        EchoTableParagraphEnd();
-    }
-
     function EchoDebugParagraph()
     {
     	if ($this->IsAdmin())

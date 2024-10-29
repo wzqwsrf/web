@@ -2,8 +2,6 @@
 require_once('stocktrans.php');
 require_once('class/multi_currency.php');
 
-// ****************************** StockGroup Class *******************************************************
-
 class StockGroup
 {
     var $multi_amount;
@@ -53,14 +51,11 @@ class MyStockGroup extends StockGroup
 {
     var $arStockTransaction = array();
     
-    var $arbi_trans;
-    var $bCountArbitrage;
-    
     function GetStockTransactionArray()
     {
     	return $this->arStockTransaction;
     }
-    
+/*    
     function GetStockTransactionByStockGroupItemId($strStockGroupItemId)
     {
         foreach ($this->arStockTransaction as $trans)
@@ -78,48 +73,12 @@ class MyStockGroup extends StockGroup
         }
         return false;
     }
-    
+*/    
     function GetStockTransactionBySymbol($strSymbol)
     {
         foreach ($this->arStockTransaction as $trans)
         {
             if ($trans->GetSymbol() == $strSymbol)   return $trans;
-        }
-        return false;
-    }
-    
-    function GetStockTransactionCN()
-    {
-        foreach ($this->arStockTransaction as $trans)
-        {
-            if ($trans->ref->IsSymbolA())     return $trans;
-        }
-        return false;
-    }
-
-    function GetStockTransactionNoneCN()
-    {
-        foreach ($this->arStockTransaction as $trans)
-        {
-            if ($trans->ref->IsSymbolA() == false)     return $trans;
-        }
-        return false;
-    }
-
-    function GetStockTransactionHK()
-    {
-        foreach ($this->arStockTransaction as $trans)
-        {
-            if ($trans->ref->IsSymbolH())     return $trans;
-        }
-        return false;
-    }
-    
-    function GetStockTransactionUS()
-    {
-        foreach ($this->arStockTransaction as $trans)
-        {
-            if ($trans->ref->IsSymbolUS())     return $trans;
         }
         return false;
     }
@@ -134,19 +93,6 @@ class MyStockGroup extends StockGroup
         if ($this->GetStockTransactionBySymbol($strSymbol))  return;
 		$this->_addTransaction(StockGetReference($strSymbol));
     }
-/*        
-    function AddTransaction($strSymbol, $iShares, $fCost)
-    {
-        $this->_checkSymbol($strSymbol);
-        foreach ($this->arStockTransaction as $trans)
-        {
-            if ($trans->GetSymbol() == $strSymbol)
-            {
-                $trans->AddTransaction($iShares, $fCost);
-                break;
-            }
-        }
-    }*/
 
     function SetValue($strSymbol, $iTotalRecords, $iTotalShares, $fTotalCost)
     {
@@ -172,60 +118,11 @@ class MyStockGroup extends StockGroup
         return $iTotal;
     }
     
-    function _checkArbitrage($strSymbol)
-    {
-        if ($this->arbi_trans)
-        {
-            if ($this->arbi_trans->GetSymbol() != $strSymbol)
-            {
-                $this->bCountArbitrage = false;
-            }
-        }
-        else
-        {
-            $trans = $this->GetStockTransactionBySymbol($strSymbol);
-            if ($trans)
-            {
-                $this->arbi_trans = new MyStockTransaction($trans->ref, $this->strGroupId);
-                $this->bCountArbitrage = true;
-            }
-        }
-    }
-    
-    function _onArbitrageTransaction($strSymbol, $record)
-    {
-        $this->_checkArbitrage($strSymbol);
-        if ($this->bCountArbitrage)
-        {
-            AddSqlTransaction($this->arbi_trans, $record);
-            return true;
-        }
-        return false;
-    }
-    
-    function OnArbitrage()
-    {
-		$item_sql = new StockGroupItemSql($this->strGroupId);
-        if ($arGroupItemSymbol = SqlGetStockGroupItemSymbolArray($item_sql))
-        {
-        	if ($result = $item_sql->GetAllStockTransaction()) 
-        	{   
-        		while ($record = mysqli_fetch_assoc($result)) 
-        		{
-        			$strSymbol = $arGroupItemSymbol[$record['groupitem_id']];
-        			if ($this->_onArbitrageTransaction($strSymbol, $record) == false)  break;
-        		}
-        		mysqli_free_result($result);
-        	}
-        }
-    }
-    
     public function __construct($strGroupId, $arRef) 
     {
         parent::__construct();
         
         $this->strGroupId = $strGroupId;
-        $this->arbi_trans = false;
         foreach ($arRef as $ref)
         {
             $this->_addTransaction($ref);
@@ -245,6 +142,5 @@ class MyStockGroup extends StockGroup
         }
     }
 }
-
 
 ?>

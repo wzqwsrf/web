@@ -6,7 +6,7 @@ function _getPortfolioTestVal($iShares, $strSymbol)
 	switch ($strSymbol)
     {
     case 'KWEB':
-		$iQuantity = 1329;
+		$iQuantity = 1129;
 		break;
 		
     case 'SH600104':
@@ -131,7 +131,7 @@ function EchoPortfolioParagraph($arTrans)
 	EchoTableParagraphBegin(array(new TableColumnSymbol(),
 								   $profit_col,
 								   new TableColumnHolding(),
-								   new TableColumnTotalShares(),
+								   new TableColumnQuantity(),
 								   new TableColumnPrice('平均'),
 								   new TableColumnChange(),
 								   new TableColumnTest()

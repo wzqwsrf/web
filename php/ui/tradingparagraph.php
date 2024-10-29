@@ -5,17 +5,9 @@ define('TRADING_QUOTE_NUM', 5);
 
 function _getTradingTableColumn()
 {
-	return array(new TableColumn('交易', 60),
+	return array(new TableColumn('交易', 50),
 				  new TableColumnPrice(),
-				  new TableColumn('数量(手)', 100));
-}
-
-function _getTradingNumber($strNumber)
-{
-	if ($strNumber == '')	return '';
-	
-    $fNum = (floatval($strNumber) + 50) / 100.0;
-    return strval(intval($fNum));
+				  new TableColumnQuantity());
 }
 
 function _echoTradingTableItem($strColor, $strAskBid, $strPrice, $strQuantity, $ref, $strEstPrice, $strEstPrice2, $strEstPrice3, $callback)
@@ -24,7 +16,7 @@ function _echoTradingTableItem($strColor, $strAskBid, $strPrice, $strQuantity, $
 	
     $ar = array($strAskBid);
     $ar[] = $ref->GetPriceDisplay($strPrice, $ref->GetPrevPrice());
-    $ar[] = _getTradingNumber($strQuantity);
+    $ar[] = $strQuantity;
     
 	if ($strEstPrice)		$ar[] = $ref->GetPercentageDisplay($strEstPrice, $strPrice);
 	if ($strEstPrice2)	$ar[] = $ref->GetPercentageDisplay($strEstPrice2, $strPrice);
