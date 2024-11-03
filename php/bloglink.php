@@ -44,7 +44,7 @@ function GetBlogLink($iDate, $bChinese = true, $bLink = true)
 		
 	case 20161014:
 		$strMenu = 'palmmicro';
-		$strDisplay = $bChinese ? '微信公众号' : 'WeChat Public Account';
+		$strDisplay = GetWechatDisplay($bChinese).($bChinese ? '公众号' : 'Public Account');
 		break;
 		
 	case 20150818:

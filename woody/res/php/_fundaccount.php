@@ -24,15 +24,20 @@ function _getFundAmount($strSymbol, $strDate)
 		break;
 		
    	case 'SZ161116':
-	case 'SZ161125':
-	case 'SZ161128':
 	case 'SZ164824':
 		$iAmount = 100;
 		break;
 		
 	case 'SZ161126':
 	case 'SZ161127':
+	case 'SZ161130':
 		$iAmount = 300;
+		break;
+		
+	case 'SZ161125':
+	case 'SZ161128':
+		if ($iTick >= strtotime('2024-10-25'))			$iAmount = 300;
+		else												$iAmount = 100;
 		break;
 		
 	case 'SZ162411':

@@ -206,9 +206,21 @@ function RefGetPosition($ref)
 	return $ref->GetDefaultPosition();  
 }
 
-function FundGetArbitrage($strStockId)
+function RefGetPeerVal($ref, $strQdii)
 {
-	$sql = new FundArbitrageSql();
+	$cny_ref = $ref->GetCnyRef();
+    $strStockId = $ref->GetStockId();
+    $calibration_sql = new CalibrationSql();
+    $strDate = $calibration_sql->GetDateNow($strStockId);
+    		
+    $fVal = FundReverseAdjustPosition(RefGetPosition($ref), floatval($strQdii), floatval(SqlGetNavByDate($strStockId, $strDate)));
+    $fEst = QdiiGetPeerVal($fVal, floatval($cny_ref->GetPrice()), floatval($calibration_sql->GetCloseNow($strStockId)));
+    return strval_round($fEst, 4);
+}
+
+function FundGetHedgeVal($strStockId)
+{
+	$sql = new FundHedgeValSql();
    	return $sql->ReadInt($strStockId);
 }
 
@@ -226,7 +238,8 @@ function _getAllSymbolArray($strSymbol)
     {
         if (in_arrayQdiiMix($strSymbol))
         {
-        	if ($strSymbol == 'SZ164906')		$ar[] = 'KWEB';
+        	if ($strSymbol == 'SZ164906')				$ar[] = 'KWEB';
+			else if ($strSymbol == 'SH501225')		$ar[] = 'SMH';
         	$ar = array_merge($ar, SqlGetHoldingsSymbolArray($strSymbol));
         }
         else if (in_arrayQdii($strSymbol))

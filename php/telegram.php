@@ -1,9 +1,10 @@
 <?php
 require('_tgprivate.php');
 require_once('stockbot.php');
+require_once('stockdataarray.php');
 
 // 电报公共模板, 返回输入信息
-define('TG_DEBUG_VER', '版本019');		
+define('TG_DEBUG_VER', '版本025');		
 
 define('BOT_EOL', "\r\n");
 define('MAX_BOT_MSG_LEN', 2048);
@@ -42,14 +43,14 @@ class TelegramCallback
 		return true;
 	}
 
-	function ReplyText($strText, $strMessageId, $strChatId) 
+	function ReplyText($text, $strMessageId, $strChatId) 
 	{
-		$this->DirectReply('sendMessage', array('chat_id' => $strChatId, 'reply_to_message_id' => $strMessageId, 'text' => $strText));
+		$this->DirectReply('sendMessage', array('chat_id' => $strChatId, 'reply_to_message_id' => $strMessageId, 'text' => $text));
 	}
 	
-	function _sendText($strText, $chat_id) 
+	function _sendText($strText, $strChatId) 
 	{
-        url_get_contents(TG_API_URL.'sendMessage?text='.urlencode($strText).'&chat_id='.$chat_id);        //valid signature , option
+        url_get_contents(TG_API_URL.'sendMessage?text='.urlencode($strText).'&chat_id='.$strChatId);        //valid signature , option
 	}
 
 	function Debug($strDebug)
@@ -58,33 +59,36 @@ class TelegramCallback
 //		$this->_sendText($strDebug, TG_CAST_CHAT_ID);
 	}
 	
-    function OnText($strText, $strMessageId, $strChatId)
+    public function OnText($strText, $strMessageId, $strChatId)
     {
 		$this->_sendText($strText, $strChatId);
     }
 
 	function _processMessage($message) 
-	{
-		// process incoming message
-		$message_id = $message['message_id'];
-		$chat_id = $message['chat']['id'];
+	{	// process incoming message
+		$strMessageId = $message['message_id'];
+		$strChatId = $message['chat']['id'];
 		if (isset($message['text'])) 
 		{	// incoming text message
 			$text = $message['text'];
-			if (str_starts_with($text, '/'))
+			if (str_starts_with($text, '@'))
+			{	// Non-telegram message
+				$this->ReplyText(GetStockDataArray(ltrim($text, '@')), $strMessageId, $strChatId);
+			}
+			else if (str_starts_with($text, '/'))
 			{
 				$strCmd = trim(ltrim($text, '/'));
 				switch ($strCmd)
 				{
 				case 'start':
-//					apiRequestJson("sendMessage", array('chat_id' => $chat_id, "text" => 'Hello', 'reply_markup' => array('keyboard' => array(array('Hello', 'Hi')), 'one_time_keyboard' => true, 'resize_keyboard' => true)));
+//					apiRequestJson("sendMessage", array('chat_id' => $strChatId, "text" => 'Hello', 'reply_markup' => array('keyboard' => array(array('Hello', 'Hi')), 'one_time_keyboard' => true, 'resize_keyboard' => true)));
 					break;
 				
 				case 'stop':	// stop now
 					break;
 					
 				default:
-					$this->OnText($strCmd, $message_id, $chat_id);
+					$this->OnText($strCmd, $strMessageId, $strChatId);
 					break;
 				}
 			} 
@@ -92,13 +96,13 @@ class TelegramCallback
 			{
 //				$name = $message['from']['first_name'];
 //				$strText = $text.' '.$name;
-				$this->OnText($text, $message_id, $chat_id);
+				$this->OnText($text, $strMessageId, $strChatId);
 			}
 		}
 		else 
 		{
-//			apiRequest("sendMessage", array('chat_id' => $chat_id, "text" => 'I understand only text messages'));
-//			$this->_sendText('只能回复文本消息', $chat_id);
+//			apiRequest("sendMessage", array('chat_id' => $strChatId, "text" => 'I understand only text messages'));
+//			$this->_sendText('只能回复文本消息', $strChatId);
 		}
 	}		
 
@@ -123,7 +127,7 @@ class TelegramStock extends TelegramCallback
     	SqlConnectDatabase();
     }
 
-    function OnText($strText, $strMessageId, $strChatId)
+    public function OnText($strText, $strMessageId, $strChatId)
     {
     	$strVersion = $this->GetVersion();
         if ($str = StockBotGetStr($strText, $strVersion))

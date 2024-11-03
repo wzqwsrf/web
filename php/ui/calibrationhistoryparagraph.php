@@ -5,14 +5,14 @@ function _echoCalibrationHistoryItem($fPosition, $nav_sql, $strStockId, $record,
 {
 	$fCalibration = floatval($record['close']);
 	$strDate = $record['date'];
-	$ar = array($strDate, strval_round($fCalibration, 4), $record['time']);
+	$ar = array($strDate, strval_round($fCalibration, 4), GetHM($record['time']));
 
 	if ($fPosition)
 	{
 		$ar[] = $nav_sql->GetClose($strStockId, $strDate);
-		$strArbitrage = strval(round($fCalibration / $fPosition));
-		if ($bAdmin)	$strArbitrage = GetOnClickLink('/php/_submitoperation.php?stockid='.$strStockId.'&fundarbitrage='.$strArbitrage, "确认使用{$strArbitrage}作为参考对冲值？", $strArbitrage);
-		$ar[] = $strArbitrage;
+		$strHedge = strval(round($fCalibration / $fPosition));
+		if ($bAdmin)	$strHedge = GetOnClickLink('/php/_submitoperation.php?stockid='.$strStockId.'&fundhedgeval='.$strHedge, "确认使用{$strHedge}作为参考对冲值？", $strHedge);
+		$ar[] = $strHedge;
 	}
 
 	EchoTableColumn($ar);

@@ -118,8 +118,8 @@ function _getFundPositionStr($ref)
 {
 	$str = '';
 	$fPosition = RefGetPosition($ref);
-	if ($fPosition < 1.0)		$str .= GetFundPositionLink($ref->GetSymbol()).'值使用'.strval($fPosition).'。';
-	if ($strArbitrage = FundGetArbitrage($ref->GetStockId()))		$str .= '建议'.GetTableColumnConvert().$strArbitrage.'。';
+	if ($fPosition < 1.0)										$str .= GetFundPositionLink($ref->GetSymbol()).'值使用'.strval($fPosition).'。';
+	if ($strHedge = FundGetHedgeVal($ref->GetStockId()))	$str .= '建议'.GetTableColumnConvert().$strHedge.'。';
 	return $str;
 }
 

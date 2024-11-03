@@ -32,11 +32,11 @@ class IntSql extends ValSql
     }
 }
 
-class FundArbitrageSql extends IntSql
+class FundHedgeValSql extends IntSql
 {
     public function __construct()
     {
-        parent::__construct('fundarbitrage');
+        parent::__construct('fundhedgeval');
     }
 }
 

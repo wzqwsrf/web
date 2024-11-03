@@ -6,10 +6,10 @@ class _AdminOperationAccount extends Account
 {
     public function AdminProcess()
     {
-    	if ($strArbitrage = UrlGetQueryValue('fundarbitrage'))
+    	if ($strHedge = UrlGetQueryValue('fundhedgeval'))
     	{
-    		$sql = new FundArbitrageSql();
-    		$sql->WriteInt(UrlGetQueryValue('stockid'), $strArbitrage);
+    		$sql = new FundHedgeValSql();
+    		$sql->WriteInt(UrlGetQueryValue('stockid'), $strHedge);
     	}
     	else if ($strPosition = UrlGetQueryValue('fundposition'))
     	{

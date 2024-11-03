@@ -1,5 +1,6 @@
 <?php
 require_once('stock.php');
+require_once('sql/sqlbotvisitor.php');
 require_once('ui/stocktext.php');
 
 define('MAX_BOT_STOCK', 32);

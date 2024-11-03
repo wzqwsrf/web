@@ -1,0 +1,6 @@
+print("CB: I'm bored")
+print("P: in fact,you can say you're card-bored")
+print("slap!")
+print("P: ouch!")
+print("CB: that's what you get for making jokes")
+print("P: sorry")

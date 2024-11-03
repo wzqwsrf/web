@@ -2,6 +2,7 @@
 require_once('externalurl.php');
 require_once('stocklink.php');
 require_once('sql/sqlipaddress.php');
+require_once('sql/sqlbotvisitor.php');
 require_once('ui/commentparagraph.php');
 
 function _getIpInfoIpLookUpUrl($strIp)
@@ -106,7 +107,8 @@ class IpLookupAccount extends CommentAccount
     function IpLookupString($strIp, $bChinese)
     {
     	$fStart = microtime(true);
-    	$str = GetVisitorLink($strIp, $bChinese).' '.GetAllVisitorLink($bChinese);
+    	$str = GetVisitorLink($strIp, $bChinese).' '.GetAllVisitorLink(TABLE_VISITOR, $bChinese);
+    	if ($this->IsAdmin())		$str .= ' '.GetAllVisitorLink(TABLE_WECHAT_VISITOR, $bChinese);
     	$str .= '<br />'.GetExternalLink(_getIpInfoIpLookUpUrl($strIp), 'ipinfo.io').': ';
     	if ($arInfo = $this->_ipInfoLookUp($strIp))
     	{

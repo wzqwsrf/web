@@ -61,7 +61,7 @@ class Account
 
 	    $strUri = UrlGetUri();
 	    $this->page_sql = new PageSql();
-   		$this->page_sql->InsertKey($strUri);
+   		$this->page_sql->InsertUri($strUri);
 	    
 	    $this->visitor_sql = new VisitorSql();
 	    $strId = GetIpId($strIp);
@@ -116,7 +116,7 @@ class Account
     
     function GetPageUri($strPageId)
     {
-    	return $this->page_sql->GetPageUri($strPageId);
+    	return $this->page_sql->GetUri($strPageId);
     }
     
     function GetPageId($strPageUri = false)

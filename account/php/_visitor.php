@@ -2,6 +2,7 @@
 require_once('_account.php');
 require_once('../php/iplookup.php');
 require_once('../php/ui/table.php');
+require_once('../php/sql/sqlbotvisitor.php');
 
 define('MAX_VISITOR_CONTENTS', 35);
 function _getVisitorContentsDisplay($strContents)
@@ -14,10 +15,11 @@ function _getVisitorContentsDisplay($strContents)
     return $strContents;
 }
 
-function _echoBlogVisitorData($strId, $visitor_sql, $page_sql, $iStart, $iNum, $bChinese)
+function _echoVisitorData($strId, $visitor_sql, $contents_sql, $iStart, $iNum, $bChinese)
 {
     $arBlogId = array();
     $arId = array();
+    $strType = $contents_sql->GetTableName();
 
     if ($result = $visitor_sql->GetDataBySrc($strId, $iStart, $iNum)) 
     {
@@ -28,10 +30,17 @@ function _echoBlogVisitorData($strId, $visitor_sql, $page_sql, $iStart, $iNum, $
 			$ar = array($record['date'], GetHM($record['time']));
 
 			$strDstId = $record[$strDstIndex];
-			$strUri = $page_sql->GetPageUri($strDstId);
-            $strUriLink = ltrim($strUri, '/');
-            $strUriLink = _getVisitorContentsDisplay($strUriLink);
-			$ar[] = SelectColumnItem($strUriLink, GetInternalLink($strUri, $strUriLink), $strDstId, $arBlogId);
+			if ($strType == TABLE_BOT_MSG)
+			{
+				$ar[] = _getVisitorContentsDisplay($contents_sql->GetText($strDstId));
+			}
+			else
+			{
+				$strUri = $contents_sql->GetUri($strDstId);
+				$strUriLink = ltrim($strUri, '/');
+				$strUriLink = _getVisitorContentsDisplay($strUriLink);
+				$ar[] = SelectColumnItem($strUriLink, GetInternalLink($strUri, $strUriLink), $strDstId, $arBlogId);
+			}
             
             if ($strId == false)
             {
@@ -46,9 +55,9 @@ function _echoBlogVisitorData($strId, $visitor_sql, $page_sql, $iStart, $iNum, $
     }
 }
 
-function _echoBlogVisitorParagraph($strIp, $strId, $visitor_sql, $page_sql, $iStart, $iNum, $bAdmin, $bChinese)
+function _echoVisitorParagraph($strIp, $strId, $visitor_sql, $contents_sql, $iStart, $iNum, $bAdmin, $bChinese)
 {
-	$ar = array(new TableColumnDate(false, $bChinese), new TableColumnTime($bChinese), new TableColumn(($bChinese ? '页面' : 'Page'), MAX_VISITOR_CONTENTS * 10));
+	$ar = array(new TableColumnDate(false, $bChinese), new TableColumnTime($bChinese), new TableColumn(($bChinese ? '内容' : 'Contents'), MAX_VISITOR_CONTENTS * 10));
     
 	$str = ' ';
     if ($strIp)
@@ -74,8 +83,8 @@ function _echoBlogVisitorParagraph($strIp, $strId, $visitor_sql, $page_sql, $iSt
     
     $strMenuLink = GetMenuLink($strQuery, $iTotal, $iStart, $iNum, $bChinese);
 
-	EchoTableParagraphBegin($ar, TABLE_VISITOR, $strMenuLink.$str);
-    _echoBlogVisitorData($strId, $visitor_sql, $page_sql, $iStart, $iNum, $bChinese);
+	EchoTableParagraphBegin($ar, $visitor_sql->GetTableName(), $strMenuLink.$str);
+    _echoVisitorData($strId, $visitor_sql, $contents_sql, $iStart, $iNum, $bChinese);
     EchoTableParagraphEnd($strMenuLink);
 }
 
@@ -90,6 +99,16 @@ function EchoAll($bChinese = true)
 	}
 
     $visitor_sql = $acct->GetVisitorSql();
+    $contents_sql = $acct->GetPageSql();
+	if ($strType = UrlGetQueryValue('type'))
+	{
+		if ($strType == TABLE_WECHAT_VISITOR)	
+		{
+			$visitor_sql = new BotVisitorSql();
+			$contents_sql = new BotMsgSql();
+		}
+	}
+	
     if ($strIp)
     {
         $str = $acct->IpLookupString($strIp, $bChinese);
@@ -105,26 +124,45 @@ function EchoAll($bChinese = true)
     }
     EchoHtmlElement($str);
     
-    _echoBlogVisitorParagraph($strIp, $strId, $visitor_sql, $acct->GetPageSql(), $acct->GetStart(), $acct->GetNum(), $acct->IsAdmin(), $bChinese);
-	if ($bChinese)	EchoHtmlElement(GetStockMenuLinks());
-}
-
-function GetMetaDescription($bChinese = true)
-{
-    if ($bChinese)
-    {
-    	$str = '用户访问数据页面. 用于观察IP攻击的异常状况, 用户登录后会自动清除该IP之前的记录. 具体的用户统计工作还是由Google Analytics和Google Adsense完成.';
-    }
-    else
-    {
-    	$str = 'Visitor data page used to view IP attacks. The detailed user information is still using Google Analytics and Google Adsense.';
-    }
-    return CheckMetaDescription($str);
+    _echoVisitorParagraph($strIp, $strId, $visitor_sql, $contents_sql, $acct->GetStart(), $acct->GetNum(), $acct->IsAdmin(), $bChinese);
+    
+	$str = GetAccountToolLinks($bChinese);
+	if ($bChinese)	$str .= GetBreakElement().GetStockMenuLinks();
+	EchoHtmlElement($str);
 }
 
 function GetTitle($bChinese = true)
 {
-	return $bChinese ? '用户访问数据' : 'Visitor Data';
+    global $acct;
+    
+	$str = '';
+	if ($strType = UrlGetQueryValue('type'))
+	{
+		if ($strType == TABLE_WECHAT_VISITOR)		$str .= GetWechatDisplay($bChinese);
+	}
+	
+	if ($strIp = $acct->GetQuery())
+	{
+		$str .= $strIp;
+		if (!$bChinese)	$str .= ' ';
+	}
+
+	$str .= $bChinese ? '用户访问数据' : 'Visitor Data';
+	return $str;
+}
+
+function GetMetaDescription($bChinese = true)
+{
+	$str = GetTitle($bChinese);
+    if ($bChinese)
+    {
+    	$str .= '页面。用于观察IP攻击的异常状况，用户登录后会自动清除该IP之前的记录，具体的用户统计工作还是由Google Analytics和Google Adsense完成。';
+    }
+    else
+    {
+    	$str .= ' page used to view IP attacks. The detailed user information is still using Google Analytics and Google Adsense.';
+    }
+    return CheckMetaDescription($str);
 }
 
    	$acct = new IpLookupAccount('ip', true);	// Auth to  restrict robot ip lookup

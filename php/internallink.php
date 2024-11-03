@@ -119,9 +119,21 @@ function GetVisitorLink($strIp, $bChinese = true)
 	return _getIpLink(TABLE_VISITOR, $strIp, $bChinese);
 }
 
-function GetAllVisitorLink($bChinese = true)
+function GetWechatDisplay($bChinese = true)
 {
-	return GetPhpLink(PATH_ACCOUNT.TABLE_VISITOR, false, ($bChinese ? '访问统计' : 'Visitor'), $bChinese);
+	return $bChinese ? '微信' : 'Wechat ';
+}
+
+function GetAllVisitorLink($strType = TABLE_VISITOR, $bChinese = true)
+{
+	$strQuery = false;
+	$strDisplay = '';
+	if ($strType == TABLE_WECHAT_VISITOR)
+	{
+		$strQuery = 'type='.TABLE_WECHAT_VISITOR;
+		$strDisplay = GetWechatDisplay($bChinese);
+	}
+	return GetPhpLink(PATH_ACCOUNT.TABLE_VISITOR, $strQuery, $strDisplay.($bChinese ? '访问统计' : 'Visitor'), $bChinese);
 }
 
 function GetAllCommentLink($strQuery, $bChinese = true)

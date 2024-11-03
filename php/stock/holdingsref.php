@@ -53,7 +53,7 @@ class HoldingsReference extends MyStockReference
     	return $this->nav_ref;
     }
     
-    function GetUscnyRef()
+    function GetCnyRef()
     {
     	return $this->uscny_ref;
     }

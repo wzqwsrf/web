@@ -75,7 +75,7 @@ class _QdiiMixAccount extends FundGroupAccount
 			if ($strHoldingsDate != $date_sql->ReadDate($strUsId))		$bUpdated = CopyHoldings($date_sql, $strUsId, $strStockId);
 			if ($strUsNav = $nav_sql->GetClose($strUsId, $strNavDate))
 			{
-				$uscny_ref = $ref->GetUscnyRef();
+				$uscny_ref = $ref->GetCnyRef();
 				$fFactor = QdiiGetCalibration($strUsNav, $nav_sql->GetClose($uscny_ref->GetStockId(), $strNavDate), $nav_sql->GetClose($strStockId, $strNavDate));
 				$calibration_sql = new CalibrationSql();
 				$calibration_sql->WriteDaily($strStockId, $strNavDate, strval($fFactor));
@@ -120,7 +120,7 @@ function _callbackQdiiMixSma($ref, $strEst = false)
 {
 	if ($strEst)
 	{
-		$uscny_ref = $ref->GetUscnyRef();
+		$uscny_ref = $ref->GetCnyRef();
 		$strStockId = $ref->GetStockId();
 		$calibration_sql = new CalibrationSql();
 		$strDate = $calibration_sql->GetDateNow($strStockId);
@@ -142,15 +142,16 @@ function _callbackQdiiMixTrading($strVal = false)
     	if ($strVal == '0')	return '';
     	else
     	{
-    		$ref = $acct->GetRef();
-    		$uscny_ref = $ref->GetUscnyRef();
+/*    		$ref = $acct->GetRef();
+    		$uscny_ref = $ref->GetCnyRef();
     		$strStockId = $ref->GetStockId();
     		$calibration_sql = new CalibrationSql();
     		$strDate = $calibration_sql->GetDateNow($strStockId);
     		
     		$fVal = FundReverseAdjustPosition(RefGetPosition($ref), floatval($strVal), floatval(SqlGetNavByDate($strStockId, $strDate)));
     		$fEst = QdiiGetPeerVal($fVal, floatval($uscny_ref->GetPrice()), floatval($calibration_sql->GetCloseNow($strStockId)));
-    		return $us_ref->GetPriceDisplay(strval($fEst));
+    		return $us_ref->GetPriceDisplay(strval($fEst));*/
+    		return $us_ref->GetPriceDisplay(RefGetPeerVal($acct->GetRef(), $strVal));
     	}
     }
    	return GetTableColumnStock($us_ref).GetTableColumnPrice();
@@ -162,7 +163,7 @@ function EchoAll()
     
     $ref = $acct->GetRef();
     $us_ref = $acct->GetUsRef();
-    $uscny_ref = $ref->GetUscnyRef();
+    $uscny_ref = $ref->GetCnyRef();
     $hkcny_ref = $ref->GetHkcnyRef();
     
 	EchoHoldingsEstParagraph($ref);

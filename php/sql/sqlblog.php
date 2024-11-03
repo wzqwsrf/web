@@ -8,9 +8,14 @@ class PageSql extends KeyNameSql
         parent::__construct(TABLE_PAGE, 'uri');
     }
 
-    function GetPageUri($strPageId)
+    function GetUri($strPageId)
     {
     	return $this->GetKey($strPageId);
+	}
+	
+	function InsertUri($strUri)
+	{
+		return $this->InsertKey($strUri);
 	}
 }
 

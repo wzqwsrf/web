@@ -1,0 +1,81 @@
+<?php
+require_once('sqlkeyname.php');
+require_once('sqlvisitor.php');
+
+define('TABLE_BOT_MSG', 'botmsg');
+define('TABLE_BOT_SRC', 'botsrc');
+define('TABLE_WECHAT_VISITOR', 'wechatvisitor');
+
+class BotMsgSql extends KeyNameSql
+{
+    public function __construct()
+    {
+        parent::__construct(TABLE_BOT_MSG, 'text', 256, true);
+    }
+
+    function GetText($strTextId)
+    {
+    	return $this->GetKey($strTextId);
+	}
+	
+	function InsertText($strText)
+	{
+		return $this->InsertKey($strText);
+	}
+}
+
+class BotSrcSql extends KeyNameSql
+{
+    public function __construct()
+    {
+        parent::__construct(TABLE_BOT_SRC, 'src', 128, true);	// can NOT use 'from' as a SQL field
+    }
+
+    function GetSrc($strSrcId)
+    {
+    	return $this->GetKey($strFromId);
+	}
+
+    function InsertSrc($strSrc)
+    {
+    	return $this->InsertKey($strSrc);
+	}
+}
+
+class BotVisitorSql extends VisitorSql
+{
+	var $strFromKey;
+	
+    public function __construct($strTableName = TABLE_WECHAT_VISITOR)
+    {
+    	$this->strFromKey = $this->Add_id(TABLE_BOT_SRC);
+        parent::__construct($strTableName, TABLE_BOT_MSG);
+    }
+
+    public function Create()
+    {
+    	$str = $this->ComposeIdStr($this->strFromKey).','
+    		 . $this->ComposeForeignStr($this->strFromKey).',';
+    	return $this->CreateVisitorTable($str);
+    }
+    
+    function _addCommentArray(&$ar, $strComment, $strIp = false)
+    {
+    	$ar['comment'] = $strComment;
+    	$ar[$this->strIpKey] = GetIpId($strIp ? $strIp : UrlGetIp());
+    }
+    
+    function InsertBotVisitor($strMsgId, $strIpId, $strFromId, $strDate = false, $strTime = false)
+    {
+    	$ar = $this->MakeVisitorInsertArray($strMsgId, $strIpId, $strDate, $strTime);
+    	$ar[$this->strFromKey] = $strFromId;
+    	return $this->InsertArray($ar);
+    }
+
+    function BuildWhereByFrom($strFromId)
+    {
+    	return _SqlBuildWhere($this->strFromKey, $strFromId);
+    }
+}
+
+?>
