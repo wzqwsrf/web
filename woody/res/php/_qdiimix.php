@@ -142,15 +142,6 @@ function _callbackQdiiMixTrading($strVal = false)
     	if ($strVal == '0')	return '';
     	else
     	{
-/*    		$ref = $acct->GetRef();
-    		$uscny_ref = $ref->GetCnyRef();
-    		$strStockId = $ref->GetStockId();
-    		$calibration_sql = new CalibrationSql();
-    		$strDate = $calibration_sql->GetDateNow($strStockId);
-    		
-    		$fVal = FundReverseAdjustPosition(RefGetPosition($ref), floatval($strVal), floatval(SqlGetNavByDate($strStockId, $strDate)));
-    		$fEst = QdiiGetPeerVal($fVal, floatval($uscny_ref->GetPrice()), floatval($calibration_sql->GetCloseNow($strStockId)));
-    		return $us_ref->GetPriceDisplay(strval($fEst));*/
     		return $us_ref->GetPriceDisplay(RefGetPeerVal($acct->GetRef(), $strVal));
     	}
     }

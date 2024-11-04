@@ -21,7 +21,11 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="palmmicro.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="TWS.py" />
+    <Compile Include="_tgprivate.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
