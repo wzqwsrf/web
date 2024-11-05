@@ -34,7 +34,7 @@ class Palmmicro:
         #print(f"Secret Key: {TG_TOKEN}")
     
     #@staticmethod
-    def fetch_data(self, strSymbols):
+    def FetchData(self, strSymbols):
         arMessage = self.arMsg['message']
         # Get the current time in seconds since the Unix epoch
         arMessage['date'] = int(time.time())
@@ -51,21 +51,22 @@ class Palmmicro:
 
         # Read and print the response content
         response_content = response.read().decode('utf-8')
-        print(response_content)
+        #print(response_content)
 
         # Parse the JSON response and display the chat_id field
         response_data = json.loads(response_content)
         self.arData = response_data['text']
-
-    def get_data(self):
         return self.arData
+
+    def GetTimerInterval(self):
+        return 30 # to fetch data every 30 seconds 
     
-    def arbitrage_sell(self, symbol, bid_price, bid_size):
-        arResult = {'ratio': 0.0}
+    def GetArbitrageResult(self, symbol, price, size, strType):
+        arResult = {'ratio': 1.0}
         arReply = self.arData[symbol]
-        if 'bid_size' in arReply:
-            arResult['ratio'] = bid_price / float(arReply['peer_ask_price'])
-            iSize = min(bid_size, arReply['peer_ask_size'])
+        if strType + '_size' in arReply:
+            arResult['ratio'] = round(price / float(arReply[strType + '_price_hedge']), 4)
+            iSize = min(size, arReply[strType + '_size_hedge'])
             arResult['size'] = iSize;
-            #iPeerSize = 
+            arResult['size_hedge'] = int((iSize * arReply['hedge'] + 50) / 100) * 100
         return arResult

@@ -75,14 +75,13 @@ function _echoVisitorParagraph($strIp, $strId, $visitor_sql, $contents_sql, $iSt
     }
     else
     {
-        $strQuery = false;
+    	$strTableName = $visitor_sql->GetTableName();
+    	$strQuery = ($strTableName == TABLE_VISITOR) ? false : 'type='.$strTableName;
         $iTotal = $visitor_sql->CountData();
-        
     	$ar[] = new TableColumnIP();
     }
     
     $strMenuLink = GetMenuLink($strQuery, $iTotal, $iStart, $iNum, $bChinese);
-
 	EchoTableParagraphBegin($ar, $visitor_sql->GetTableName(), $strMenuLink.$str);
     _echoVisitorData($strId, $visitor_sql, $contents_sql, $iStart, $iNum, $bChinese);
     EchoTableParagraphEnd($strMenuLink);

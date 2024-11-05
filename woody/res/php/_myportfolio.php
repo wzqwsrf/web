@@ -131,7 +131,7 @@ function _echoPortfolio($portfolio, $sql, $strMemberId, $bAdmin)
 		            {
 		                $portfolio->OnStockTransaction($trans);
 		                $ref = $trans->GetRef();
-		                if ($ref->IsSymbolA())	       	$arTransA[] = $trans;
+		                if ($ref->IsSymbolA())			$arTransA[] = $trans;
 		                else if ($ref->IsSymbolH())      	$arTransH[] = $trans;
 		                else			                	$arTransUS[] = $trans;
 		            }

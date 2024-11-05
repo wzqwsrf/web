@@ -7,20 +7,25 @@ from ibapi.order import Order
 
 from palmmicro import Palmmicro
 
-class IBKRWrapper(EWrapper):
+class MyEWrapper(EWrapper):
     def __init__(self, client):
         self.client = client
         self.palmmicro = Palmmicro()
         self.data = {}
-        self.timer_interval = 30  # Timer interval in seconds
+        self.arOrder = {}
 
-        self.arOrderId = {'KWEB': 0, 'XOP': 0}
-        self.arSize = {'KWEB': 200, 'XOP': 100}
-        self.arBuyPrice = {'KWEB': 32.38, 'XOP': 114.65}
-        self.arBuyStatus = {'KWEB': False, 'XOP': True}
-        self.arSellPrice = {'KWEB': 32.4, 'XOP': 160.3}
-        self.arSellStatus = {'KWEB': False, 'XOP': True}
-        self.arBuyNext = {'KWEB': True, 'XOP': True}
+        arKWEB = self.GetDefaultOrderArray()
+        arKWEB['size'] = 200
+        arKWEB['buy_price'] = 32.33
+        arKWEB['sell_price'] = 32.37
+        self.arOrder['KWEB'] = arKWEB
+
+        arXOP = self.GetDefaultOrderArray()
+        arXOP['buy_status'] = True
+        arXOP['buy_price'] = 114.65
+        arXOP['sell_price'] = 160.3
+        self.arOrder['XOP'] = arXOP
+
         self.arContract = {}
         for symbol in ['KWEB', 'XOP']:
             contract = Contract()
@@ -32,12 +37,23 @@ class IBKRWrapper(EWrapper):
             self.arContract[symbol] = contract
 
 
+    def GetDefaultOrderArray(self):
+        ar = {
+            'order_id': -1,
+            'size': 100,
+            'buy_status': False,
+            'buy_price': 0.0,
+            'sell_status': False,
+            'sell_price': 0.0,
+            'buy_next': True
+                  }
+        return ar
+
+
     def nextValidId(self, orderId: int):
         self.iOrderId = orderId
-        self.start()
-
-
-    def start(self):
+        
+        # start market data streaming
         #self.client.reqMarketDataType(3)
         for symbol in ['KWEB', 'XOP']:
             self.client.reqMktData(len(self.data) + 1, self.arContract[symbol], "", False, False, [])
@@ -59,11 +75,10 @@ class IBKRWrapper(EWrapper):
         data = self.data[reqId]
         if tickType == 1:  # Bid price
             data['bid_price'] = price
-            self.bid_price_trade(reqId)
+            self.BidPriceTrade(reqId)
         elif tickType == 2:  # Ask price
             data['ask_price'] = price
-            self.ask_price_trade(reqId)
-        #self.check_price_size(reqId)
+            self.AskPriceTrade(reqId)
 
 
     def tickSize(self, reqId, tickType, size):
@@ -72,91 +87,112 @@ class IBKRWrapper(EWrapper):
             data['bid_size'] = size
         elif tickType == 3:  # Ask size
             data['ask_size'] = size
-        #self.check_price_size(reqId)
+        if self.IsOverNight(reqId):
+            self.CheckPriceAndSize(reqId)
 
 
     def orderStatus(self, orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld, mktCapPrice):
         print("Order Status - OrderId:", orderId, "Status:", status, "Filled:", filled, "Remaining:", remaining, "AvgFillPrice:", avgFillPrice)
         for symbol in ['KWEB', 'XOP']:
-            if self.arOrderId[symbol] == orderId and remaining == 0:
-                if self.arBuyStatus[symbol] == True:
-                    self.arBuyStatus[symbol] = False
-                    self.arBuyNext[symbol] = False
-                elif self.arSellStatus[symbol] == True:
-                    self.arSellStatus[symbol] = False
-                    self.arBuyNext[symbol] = True
+            arOrder = self.arOrder[symbol]
+            if arOrder['order_id'] == orderId and remaining == 0:
+                if arOrder['buy_status'] == True:
+                    arOrder['buy_status'] = False
+                    arOrder['buy_next'] = False
+                elif arOrder['sell_status'] == True:
+                    arOrder['sell_status'] = False
+                    arOrder['buy_next'] = True
 
     
-    def place_order(self, symbol, price, strAction):
+    def PlaceOrder(self, symbol, price, strAction):
+        arOrder = self.arOrder[symbol]
+        contract = self.arContract[symbol]
+
         order = Order()
         order.action = strAction
-        order.totalQuantity = self.arSize[symbol]
+        order.totalQuantity = arOrder['size']
         order.orderType = "LMT"
         order.lmtPrice = price
-        order.outsideRth = True
+        if contract.exchange != "OVERNIGHT":
+            order.outsideRth = True
 
         # Place the order
-        self.client.placeOrder(self.iOrderId, self.arContract[symbol], order)
-        self.arOrderId[symbol] = self.iOrderId
+        self.client.placeOrder(self.iOrderId, contract, order)
+        arOrder['order_id'] = self.iOrderId
         self.iOrderId += 1
 
 
-    def ask_price_trade(self, reqId):
+    def AskPriceTrade(self, reqId):
         data = self.data[reqId]
         symbol = data['symbol']
-        if self.arBuyStatus[symbol] == False and self.arBuyNext[symbol] == True:
-            buy_price = self.arBuyPrice[symbol]
+        arOrder = self.arOrder[symbol]
+        if arOrder['buy_status'] == False and arOrder['buy_next'] == True:
+            buy_price = arOrder['buy_price']
             if data['ask_price'] > buy_price:
-                self.place_order(symbol, buy_price, "BUY")
-                self.arBuyStatus[symbol] = True
+                self.PlaceOrder(symbol, buy_price, "BUY")
+                arOrder['buy_status'] = True
 
 
-    def bid_price_trade(self, reqId):
+    def BidPriceTrade(self, reqId):
         data = self.data[reqId]
         symbol = data['symbol']
-        if self.arSellStatus[symbol] == False and self.arBuyNext[symbol] == False:
-            sell_price = self.arSellPrice[symbol]
+        arOrder = self.arOrder[symbol]
+        if arOrder['sell_status'] == False and arOrder['buy_next'] == False:
+            sell_price = arOrder['sell_price']
             if data['bid_price'] < sell_price:
-                self.place_order(symbol, sell_price, "SELL")
-                self.arSellStatus[symbol] = True
+                self.PlaceOrder(symbol, sell_price, "SELL")
+                arOrder['sell_status'] = True
 
 
-    def check_price_size(self, reqId):
+    def CheckPriceAndSize(self, reqId):
         current_time = int(time.time())
         data = self.data[reqId]
         if all(data[attr] is not None for attr in ['bid_price', 'ask_price', 'bid_size', 'ask_size']):
-             if current_time - data['last_processed_time'] >= self.timer_interval:
-                self.process_price_size(reqId)
+             if current_time - data['last_processed_time'] >= self.palmmicro.GetTimerInterval():
+                self.ProcessPriceAndSize(reqId)
                 data['last_processed_time'] = current_time
 
 
-    def process_price_size(self, reqId):
+    def IsOverNight(self, reqId):
         data = self.data[reqId]
         symbol = data['symbol']
-        print(data)
+        contract = self.arContract[symbol]
+        if contract.exchange == "OVERNIGHT":
+            return True
+        return False
+
+
+    def ProcessPriceAndSize(self, reqId):
+        data = self.data[reqId]
+        symbol = data['symbol']
         bid_price = data['bid_price']
         ask_price = data['ask_price']
-        self.palmmicro.fetch_data('164906,162411')
-        palmmicro_data = self.palmmicro.get_data()
-        reply = palmmicro_data[symbol]
-        #fSell = float(bid_price) / float(reply['peer_ask_price'])
-        arResult = self.palmmicro.arbitrage_sell(symbol, bid_price, data['bid_size'])
-        if arResult['ratio'] > 1.001:
-            print("Sell", symbol, "at", bid_price, "with quantity less than", arResult['size'], "and buy", reply['symbol'], "at", reply['ask_price'], "---", round(arResult['ratio'], 3))
-        fBuy = float(ask_price) / float(reply['peer_bid_price'])
-        if fBuy < 0.999:
-            print("Buy", symbol, "at", ask_price, "with quantity less than", data['ask_size'], "and sell", reply['symbol'], "at", reply['bid_price'], "---", round(fBuy, 3))
+        arPalmmicro = self.palmmicro.FetchData('164906,162411')
+        arReply = arPalmmicro[symbol]
+        arResult = self.palmmicro.GetArbitrageResult(symbol, bid_price, data['bid_size'], "ask")
+        fRatio = arResult['ratio']
+        if fRatio > 1.005:
+            print(data)
+            print(arReply)
+            print(fRatio, "Sell", arResult['size'], symbol, "at", bid_price, "and buy", arResult['size_hedge'], arReply['symbol'], "at", arReply['ask_price'])
+        else:
+            arResult = self.palmmicro.GetArbitrageResult(symbol, ask_price, data['ask_size'], "bid")
+            fRatio = arResult['ratio']
+            if fRatio < 0.999:
+                print(data)
+                print(arReply)
+                print(fRatio, "Buy", arResult['size'], symbol, "at", ask_price, "and sell", arResult['size_hedge'], arReply['symbol'], "at", arReply['bid_price'])
         print()  # Add a line break for better readability
 
 
-class IBKRClient(EClient):
+class MyEClient(EClient):
     def __init__(self, wrapper):
         EClient.__init__(self, wrapper)
         self.wrapper = wrapper
 
 
-app = IBKRClient(IBKRWrapper(None))
-app.wrapper = IBKRWrapper(app)
+app = MyEClient(MyEWrapper(None))
+app.wrapper = MyEWrapper(app)
 app.connect("127.0.0.1", 7497, clientId=0)
 
 time.sleep(1)

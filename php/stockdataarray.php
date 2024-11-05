@@ -55,13 +55,13 @@ function GetStockDataArray($strSymbols)
 				$arData['hedge'] = $iHedge;
 				if ($iAskQuantity)
 				{
-					$arData['peer_ask_price'] = RefGetPeerVal($fund_ref, $strAskPrice);
-					$arData['peer_ask_size'] = _getHedgeQuantity($iHedge, $iAskQuantity);
+					$arData['ask_price_hedge'] = RefGetPeerVal($fund_ref, $strAskPrice);
+					$arData['ask_size_hedge'] = _getHedgeQuantity($iHedge, $iAskQuantity);
 				}
 				if ($iBidQuantity)
 				{
-					$arData['peer_bid_price'] = RefGetPeerVal($fund_ref, $strBidPrice);
-					$arData['peer_bid_size'] = _getHedgeQuantity($iHedge, $iBidQuantity);
+					$arData['bid_price_hedge'] = RefGetPeerVal($fund_ref, $strBidPrice);
+					$arData['bid_size_hedge'] = _getHedgeQuantity($iHedge, $iBidQuantity);
 				}
 			}
 		}
