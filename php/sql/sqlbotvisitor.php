@@ -4,7 +4,8 @@ require_once('sqlvisitor.php');
 
 define('TABLE_BOT_MSG', 'botmsg');
 define('TABLE_BOT_SRC', 'botsrc');
-define('TABLE_WECHAT_VISITOR', 'wechatvisitor');
+define('TABLE_TELEGRAM_BOT', 'telegrambot');
+define('TABLE_WECHAT_BOT', 'wechatbot');
 
 class BotMsgSql extends KeyNameSql
 {
@@ -46,7 +47,7 @@ class BotVisitorSql extends VisitorSql
 {
 	var $strFromKey;
 	
-    public function __construct($strTableName = TABLE_WECHAT_VISITOR)
+    public function __construct($strTableName)
     {
     	$this->strFromKey = $this->Add_id(TABLE_BOT_SRC);
         parent::__construct($strTableName, TABLE_BOT_MSG);

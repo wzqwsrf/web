@@ -10,7 +10,6 @@ function _getStockOptionDate($strSubmit, $ref, $strSymbol)
 	{
 	case STOCK_OPTION_DIVIDEND:
 	case STOCK_OPTION_EMA:
-	case STOCK_OPTION_HOLDINGS:
 	case STOCK_OPTION_SHARE_DIFF:
 	case STOCK_OPTION_SPLIT:
 		if ($strDate = $his_sql->GetDateNow($strStockId))							return $strDate;
@@ -30,8 +29,15 @@ function _getStockOptionDate($strSubmit, $ref, $strSymbol)
 			if ($strDate = $his_sql->GetDateNow($strStockId))							return $strDate;
 		}
 		break;
+
+	case STOCK_OPTION_HOLDINGS:
+		$date_sql = new HoldingsDateSql();
+		if ($strDate = $date_sql->ReadDate($strStockId))							return $strDate;
+		break;
 	}
-	return '';
+
+    $now_ymd = GetNowYMD();
+	return $now_ymd->GetYMD();
 }
 
 function _getStockOptionNewName($ref, $strName)
@@ -195,6 +201,20 @@ function _getStockOptionCalibration($strSymbol, $strDate)
 	return $est_ref ? _getBestEstNav($est_ref, $strDate) : '对方净值';
 }
 
+function _getStockOptionHoldings($strStockId)
+{
+	$sql = GetHoldingsSql();
+	$ar = $sql->GetHoldingsArray($strStockId);
+	if (count($ar) == 0)			return 'STOCK1*10.1;STOCK2*20.2;STOCK3*30.3;STOCK4*39.4';
+
+	$str = '';
+	foreach ($ar as $strStockId => $strRatio)
+	{
+		$str .= SqlGetStockSymbol($strStockId).'*'.rtrim0($strRatio).';';
+	}
+	return rtrim($str, ';');
+}
+
 function _getStockOptionVal($strSubmit, $strLoginId, $ref, $strSymbol, $strDate)
 {
 	$strStockId = $ref->GetStockId();
@@ -231,7 +251,7 @@ function _getStockOptionVal($strSubmit, $strLoginId, $ref, $strSymbol, $strDate)
 		return _getStockOptionHa($strSymbol);
 
 	case STOCK_OPTION_HOLDINGS:
-		return 'STOCK1*10.1;STOCK2*20.2;STOCK3*30.3;STOCK4*39.4';
+		return _getStockOptionHoldings($strStockId);
 
 	case STOCK_OPTION_NAV:
 		return _getStockOptionNav($ref, $strSymbol, $strStockId, $strDate);

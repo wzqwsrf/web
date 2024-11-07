@@ -54,7 +54,7 @@ function _echoHoldingItem($ref, $arRatio, $strDate, $his_sql, $fTotalChange, $fA
 	$ar = array();
 	$ar[] = RefGetMyStockLink($ref);
     $ar[] = strval($fRatio);
-    $ar[] = $strClose;
+    $ar[] = mysql_round($strClose, 2);
     $ar[] = $ref->GetPercentageDisplay($strClose, $strPrice);
     $ar[] = strval_round($fRatio * (1 + $fChange) / $fTotalChange, 2);
     $ar[] = strval_round($fRatio * $fChange, 4);

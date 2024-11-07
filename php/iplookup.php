@@ -108,7 +108,7 @@ class IpLookupAccount extends CommentAccount
     {
     	$fStart = microtime(true);
     	$str = GetVisitorLink($strIp, $bChinese).' '.GetAllVisitorLink(TABLE_VISITOR, $bChinese);
-    	if ($this->IsAdmin())		$str .= ' '.GetAllVisitorLink(TABLE_WECHAT_VISITOR, $bChinese);
+    	if ($this->IsAdmin())		$str .= ' '.GetAllVisitorLink(TABLE_TELEGRAM_BOT, $bChinese).' '.GetAllVisitorLink(TABLE_WECHAT_BOT, $bChinese);
     	$str .= '<br />'.GetExternalLink(_getIpInfoIpLookUpUrl($strIp), 'ipinfo.io').': ';
     	if ($arInfo = $this->_ipInfoLookUp($strIp))
     	{

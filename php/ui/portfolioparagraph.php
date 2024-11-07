@@ -78,6 +78,7 @@ function _getArbitrageTestStr($iShares, $strGroupId, $strStockId, $strSymbol)
 
 function _echoPortfolioTableItem($trans)
 {
+	static $fCny = 0.0;
 	$ar = array();
 	
     $ref = $trans->ref;
@@ -90,7 +91,10 @@ function _echoPortfolioTableItem($trans)
     $iShares = $trans->GetTotalShares();
     if ($iShares != 0)
     {
-        $ar[] = GetNumberDisplay($trans->GetValue());
+    	$fVal = $trans->GetValue();
+    	if (in_arrayQdiiMix($strSymbol) || in_arrayQdii($strSymbol))	$fCny += $fVal * RefGetPosition($ref);
+    	
+        $ar[] = GetNumberDisplay($fVal);
         $ar[] = strval($iShares); 
         $ar[] = $trans->GetAvgCostDisplay();
        	$ar[] = ($trans->GetTotalCost() > 0.0) ? $ref->GetPercentageDisplay(strval($trans->GetAvgCost())) : '';
@@ -118,6 +122,10 @@ function _echoPortfolioTableItem($trans)
 
 		case 'hf_ES':
         	$ar[] = strval($iShares / 5);
+			break;
+			
+		case 'fx_susdcnh':
+			$ar[] = GetNumberDisplay(($fVal + $fCny) / floatval($ref->GetPrice()));
 			break;
    		}
     }

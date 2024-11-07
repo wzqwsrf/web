@@ -8,20 +8,22 @@ from _tgprivate import TG_TOKEN
 class Palmmicro:
     def __init__(self):
         # URL to which you want to send the array
-        self.strUrl = 'https://palmmicro.com/php/telegram.php'
+        self.strUrl = 'https://palmmicro.com/php/telegram.php?token=' + TG_TOKEN
+
+        iChatId = self.GetTelegramChatId()
         self.arMsg = {
             'update_id': 886050244,
             'message': {
                 'message_id': 6620,
                 'from': {
-                    'id': 992671436,
+                    'id': iChatId,
                     'is_bot': False,
                     'first_name': 'ny152',
                     'username': 'sz152',
                     'language_code': 'zh-hans'
                         },
                 'chat': {
-                    'id': 992671436,
+                    'id': iChatId,
                     'first_name': 'ny152',
                     'username': 'sz152',
                     'type': 'private'
@@ -33,6 +35,15 @@ class Palmmicro:
         self.arData = {}
         #print(f"Secret Key: {TG_TOKEN}")
     
+
+    def GetTimerInterval(self):
+        return 15 # to fetch data every 15 seconds 
+    
+    
+    def GetTelegramChatId(self):
+        return 992671436
+
+
     #@staticmethod
     def FetchData(self, strSymbols):
         arMessage = self.arMsg['message']
@@ -55,18 +66,34 @@ class Palmmicro:
 
         # Parse the JSON response and display the chat_id field
         response_data = json.loads(response_content)
+        response.close()
         self.arData = response_data['text']
         return self.arData
 
-    def GetTimerInterval(self):
-        return 30 # to fetch data every 30 seconds 
     
     def GetArbitrageResult(self, symbol, price, size, strType):
         arResult = {'ratio': 1.0}
         arReply = self.arData[symbol]
-        if strType + '_size' in arReply:
+        if price > 0 and strType + '_size' in arReply:
             arResult['ratio'] = round(price / float(arReply[strType + '_price_hedge']), 4)
             iSize = min(size, arReply[strType + '_size_hedge'])
             arResult['size'] = iSize;
             arResult['size_hedge'] = int((iSize * arReply['hedge'] + 50) / 100) * 100
         return arResult
+
+    
+    def SendTelegramMsg(self, strMsg):
+        url = 'https://api.telegram.org/bot' + TG_TOKEN + '/sendMessage?text=' + urllib.parse.quote_plus(strMsg) + '&chat_id=-1001346320717'
+
+        # Send a GET request to the URL
+        response = urllib.request.urlopen(url)
+    
+        # Read the response data
+        data = response.read()
+    
+        # Decode the response data
+        decoded_data = data.decode('utf-8')
+    
+        #print(decoded_data)  # Print the decoded response data
+    
+        response.close()  # Close the response object

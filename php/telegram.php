@@ -4,7 +4,7 @@ require_once('stockbot.php');
 require_once('stockdataarray.php');
 
 // 电报公共模板, 返回输入信息
-define('TG_DEBUG_VER', '版本026');		
+define('TG_DEBUG_VER', '版本028');		
 
 define('BOT_EOL', "\r\n");
 define('MAX_BOT_MSG_LEN', 2048);
@@ -71,33 +71,30 @@ class TelegramCallback
 		if (isset($message['text'])) 
 		{	// incoming text message
 			$text = $message['text'];
+			LogBotVisit(TABLE_TELEGRAM_BOT, $text, $strChatId);
 			if (str_starts_with($text, '@'))
-			{	// Non-telegram message
-				$this->ReplyText(GetStockDataArray(ltrim($text, '@')), $strMessageId, $strChatId);
+			{
+				$text = ltrim($text, '@');
+				if ($strChatId == TG_ADMIN_CHAT_ID && UrlGetQueryValue('token') == TG_TOKEN)	
+				{
+					$this->ReplyText(GetStockDataArray($text), $strMessageId, $strChatId);
+					return;
+				}
 			}
 			else if (str_starts_with($text, '/'))
 			{
-				$strCmd = trim(ltrim($text, '/'));
-				switch ($strCmd)
+				$text = trim(ltrim($text, '/'));
+				switch ($text)
 				{
 				case 'start':
 //					apiRequestJson("sendMessage", array('chat_id' => $strChatId, "text" => 'Hello', 'reply_markup' => array('keyboard' => array(array('Hello', 'Hi')), 'one_time_keyboard' => true, 'resize_keyboard' => true)));
-					break;
+					return;
 				
 				case 'stop':	// stop now
-					break;
-					
-				default:
-					$this->OnText($strCmd, $strMessageId, $strChatId);
-					break;
+					return;
 				}
 			} 
-			else 
-			{
-//				$name = $message['from']['first_name'];
-//				$strText = $text.' '.$name;
-				$this->OnText($text, $strMessageId, $strChatId);
-			}
+			$this->OnText($text, $strMessageId, $strChatId);
 		}
 		else 
 		{

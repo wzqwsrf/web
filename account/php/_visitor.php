@@ -101,9 +101,9 @@ function EchoAll($bChinese = true)
     $contents_sql = $acct->GetPageSql();
 	if ($strType = UrlGetQueryValue('type'))
 	{
-		if ($strType == TABLE_WECHAT_VISITOR)	
+		if ($strType == TABLE_TELEGRAM_BOT || $strType == TABLE_WECHAT_BOT)	
 		{
-			$visitor_sql = new BotVisitorSql();
+			$visitor_sql = new BotVisitorSql($strType);
 			$contents_sql = new BotMsgSql();
 		}
 	}
@@ -135,11 +135,7 @@ function GetTitle($bChinese = true)
     global $acct;
     
 	$str = '';
-	if ($strType = UrlGetQueryValue('type'))
-	{
-		if ($strType == TABLE_WECHAT_VISITOR)		$str .= GetWechatDisplay($bChinese);
-	}
-	
+	if ($strType = UrlGetQueryValue('type'))		$str .= GetBotDisplay($strType, $bChinese);
 	if ($strIp = $acct->GetQuery())
 	{
 		$str .= $strIp;

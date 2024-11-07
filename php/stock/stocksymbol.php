@@ -51,7 +51,7 @@ function in_arrayChinaIndex($strSymbol)
 
 function QdiiGetGoldSymbolArray()
 {
-    return array('SZ160719', 'SZ161116', 'SZ164701'); 
+    return array('SZ160719', 'SZ161116'); 
 }
 
 function in_arrayGoldQdii($strSymbol)
@@ -254,7 +254,7 @@ function in_arrayHkMix($strSymbol)
 
 function QdiiMixGetSymbolArray()
 {
-    $ar = array_merge(array('SH501225', 'SH501312', 'SH513360', 'SZ159509', 'SZ160644') 
+    $ar = array_merge(array('SH501225', 'SH501312', 'SH513360', 'SZ159509', 'SZ160644', 'SZ164701') 
     				   , GetChinaInternetSymbolArray()
     				   , GetHkMixSymbolArray()
     				   , GetMsciUs50SymbolArray());

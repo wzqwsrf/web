@@ -21,6 +21,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="nyc_time.py" />
     <Compile Include="palmmicro.py">
       <SubType>Code</SubType>
     </Compile>
