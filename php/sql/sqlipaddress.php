@@ -125,12 +125,12 @@ class IpTickSql extends IntSql
     
     function WriteTick($strIp, $iTick)
     {
-    	return $this->WriteInt(GetIpId($strIp), strval($iTick));
+    	return $this->WriteInt(GetIpId($strIp), $iTick);
     }
     
     function ReadTick($strIp)
     {
-    	return ($strTick = $this->ReadInt(GetIpId($strIp))) ? intval($strTick) : false;
+    	return $this->ReadInt(GetIpId($strIp));
     }
 }
 

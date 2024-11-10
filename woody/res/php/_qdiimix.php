@@ -61,6 +61,7 @@ class _QdiiMixAccount extends FundGroupAccount
     	switch ($strSymbol)
     	{
 		case 'SZ160644':
+		case 'SZ164701':
 		case 'SH501225':
 		case 'SH501312':
         	if ($strNavDate != $strHoldingsDate)		

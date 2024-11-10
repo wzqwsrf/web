@@ -7,7 +7,6 @@ class _YahooHistoryCsvFile extends CsvFile
 {
 	var $strStockId;
 
-	var $his_sql;
 	var $oldest_ymd;
 	
 	var $iTotal;
@@ -20,7 +19,6 @@ class _YahooHistoryCsvFile extends CsvFile
         parent::__construct($strFileName);
         
         $this->strStockId = $strStockId;
-        $this->his_sql = GetStockHistorySql();
         $this->oldest_ymd = new OldestYMD();
         
         $this->iTotal = 0;
@@ -63,7 +61,8 @@ class _YahooHistoryCsvFile extends CsvFile
         if ($this->oldest_ymd->IsInvalid($strDate) == false)
         {
         	$this->iTotal ++;
-        	if ($this->his_sql->WriteHistory($this->strStockId, $strDate, $strClose, $strOpen, $strHigh, $strLow, $strVolume, SqlCleanString($arWord[5])))
+        	$his_sql = GetStockHistorySql();
+        	if ($his_sql->WriteHistory($this->strStockId, $strDate, $strClose, $strOpen, $strHigh, $strLow, $strVolume, SqlCleanString($arWord[5])))
         	{
 //        		DebugString(implode(',', $arWord));
         		$this->iModified ++;
@@ -96,7 +95,8 @@ function YahooUpdateStockHistory($ref)
 		{   // Yahoo has wrong Chinese and Hongkong holiday record with '0' volume 
 //			if ($ref->IsIndex() == false)
 			{
-				$csv->his_sql->DeleteByZeroVolume($strStockId);
+				$his_sql = GetStockHistorySql();
+				$his_sql->DeleteByZeroVolume($strStockId);
 			}
 		}*/
 		unlinkConfigFile($strSymbol);

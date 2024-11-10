@@ -175,6 +175,7 @@ class HoldingsReference extends MyStockReference
 				if ($ref->IsSymbolA())		$fChange *= $fAdjustCny;
 				else if ($ref->IsSymbolH())	$fChange *= $fAdjustHkd; 
 				$fTotalChange += $fChange;
+//				DebugString(__CLASS__.'->'.__FUNCTION__.': '.$ref->GetSymbol().' '.strval_round($fChange, 4), true);
 			}
 		}
 		
@@ -188,7 +189,9 @@ class HoldingsReference extends MyStockReference
 
     function GetNavChange()
     {
-    	return $this->_estNav() / floatval($this->strNav);
+    	$fNav = $this->_estNav();
+//    	DebugString(__CLASS__.'->'.__FUNCTION__.': '.strval($fNav).' '.$this->strNav, true);
+    	return $fNav / floatval($this->strNav);
     }
     
     function _getEstDate()

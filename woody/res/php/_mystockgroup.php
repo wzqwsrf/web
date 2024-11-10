@@ -4,7 +4,6 @@ require_once('_idgroup.php');
 require_once('_editgroupform.php');
 require_once('../../php/ui/referenceparagraph.php');
 require_once('../../php/ui/ahparagraph.php');
-require_once('../../php/ui/fundlistparagraph.php');
 require_once('../../php/ui/fundestparagraph.php');
 require_once('../../php/ui/imagedisp.php');
 
@@ -71,7 +70,6 @@ function _getMetaDescriptionStr($strPage)
 				  'chinaindex' => CHINA_INDEX_DISPLAY.'基金工具。计算基金净值，同时分析比较各种套利对冲方案。包括美股ASHR和多家国内基金公司的A股沪深300指数基金的配对交易等。',
 				  'chinainternet' => '跟踪几个不同中证海外中国互联网指数的中概互联基金们在2021年初疯狂见顶后几个月时间一路狂泻都跌成了'.CHINAINTERNET_GROUP_DISPLAY.'，也因此跌出了QDII基金有史以来最为壮观的流动性。',
 				  'commodity' => COMMODITY_GROUP_DISPLAY.'基金的净值估算。目前包括大致对应跟踪GSG的信诚商品(SZ165513)和银华通胀(SZ161815)。跟踪大宗商品期货的基金都有因为期货升水带来的损耗，不建议长期持有。',
-				  'fundlist' => '各个估值页面中用到的基金和指数对照表, 包括杠杆倍数和校准值快照, 同时提供链接查看具体校准情况. 有些指数不容易拿到数据, 就用1倍ETF代替指数给其它杠杆ETF做对照.',
 				  'hangseng' => HANGSENG_GROUP_DISPLAY.'基金的净值估算。使用恒生指数【^HSI】计算官方估值和参考估值、使用恒生指数期货【hf_HSI】提供港股不开盘期间的实时估值。',
 				  'hshares' => '港交所在2017年后玩弄文字游戏把H股国企指数改成'.HSHARES_GROUP_DISPLAY.'，大量加入非国有企业成分股，就是为了吸引迷信鹅厂的国内韭菜跨过香江去夺取港股定价权！',
 				  'hstech' => '厌倦了港交所加印花税的贪婪，本来没想跟踪'.HSTECH_GROUP_DISPLAY.'基金的净值。不过在无意中发现了KTEC后，觉得还是应该补上，为日后可能的跨市场套利机会做好准备。',
@@ -182,7 +180,6 @@ function _getTitleStr($strPage)
 			  	  'chinaindex' => CHINA_INDEX_DISPLAY.$strTool,
 			  	  'chinainternet' => CHINAINTERNET_GROUP_DISPLAY.$strTool,
 			  	  'commodity' => COMMODITY_GROUP_DISPLAY.$strTool,
-			  	  'fundlist' => FUND_LIST_DISPLAY,
 			  	  'hangseng' => HANGSENG_GROUP_DISPLAY.$strTool,
 			  	  'hshares' => HSHARES_GROUP_DISPLAY.$strTool,
 			  	  'hstech' => HSTECH_GROUP_DISPLAY.$strTool,

@@ -35,12 +35,12 @@ class PairSql extends IntSql
     
     function WritePair($strId, $strPairId)
     {
-    	return $this->WriteInt($strId, $strPairId);
+    	return $this->WriteString($strId, $strPairId);
     }
     
     function ReadPair($strId)
     {
-    	return $this->ReadInt($strId);
+    	return $this->ReadString($strId);
     }
     
     function DeletePair($strAnyId)

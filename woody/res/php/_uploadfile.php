@@ -40,7 +40,8 @@ class _UploadFileAccount extends SymbolAccount
 
 		DebugVal($csv->iTotal, 'Total');
 		DebugVal($csv->iModified, 'Modified');
-		$csv->his_sql->DeleteByZeroVolume($strStockId);
+        $his_sql = GetStockHistorySql();
+		$his_sql->DeleteByZeroVolume($strStockId);
 		unlinkConfigFile($ref->GetSymbol());
 	}
 	

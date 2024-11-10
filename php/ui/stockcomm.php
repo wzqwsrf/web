@@ -46,7 +46,7 @@ function RefEchoTableColumn($ref, $ar, $bWide = false)
 
 function GetArbitrageRatio($strStockId)
 {
-	if ($strHedge = FundGetHedgeVal($strStockId))		return intval($strHedge);
+	if ($iHedge = FundGetHedgeVal($strStockId))		return $iHedge;
 	return 1;
 }
 

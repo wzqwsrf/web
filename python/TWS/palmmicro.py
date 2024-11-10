@@ -71,14 +71,26 @@ class Palmmicro:
         return self.arData
 
     
-    def GetArbitrageResult(self, symbol, price, size, strType):
+    def GetPeerStr(self, strType):
+        if strType == 'ask':
+            return 'bid'
+        elif strType == 'bid':
+            return 'ask'
+            
+    
+    def GetArbitrageResult(self, symbol, arPeerData, strType):
         arResult = {'ratio': 1.0}
+        strPeerType = self.GetPeerStr(strType) 
+        price = arPeerData[strPeerType + '_price']
+        size = arPeerData[strPeerType + '_size'] 
         arReply = self.arData[symbol]
-        if price > 0 and strType + '_size' in arReply:
-            arResult['ratio'] = round(price / float(arReply[strType + '_price_hedge']), 4)
-            iSize = min(size, arReply[strType + '_size_hedge'])
-            arResult['size'] = iSize;
-            arResult['size_hedge'] = int((iSize * arReply['hedge'] + 50) / 100) * 100
+        strSizeIndex = strType + '_size'
+        if strSizeIndex in arReply:
+            if arReply[strSizeIndex] > 0 and price > 0:
+                arResult['ratio'] = round(price / float(arReply[strType + '_price_hedge']), 4)
+                iSize = min(size, arReply[strType + '_size_hedge'])
+                arResult['size'] = iSize;
+                arResult['size_hedge'] = int((iSize * arReply['hedge'] + 50) / 100) * 100
         return arResult
 
     

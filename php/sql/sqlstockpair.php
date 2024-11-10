@@ -3,28 +3,20 @@ require_once('sqlpair.php');
 
 class StockPairSql extends PairSql
 {
-	var $sql;
-	
-    public function __construct($strTableName)
-    {
-        parent::__construct($strTableName);
-        
-		$this->sql = GetStockSql();
-    }
-    
     function GetSymbolArray($strPairSymbol = false)
     {
+		$sql = GetStockSql();
 		$arSymbol = array();
 		if ($strPairSymbol)
 		{
-			if ($strPairId = $this->sql->GetId($strPairSymbol))		$ar = $this->GetIdArray($strPairId);
+			if ($strPairId = $sql->GetId($strPairSymbol))		$ar = $this->GetIdArray($strPairId);
 			else	return $arSymbol; 
 		}
-		else																$ar = $this->GetIdArray();
+		else														$ar = $this->GetIdArray();
 		
 		if (count($ar) > 0)
 		{
-			foreach ($ar as $strStockId)	$arSymbol[] = $this->sql->GetStockSymbol($strStockId);
+			foreach ($ar as $strStockId)	$arSymbol[] = $sql->GetStockSymbol($strStockId);
 			sort($arSymbol);
 		}
 		return $arSymbol;
@@ -32,11 +24,12 @@ class StockPairSql extends PairSql
 	
 	function GetSymbol($strPairSymbol)
 	{
-		if ($strPairId = $this->sql->GetId($strPairSymbol))
+		$sql = GetStockSql();
+		if ($strPairId = $sql->GetId($strPairSymbol))
 		{
 			if ($strStockId = $this->GetId($strPairId))
 			{
-				return $this->sql->GetStockSymbol($strStockId);
+				return $sql->GetStockSymbol($strStockId);
 			}
 		}
 		return false;
@@ -44,11 +37,12 @@ class StockPairSql extends PairSql
 	
 	function GetPairSymbol($strSymbol)
 	{
-		if ($strStockId = $this->sql->GetId($strSymbol))
+		$sql = GetStockSql();
+		if ($strStockId = $sql->GetId($strSymbol))
 		{
 			if ($strPairId = $this->ReadPair($strStockId))
 			{
-				return $this->sql->GetStockSymbol($strPairId);
+				return $sql->GetStockSymbol($strPairId);
 			}
 		}
 		return false;
@@ -56,9 +50,10 @@ class StockPairSql extends PairSql
 
 	function WritePairSymbol($strSymbol, $strPairSymbol)
 	{
-		if ($strStockId = $this->sql->GetId($strSymbol))
+		$sql = GetStockSql();
+		if ($strStockId = $sql->GetId($strSymbol))
 		{
-			if ($strPairId = $this->sql->GetId($strPairSymbol))
+			if ($strPairId = $sql->GetId($strPairSymbol))
 			{
 				return $this->WritePair($strStockId, $strPairId);
 			}
@@ -68,7 +63,7 @@ class StockPairSql extends PairSql
 	
 	function DeleteBySymbol($strSymbol)
 	{
-		if ($strStockId = $this->sql->GetId($strSymbol))
+		if ($strStockId = SqlGetStockId($strSymbol))
 		{
 			return $this->DeleteById($strStockId);
 		}
@@ -77,7 +72,7 @@ class StockPairSql extends PairSql
 	
 	function DeleteByPairSymbol($strPairSymbol)
 	{
-		if ($strPairId = $this->sql->GetId($strPairSymbol))
+		if ($strPairId = SqlGetStockId($strPairSymbol))
 		{
 			return $this->Delete($strPairId);
 		}

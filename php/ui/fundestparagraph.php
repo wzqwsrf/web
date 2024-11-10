@@ -119,7 +119,7 @@ function _getFundPositionStr($ref)
 	$str = '';
 	$fPosition = RefGetPosition($ref);
 	if ($fPosition < 1.0)										$str .= GetFundPositionLink($ref->GetSymbol()).'值使用'.strval($fPosition).'。';
-	if ($strHedge = FundGetHedgeVal($ref->GetStockId()))	$str .= '建议'.GetTableColumnConvert().$strHedge.'。';
+	if ($iHedge = FundGetHedgeVal($ref->GetStockId()))		$str .= '建议'.GetTableColumnConvert().strval($iHedge).'。';
 	return $str;
 }
 

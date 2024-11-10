@@ -11,41 +11,38 @@ class _HoldingsCsvFile extends DebugCsvFile
     var $fHKDCNY;
     var $fUSDHKD;
     
-	var $sql;
-	var $his_sql;
-	var $holdings_sql;
-	
     public function __construct($strFileName, $strStockId) 
     {
         parent::__construct($strFileName);
         
         $this->fSum = 0.0;
         $this->strStockId = $strStockId;
-        
-        $this->sql = GetStockSql();
-        $this->his_sql = GetStockHistorySql();
-        $this->holdings_sql = GetHoldingsSql();
     }
     
     function InsertHolding($strSymbol, $strName, $strRatio)
     {
         $strSymbol = str_replace('/', '.', $strSymbol);	// BRK/B -> BRK.B
-		$this->sql->InsertSymbol($strSymbol, $strName);
-    	if ($strStockId = $this->sql->GetId($strSymbol))
+        $sql = GetStockSql();
+		$sql->InsertSymbol($strSymbol, $strName);
+    	if ($strStockId = $sql->GetId($strSymbol))
     	{
-    		if ($this->his_sql->GetRecord($strStockId, $this->strDate) == false)
+    		$his_sql = GetStockHistorySql();
+    		if ($his_sql->GetRecord($strStockId, $this->strDate) == false)
     		{
     			$this->DebugReport($strSymbol.' missing data on '.$this->strDate);
 //    			UpdateYahooHistoryChart(new MyStockReference($strSymbol));
     		}
-			return $this->holdings_sql->InsertHolding($this->strStockId, $strStockId, $strRatio);
+        
+    		$holdings_sql = GetHoldingsSql();
+			return $holdings_sql->InsertHolding($this->strStockId, $strStockId, $strRatio);
 		}
 		return false;
     }
 
     function DeleteAllHoldings()
     {
-		$this->holdings_sql->DeleteAll($this->strStockId);
+   		$holdings_sql = GetHoldingsSql();
+		$holdings_sql->DeleteAll($this->strStockId);
     }
     
     function UpdateHoldingsDate()
@@ -72,8 +69,9 @@ class _HoldingsCsvFile extends DebugCsvFile
     function CalcCurrency($strDate)
     {
     	$strDebug = __CLASS__.'->'.__FUNCTION__.': '.$strDate;
-        $strUscnyId = $this->sql->GetId('USCNY');
-        $strHkcnyId = $this->sql->GetId('HKCNY');
+    	$sql = GetStockSql();
+        $strUscnyId = $sql->GetId('USCNY');
+        $strHkcnyId = $sql->GetId('HKCNY');
         $nav_sql = GetNavHistorySql();
         
         $str = ($strUSDCNY = $nav_sql->GetClose($strUscnyId, $strDate)) ? $strUSDCNY : $nav_sql->GetCloseNow($strUscnyId);
@@ -115,10 +113,11 @@ class _HoldingsCsvFile extends DebugCsvFile
     
     function GetMarketVal($strHolding, $iQuantity)
     {
-		if ($strStockId = $this->sql->GetId($strHolding))
+		if ($strStockId = SqlGetStockId($strHolding))
 		{
 			$fForex = is_numeric($strHolding) ? $this->fHKDCNY : $this->fUSDCNY;
-			return $iQuantity * floatval($this->his_sql->GetAdjClose($strStockId, $this->strDate)) * $fForex;
+			$his_sql = GetStockHistorySql();
+			return $iQuantity * floatval($his_sql->GetAdjClose($strStockId, $this->strDate)) * $fForex;
 		}
 		DebugString('GetMarketVal failed with '.$strHolding);
 		return 0.0;

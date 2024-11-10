@@ -21,14 +21,25 @@ class IntSql extends ValSql
     	return $this->CreateIntTable();
     }
     
-    function WriteInt($strId, $strInt)
+    function WriteString($strId, $str)
     {
-    	return $this->WriteVal($strId, $strInt, true);
+    	return $this->WriteVal($strId, $str, true);
+    }
+    
+    function ReadString($strId)
+    {
+    	return $this->ReadVal($strId, true);
+    }
+    
+    function WriteInt($strId, $iInt)
+    {
+    	return $this->WriteString($strId, strval($iInt));
     }
     
     function ReadInt($strId)
     {
-    	return $this->ReadVal($strId, true);
+    	if ($str = $this->ReadString($strId))	return intval($str);
+    	return false;
     }
 }
 

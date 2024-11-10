@@ -9,7 +9,7 @@ class _AdminOperationAccount extends Account
     	if ($strHedge = UrlGetQueryValue('fundhedgeval'))
     	{
     		$sql = new FundHedgeValSql();
-    		$sql->WriteInt(UrlGetQueryValue('stockid'), $strHedge);
+    		$sql->WriteString(UrlGetQueryValue('stockid'), $strHedge);
     	}
     	else if ($strPosition = UrlGetQueryValue('fundposition'))
     	{

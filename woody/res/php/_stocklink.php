@@ -42,11 +42,6 @@ function GetCategoryArray($strItem)
         $ar = array_merge(QdiiGetCommoditySymbolArray(), QdiiGetGoldSymbolArray());
         break;
         
-    case 'fundlist':
-   		$pair_sql = new FundPairSql();
-        $ar = $pair_sql->GetSymbolArray();
-        break;
-  
     case 'hangseng':
     	$ar = QdiiHkGetHangSengSymbolArray();
         break;
