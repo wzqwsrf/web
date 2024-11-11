@@ -28,7 +28,6 @@ def GetExchangeTime(strName):
     now_ny = now_utc.astimezone(timezone(eastern_offset))
 
     # Extract the hour and minute in 'America/New_York' time zone
-    hour_ny = now_ny.hour
-    minute_ny = now_ny.minute
-    print(f"Current time in {strName}: {hour_ny}:{minute_ny}")
-    return hour_ny * 100 + minute_ny
+    iTime = now_ny.hour * 100 + now_ny.minute 
+    print(f"Current time in {strName}: {iTime}")
+    return iTime

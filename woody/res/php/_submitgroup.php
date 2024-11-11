@@ -66,6 +66,8 @@ class _SubmitGroupAccount extends StockAccount
     
     function _onNew($strLoginId, $strGroupName, $strSymbols)
     {
+    	if (in_arrayAll($strGroupName))  $strGroupName = '@'.$strGroupName;		// 避免跟系统自动产生的分组重名
+    	
 		$sql = $this->GetGroupSql();
     	$sql->InsertString($strLoginId, $strGroupName);
     	if ($strGroupId = $sql->GetRecordId($strLoginId, $strGroupName))

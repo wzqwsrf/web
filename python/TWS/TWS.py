@@ -20,13 +20,21 @@ class MyEWrapper(EWrapper):
         return 'OVERNIGHT'
 
 
-    def GetDefaultOrderArray(self):
+    def GetOrderArray(self, arPrice, iBuyPos, iSize):
+        iLen = len(arPrice)
+        iSellPos = iBuyPos + 2
+        if iSellPos >= iLen:
+            iSellPos = -1
+        if iBuyPos + 1 >= iLen:
+            iBuyPos = -1
+
         ar = {
+            'price': arPrice,
             'BUY_id': -1,
             'SELL_id': -1,
-            'BUY_pos': -1,
-            'SELL_pos': -1,
-            'size': 100
+            'BUY_pos': iBuyPos,
+            'SELL_pos': iSellPos,
+            'size': iSize
                   }
         return ar
 
@@ -37,17 +45,8 @@ class MyEWrapper(EWrapper):
         self.palmmicro = Palmmicro()
         self.data = {}
         self.arOrder = {}
-
-        arKWEB = self.GetDefaultOrderArray()
-        arKWEB['price'] = [30.88, 32.55, 32.82]
-        arKWEB['BUY_pos'] = 0
-        arKWEB['SELL_pos'] = 2
-        arKWEB['size'] = 200
-        self.arOrder['KWEB'] = arKWEB
-
-        arXOP = self.GetDefaultOrderArray()
-        arXOP['price'] = [114.65, 160.3]
-        self.arOrder['XOP'] = arXOP
+        self.arOrder['KWEB'] = self.GetOrderArray([30.97, 32.44, 32.7, 33.04, 33.91, 37.96], 0, 200)
+        self.arOrder['XOP'] = self.GetOrderArray([114.65, 160.3], 1, 100)
 
         strExchange = self.GetContractExchange()
         self.arContract = {}
@@ -104,19 +103,25 @@ class MyEWrapper(EWrapper):
                 if arOrder['BUY_id'] == orderId:
                     arOrder['BUY_id'] = -1
                     if arOrder['SELL_id'] != -1:
-                        self.client.cancelOrder(arOrder['SELL_id'])
+                        self.CancelOrder(arOrder['SELL_id'])
                         arOrder['SELL_id'] = -1
                     arOrder['SELL_pos'] = arOrder['BUY_pos'] + 1
                     arOrder['BUY_pos'] -= 1
                 elif arOrder['SELL_id'] == orderId:
                     arOrder['SELL_id'] = -1
                     if arOrder['BUY_id'] != -1:
-                        self.client.cancelOrder(arOrder['BUY_id'])
+                        self.CancelOrder(arOrder['BUY_id'])
                         arOrder['BUY_id'] = -1
                     arOrder['BUY_pos'] = arOrder['SELL_pos'] - 1
                     arOrder['SELL_pos'] += 1
                     if arOrder['SELL_pos'] == len(arOrder['price']):
                         arOrder['SELL_pos'] = -1
+
+
+    def CancelOrder(self, iOrderId):
+        order = Order()
+        order.orderId = iOrderId
+        self.client.cancelOrder(order)
 
     
     def PlaceOrder(self, symbol, price, strAction):
@@ -188,32 +193,40 @@ class MyEWrapper(EWrapper):
             return True
         return False
 
+
+    def GetSellBuyStr(self, strType):
+        if strType == 'ask':
+            return 'Sell'
+        elif strType == 'bid':
+            return 'Buy'
+
+    
+    def DebugPriceAndSize(self, symbol, data, arReply, arResult, strType):
+        fRatio = arResult['ratio']
+        if (fRatio > 1.005 and strType == 'ask') or (fRatio < 0.999 and strType == 'bid'):
+            print(data)
+            print(arReply)
+            strPeerType = self.palmmicro.GetPeerStr(strType)
+            iSize = arResult['size']
+            strDebug = str(round((fRatio - 1.0)*100.0, 2)) + '% '
+            strDebug += self.GetSellBuyStr(strType) + ' ' + str(iSize) + ' ' + symbol + ' at ' + str(data[strPeerType + '_price']) + ' and '
+            strDebug += self.GetSellBuyStr(strPeerType) + ' ' + str(arResult['size_hedge']) + ' ' + arReply['symbol'] + ' at ' + arReply[strType + '_price']
+            print(strDebug)
+            if (fRatio > 1.01 and strType == 'ask') or (fRatio < 0.995 and strType == 'bid'):
+                if self.IsChinaMarketOpen() and iSize >= 100:
+                    self.palmmicro.SendTelegramMsg(strDebug)
+
+
     def ProcessPriceAndSize(self, reqId):
         data = self.data[reqId]
         symbol = data['symbol']
-        bid_price = data['bid_price']
-        ask_price = data['ask_price']
         arPalmmicro = self.palmmicro.FetchData('164906,162411')
-        arReply = arPalmmicro[symbol]
-        arResult = self.palmmicro.GetArbitrageResult(symbol, data, 'ask')
-        fRatio = arResult['ratio']
-        if fRatio > 1.005:
-            print(data)
-            print(arReply)
-            strDebug = str(fRatio) + ' Sell ' + str(arResult['size']) + ' ' + symbol + ' at ' + str(bid_price) + ' and buy ' + str(arResult['size_hedge']) + ' ' + arReply['symbol'] + ' at ' + arReply['ask_price']
-            print(strDebug)
-            if fRatio > 1.01 and self.IsChinaMarketOpen():
-                self.palmmicro.SendTelegramMsg(strDebug)
-        arResult = self.palmmicro.GetArbitrageResult(symbol, data, 'bid')
-        fRatio = arResult['ratio']
-        if fRatio < 0.999:
-            print(data)
-            print(arReply)
-            strDebug = str(fRatio) + ' Buy ' + str(arResult['size']) + ' ' + symbol + ' at ' + str(ask_price) + ' and sell ' + str(arResult['size_hedge']) + ' ' + arReply['symbol'] + ' at ' + arReply['bid_price']
-            print(strDebug)
-            if fRatio < 0.995 and self.IsChinaMarketOpen():
-                self.palmmicro.SendTelegramMsg(strDebug)
-        print('*')
+        if symbol in arPalmmicro:
+            arReply = arPalmmicro[symbol]
+            for strType in ['ask', 'bid']:
+                arResult = self.palmmicro.GetArbitrageResult(symbol, data, strType)
+                self.DebugPriceAndSize(symbol, data, arReply, arResult, strType)
+            print('*')
 
 
 class MyEClient(EClient):

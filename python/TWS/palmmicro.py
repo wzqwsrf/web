@@ -2,6 +2,7 @@ import time
 import json
 import urllib.request
 import urllib.parse
+import urllib.error
 
 from _tgprivate import TG_TOKEN
 
@@ -56,18 +57,22 @@ class Palmmicro:
         strMsgJson = json.dumps(self.arMsg).encode('utf-8')
         #print(strMsgJson)
 
-        # Send the array as JSON in the HTTP POST request
-        req = urllib.request.Request(self.strUrl, data=strMsgJson, headers={'Content-Type': 'application/json'})
-        response = urllib.request.urlopen(req)
+        try:
+            # Send the array as JSON in the HTTP POST request
+            req = urllib.request.Request(self.strUrl, data=strMsgJson, headers={'Content-Type': 'application/json'})
+            response = urllib.request.urlopen(req)
 
-        # Read and print the response content
-        response_content = response.read().decode('utf-8')
-        #print(response_content)
+            # Read and print the response content
+            response_content = response.read().decode('utf-8')
+            #print(response_content)
 
-        # Parse the JSON response and display the chat_id field
-        response_data = json.loads(response_content)
-        response.close()
-        self.arData = response_data['text']
+            # Parse the JSON response and display the chat_id field
+            response_data = json.loads(response_content)
+            response.close()
+            self.arData = response_data['text']
+        except urllib.error.URLError as e:
+            print(f"FetchData error occurred: {e}")
+            self.arData['error'] = True
         return self.arData
 
     
@@ -96,16 +101,13 @@ class Palmmicro:
     
     def SendTelegramMsg(self, strMsg):
         url = 'https://api.telegram.org/bot' + TG_TOKEN + '/sendMessage?text=' + urllib.parse.quote_plus(strMsg) + '&chat_id=-1001346320717'
-
-        # Send a GET request to the URL
-        response = urllib.request.urlopen(url)
-    
-        # Read the response data
-        data = response.read()
-    
-        # Decode the response data
-        decoded_data = data.decode('utf-8')
-    
-        #print(decoded_data)  # Print the decoded response data
-    
-        response.close()  # Close the response object
+        try:
+            response = urllib.request.urlopen(url)  # Send a GET request to the URL
+            #print("Message sent successfully")
+            data = response.read()                  # Read the response data
+            decoded_data = data.decode('utf-8') # Decode the response data
+            #print(decoded_data)  # Print the decoded response data
+            response.close()  # Close the response object
+        except urllib.error.URLError as e:
+            print(f"SendTelegramMsg error occurred: {e}")
+            # Handle the error gracefully, e.g., retrying, logging, etc.
