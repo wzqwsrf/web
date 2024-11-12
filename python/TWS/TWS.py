@@ -45,7 +45,7 @@ class MyEWrapper(EWrapper):
         self.palmmicro = Palmmicro()
         self.data = {}
         self.arOrder = {}
-        self.arOrder['KWEB'] = self.GetOrderArray([31.0, 32.45, 32.62, 33.9, 37.96], 0, 200)
+        self.arOrder['KWEB'] = self.GetOrderArray([31.0, 32.45, 32.62, 33.9, 37.96], -1, 200)
         self.arOrder['XOP'] = self.GetOrderArray([114.65, 160.3], 1, 100)
 
         strExchange = self.GetContractExchange()
@@ -116,7 +116,7 @@ class MyEWrapper(EWrapper):
                         self.PlaceOrder(symbol, arPrice[arOrder['BUY_pos']], 'BUY', arOrder['BUY_id'])
 
 
-    def IncSellPos(arOrder, strFrom, iLen):
+    def IncSellPos(self, arOrder, strFrom, iLen):
         arOrder['SELL_pos'] = arOrder[strFrom] + 1
         if arOrder['SELL_pos'] >= iLen:
             arOrder['SELL_pos'] = -1
