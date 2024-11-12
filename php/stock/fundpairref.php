@@ -175,7 +175,7 @@ class FundPairReference extends MyPairReference
         parent::__construct($strSymbol);
         
        	$this->nav_ref = new NetValueReference($strSymbol);
-       	if ($strDate = $this->_onCalibration($strSymbol))
+       	if ($strDate = $this->_onCalibration())
        	{
 			if ($cny_ref = $this->GetCnyRef())		$this->fCnyValue = floatval($cny_ref->GetClose($strDate));
        	}
@@ -201,23 +201,27 @@ class FundPairReference extends MyPairReference
     	return $this->strNav;
     }
     
-	function _load_pair_ref($strSymbol)
+	function _load_pair_ref()
 	{
-		$sym = new StockSymbol($strSymbol);
-/*		if ($sym->IsSinaFuture())
+		if ($ref = $this->pair_ref)
 		{
-        	$this->pair_nav_ref = new NetValueReference($strSymbol);
-			return false;
-		}
-		else*/ if ($sym->IsEtf())
-		{
-        	$this->pair_nav_ref = new NetValueReference($strSymbol);
-		}
-		else
-		{
-			$this->pair_nav_ref = $this->pair_ref;
-		}
-		return true;
+			/*		if ($ref->IsSinaFuture())
+			{
+        		$this->pair_nav_ref = new NetValueReference($strSymbol);
+        		return false;
+        		}
+        	else*/ 
+        	if ($ref->IsFund())
+        	{
+        		$this->pair_nav_ref = new NetValueReference($ref->GetSymbol());
+        	}
+        	else
+        	{
+        		$this->pair_nav_ref = $this->pair_ref;
+        	}
+        	return true;
+        }
+        return false;
 	}
     
  	function GetFactor($strPairNav, $strNav)
@@ -318,16 +322,13 @@ class FundPairReference extends MyPairReference
 	}
 */	
 
-	function _onCalibration($strSymbol)
+	function _onCalibration()
 	{
-        if ($strPair = $this->pair_sql->GetPairSymbol($strSymbol))
-        {
-			if ($this->_load_pair_ref($strPair))
-			{
-				return $this->_onNormalEtfCalibration();
-			}
+		if ($this->_load_pair_ref())
+		{
+			return $this->_onNormalEtfCalibration();
+		}
 //			return $this->_onFutureEtfCalibration();
-        }
         return false;
 	}
 

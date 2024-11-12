@@ -28,7 +28,7 @@ class NetValueReference extends MysqlReference
         }
         else
         {
-        	$this->LoadSqlData();
+        	$this->LoadSqlNavData();
         }
     }
 

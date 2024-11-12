@@ -45,7 +45,7 @@ class MyEWrapper(EWrapper):
         self.palmmicro = Palmmicro()
         self.data = {}
         self.arOrder = {}
-        self.arOrder['KWEB'] = self.GetOrderArray([30.97, 32.44, 32.7, 33.04, 33.91, 37.96], 0, 200)
+        self.arOrder['KWEB'] = self.GetOrderArray([31.0, 32.45, 32.62, 33.9, 37.96], 0, 200)
         self.arOrder['XOP'] = self.GetOrderArray([114.65, 160.3], 1, 100)
 
         strExchange = self.GetContractExchange()
@@ -100,31 +100,29 @@ class MyEWrapper(EWrapper):
         if remaining == 0:
             for symbol in ['KWEB', 'XOP']:
                 arOrder = self.arOrder[symbol]
+                arPrice = arOrder['price']
+                iLen = len(arPrice)
                 if arOrder['BUY_id'] == orderId:
                     arOrder['BUY_id'] = -1
-                    if arOrder['SELL_id'] != -1:
-                        self.CancelOrder(arOrder['SELL_id'])
-                        arOrder['SELL_id'] = -1
-                    arOrder['SELL_pos'] = arOrder['BUY_pos'] + 1
+                    self.IncSellPos(arOrder, 'BUY_pos', iLen)
                     arOrder['BUY_pos'] -= 1
+                    if arOrder['SELL_id'] != -1 and arOrder['SELL_pos'] != -1:
+                        self.PlaceOrder(symbol, arPrice[arOrder['SELL_pos']], 'SELL', arOrder['SELL_id'])
                 elif arOrder['SELL_id'] == orderId:
                     arOrder['SELL_id'] = -1
-                    if arOrder['BUY_id'] != -1:
-                        self.CancelOrder(arOrder['BUY_id'])
-                        arOrder['BUY_id'] = -1
                     arOrder['BUY_pos'] = arOrder['SELL_pos'] - 1
-                    arOrder['SELL_pos'] += 1
-                    if arOrder['SELL_pos'] == len(arOrder['price']):
-                        arOrder['SELL_pos'] = -1
+                    self.IncSellPos(arOrder, 'SELL_pos', iLen)
+                    if arOrder['BUY_id'] != -1 and arOrder['BUY_pos'] != -1:
+                        self.PlaceOrder(symbol, arPrice[arOrder['BUY_pos']], 'BUY', arOrder['BUY_id'])
 
 
-    def CancelOrder(self, iOrderId):
-        order = Order()
-        order.orderId = iOrderId
-        self.client.cancelOrder(order)
+    def IncSellPos(arOrder, strFrom, iLen):
+        arOrder['SELL_pos'] = arOrder[strFrom] + 1
+        if arOrder['SELL_pos'] >= iLen:
+            arOrder['SELL_pos'] = -1
 
     
-    def PlaceOrder(self, symbol, price, strAction):
+    def PlaceOrder(self, symbol, price, strAction, iOrderId):
         arOrder = self.arOrder[symbol]
         contract = self.arContract[symbol]
 
@@ -136,10 +134,13 @@ class MyEWrapper(EWrapper):
         if contract.exchange != 'OVERNIGHT':
             order.outsideRth = True
 
+        if iOrderId == -1:
+            iOrderId = self.iOrderId
+            self.iOrderId += 1
+
         # Place the order
-        self.client.placeOrder(self.iOrderId, contract, order)
-        arOrder[strAction + '_id'] = self.iOrderId
-        self.iOrderId += 1
+        self.client.placeOrder(iOrderId, contract, order)
+        arOrder[strAction + '_id'] = iOrderId
 
 
     def AskPriceTrade(self, reqId):
@@ -151,7 +152,7 @@ class MyEWrapper(EWrapper):
             if iPos != -1:
                 fPrice = arOrder['price'][iPos]
                 if data['ask_price'] > fPrice:
-                    self.PlaceOrder(symbol, fPrice, 'BUY')
+                    self.PlaceOrder(symbol, fPrice, 'BUY', -1)
 
 
     def BidPriceTrade(self, reqId):
@@ -163,7 +164,7 @@ class MyEWrapper(EWrapper):
             if iPos != -1:
                 fPrice = arOrder['price'][iPos]
                 if data['bid_price'] < fPrice:
-                    self.PlaceOrder(symbol, fPrice, 'SELL')
+                    self.PlaceOrder(symbol, fPrice, 'SELL', -1)
 
 
     def CheckPriceAndSize(self, reqId):

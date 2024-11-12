@@ -7,7 +7,7 @@ class CnyReference extends MysqlReference
     	$strSymbol = $this->GetSymbol();
     	
     	$this->strSqlId = SqlGetStockId($strSymbol);
-       	$this->LoadSqlData();
+       	$this->LoadSqlNavData();
    		$this->strTime = '09:15:00';
         $this->strFileName = DebugGetChinaMoneyFile();
         $this->strExternalLink = GetReferenceRateForexLink($strSymbol);

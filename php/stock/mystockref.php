@@ -24,7 +24,8 @@ class MyStockReference extends MysqlReference
     
     public function LoadData()
     {
-       	$this->LoadSinaData();
+    	if ($this->IsSinaFuture())	        $this->LoadSinaFutureData();
+    	else									$this->LoadSinaData();
         $this->bConvertGB2312 = true;     // Sina name is GB2312 coded
     }
     

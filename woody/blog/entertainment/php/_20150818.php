@@ -136,7 +136,6 @@ function Echo20160126($strHead)
 	$strXueqiu = GetXueqiuIdLink('8907500725', 'oldwain');
 	$strLink = GetSinaDataLink('hf_CL');
 	$strStockReference = GetCodeElement('StockReference');
-	$strFutureReference = GetCodeElement('FutureReference');
 	$strForexReference = GetCodeElement('ForexReference');
 
     echo <<<END
@@ -146,7 +145,7 @@ function Echo20160126($strHead)
 <br />原来版本中没有它是因为自己觉得交易日期很明显，完全没有必要出来占地方。不过既然有人觉得有问题，我就效仿白居易写诗先读给妇孺听的优良传统改了。
 估计跟我从2000年开始就在美股赔钱不同，很多人还是不熟悉美国股市交易时间。而在这里，美股数据后面跟的是美东日期和时间。
 <br />虽说是个小的分离数据和显示改动，但是忍不住哗啦哗啦又整理优化了一大片代码。
-把原来的{$strStockReference}类作为基础类，原来期货和汇率数据读取分别改为继承自它的{$strFutureReference}类和{$strForexReference}类，达到统一数据显示格式的目的。
+把原来的{$strStockReference}类作为基础类，原来汇率数据读取改为继承自它的{$strForexReference}类，达到统一数据显示格式的目的。
 </p>
 END;
 
@@ -229,7 +228,6 @@ function Echo20160226($strHead)
 	$strStockReference = GetCodeElement('StockReference');
 	$strMyStockReference = GetCodeElement('MyStockReference');
 	$strFundReference = GetCodeElement('FundReference');
-	$strFutureReference = GetCodeElement('FutureReference');
 	$strForexReference = GetCodeElement('ForexReference');
 	$strFundHistory = GetNameLink('fundhistory', FUND_HISTORY_DISPLAY);
 	$strQdiiAccount = GetCodeElement('QdiiAccount');
@@ -246,7 +244,7 @@ function Echo20160226($strHead)
 <p>2016年2月26日
 <br />华宝油气持续溢价10%已经成了常态，最近最高甚至到了17%，华宝油气和XOP套利没法做了。
 <br />继续整理同类代码，这次下手目标是MySQL相关部分。 加入{$strMysqlReference}类继承自{$strStockReference}类，集中代码处理历史记录和净值校准等数据库内容。再加入{$strMyStockReference}类继承自{$strMysqlReference}，从此代替{$strStockReference}类作为股票数据实例。
-{$strFundReference}、{$strFutureReference}和{$strForexReference}同时也改为继承自{$strMysqlReference}，从{$strMysqlReference}开始调用了数据库相关函数。
+{$strFundReference}和{$strForexReference}同时也改为继承自{$strMysqlReference}，从{$strMysqlReference}开始调用了数据库相关函数。
 <br />一直有用户建议我在华宝油气等QDII的{$strFundHistory}表格上加入预估净值比较栏目。除了不愿意直接打自己嘴巴外的心理因素外，迟迟没有加上它的原因主要是估值是跟着美股交易实时变化的，一直想不清楚这个时间上的对应关系。
 <br />在QDII的代码中，单独的预估净值变量原本放在{$strQdiiAccount}类中，在这次改动时，我把预估净值的变量挪到了{$strFundReference}类中。当预估净值和当日净值的变量排列在一起后，突然之间数据结构引导思维方式的例子再次爆发，没有比在记录当日净值的时候同时记录预估净值更合理的了！
 同时记录和显示估值的时间，这样当看到估值时间落在美股交易结束前，那么有误差就是天经地义的事情，而不是我的算法有问题。计算估值是由用户访问页面的动作驱动的，如果某页面没有用户经常访问，那么就会出现这种异常时间估值。

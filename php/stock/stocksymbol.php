@@ -637,21 +637,6 @@ class StockSymbol
    		return false;
     }
     
-    function IsEtf()
-    {
-    	if ($this->IsSymbolA())
-    	{
-    		if ($this->IsFundA())			return true;
-    		if ($this->IsIndexA())		return false;
-    		if ($this->IsStockB())		return false;
-    	}
-    	else
-    	{
-    		if ($this->IsIndex())		return false;
-    	}
-    	return true;
-    }
-    
     function IsEastMoneyForex()
     {
         switch ($this->strSymbol)

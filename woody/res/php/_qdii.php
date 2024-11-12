@@ -22,7 +22,7 @@ class QdiiAccount extends QdiiGroupAccount
         
         $this->ref = new QdiiReference($strSymbol);
         $this->cnh_ref = new ForexReference($strCNH);
-        if ($bOil)		$this->oil_ref = new FutureReference($strOil);
+        if ($bOil)		$this->oil_ref = new MyStockReference($strOil);
         
 		$this->QdiiCreateGroup();
     }

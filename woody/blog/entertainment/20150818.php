@@ -60,7 +60,7 @@ as I do not konw when the data will be updated, I update it once an hour stupidl
 <p>Feb 26, 2016
 <br />SZ162411 is trading more than 10% higher than its net value recently, the max premium as high as 17%, so the XOP and SZ162411 arbitrage is not possible now.
 <br />Continuing to organzie the similar code, added <font color=olive>MysqlReference</font> and <font color=olive>MyStockReference</font> class.
-<font color=olive>FutureReference</font> and <font color=olive>ForexReference</font> are now extended from <font color=olive>MysqlReference</font>, same as the new <font color=olive>MyStockReference</font>.
+<font color=olive>ForexReference</font> is now extended from <font color=olive>MysqlReference</font>, same as the new <font color=olive>MyStockReference</font>.
 We called MySQL related function in <font color=olive>MysqlReference</font> class, put history and calibration database operation in the same place.
 </p>
 

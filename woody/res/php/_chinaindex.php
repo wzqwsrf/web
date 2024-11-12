@@ -18,7 +18,7 @@ class _ChinaIndexAccount extends FundGroupAccount
 
         $this->ref = new FundPairReference($strSymbol);
         $this->us_ref = new FundPairReference($strUS);
-        $this->a50_ref = new FutureReference($strA50);
+        $this->a50_ref = new MyStockReference($strA50);
         $this->cnh_ref = new ForexReference($strCNH);
 
         GetChinaMoney($this->ref);
