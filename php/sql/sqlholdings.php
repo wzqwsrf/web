@@ -11,7 +11,7 @@ class HoldingsSql extends KeySql
     public function Create()
     {
     	$str = $this->ComposeKeyStr().','
-    		  . $this->ComposeIdStr('holding_id').','
+    		  . $this->ComposeIntStr('holding_id').','
          	  . ' `ratio` DOUBLE(13,6) NOT NULL ,'
          	  . $this->ComposeForeignKeyStr();
     	return $this->CreateIdTable($str);

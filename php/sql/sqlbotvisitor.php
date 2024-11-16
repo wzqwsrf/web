@@ -55,7 +55,7 @@ class BotVisitorSql extends VisitorSql
 
     public function Create()
     {
-    	$str = $this->ComposeIdStr($this->strFromKey).','
+    	$str = $this->ComposeIntStr($this->strFromKey).','
     		 . $this->ComposeForeignStr($this->strFromKey).',';
     	return $this->CreateVisitorTable($str);
     }

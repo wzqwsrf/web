@@ -53,6 +53,59 @@ class CalibrationSql extends DailyTimeSql
     {
         parent::__construct('calibrationhistory');
     }
+    
+    public function Create()
+    {
+        return $this->CreateDailyCloseTable($this->ComposeCloseStr().','.$this->ComposeTimeStr().','.$this->ComposeIntStr('num'));
+    }
+
+    public function InsertDaily($strKeyId, $strDate, $strClose)
+    {
+        if ($this->GetRecord($strKeyId, $strDate))			return false;
+        
+        $ar = $this->MakeFieldArray($strKeyId, $strDate, $strClose);
+   		$ar['time'] = DebugGetTime();
+   		$ar['num'] = '1';
+    	return $this->InsertArray($ar);
+    }
+
+    public function UpdateDaily($strId, $strClose)
+    {
+		return $this->UpdateDailyAverage($strId, $strClose);
+    }
+    
+    function UpdateDailyAverage($strId, $strClose, $iNum = 1)
+    {
+        $strTime = DebugGetTime();
+        $strNum = strval($iNum);
+		return $this->UpdateById(array('close' => $strClose, 'time' => $strTime, 'num' => $strNum), $strId);
+    }
+    
+    function WriteDailyAverage($strKeyId, $strDate, $strClose)
+    {
+    	if ($record = $this->GetRecord($strKeyId, $strDate))
+    	{
+    		$fOldAvg = floatval($record['close']);
+    		$fVal = floatval($strClose);
+    		if (abs($fOldAvg - $fVal) > MIN_FLOAT_VAL)
+    		{
+//    			DebugString($record['close'].' '.$strClose); 
+//    			return $this->UpdateDaily($record['id'], $strClose);
+				$iNum = intval($record['num']);
+				$fTotal = $iNum * $fOldAvg + $fVal;
+				$iNum ++;
+				return $this->UpdateDailyAverage($record['id'], strval($fTotal/$iNum), $iNum);
+    		}
+    	}
+    	else
+    	{
+    		$ymd = new StringYMD($strDate);
+    		if ($ymd->IsWeekend())     			return false;   // sina fund may provide false weekend data
+    		
+    		return $this->InsertDaily($strKeyId, $strDate, $strClose);
+    	}
+    	return false;
+    }
 }
 
 ?>

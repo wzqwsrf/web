@@ -15,7 +15,7 @@ class KeyTableSql extends TableSql
     
     function ComposeKeyStr()
     {
-    	return $this->ComposeIdStr($this->strKey);
+    	return $this->ComposeIntStr($this->strKey);
     }
 
     function ComposeForeignKeyStr()

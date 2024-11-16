@@ -6,7 +6,7 @@ def is_daylight_saving_time(dt, utc):
     end_dst = datetime(dt.year, 11, 1, 2, 0, tzinfo=utc)  # 1st Sunday of November
     return start_dst <= dt < end_dst
 
-def GetExchangeTime(strName):
+def GetExchangeTime(strName = 'NYSE'):
     # Define the UTC timezone
     utc = timezone.utc
 
@@ -29,5 +29,4 @@ def GetExchangeTime(strName):
 
     # Extract the hour and minute in 'America/New_York' time zone
     iTime = now_ny.hour * 100 + now_ny.minute 
-    print(f"Current time in {strName}: {iTime}")
     return iTime

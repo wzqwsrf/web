@@ -5,7 +5,7 @@ function _echoCalibrationHistoryItem($fPosition, $nav_sql, $strStockId, $record,
 {
 	$fCalibration = floatval($record['close']);
 	$strDate = $record['date'];
-	$ar = array($strDate, strval_round($fCalibration, 4), GetHM($record['time']));
+	$ar = array($strDate, strval_round($fCalibration, 4), GetHM($record['time']), $record['num']);
 
 	if ($fPosition)
 	{
@@ -34,7 +34,7 @@ function EchoCalibrationHistoryParagraph($ref, $iStart = 0, $iNum = TABLE_COMMON
    		$strLink = GetFundLinks($strSymbol).'<br />'.$strMenuLink;
    	}
     
-   	$ar = array(new TableColumnDate(), new TableColumnCalibration(), new TableColumnTime());
+   	$ar = array(new TableColumnDate(), new TableColumnCalibration(), new TableColumnTime(), new TableColumn('次数', 50));
    	if ($ref->IsFundA())
    	{
     	$fPosition = RefGetPosition($ref);

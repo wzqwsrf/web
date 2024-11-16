@@ -19,7 +19,6 @@ function GetStockDataArray($strSymbols)
 	foreach ($arSymbol as $strSymbol)
 	{
 		$arData = array();
-		$strIndex = $strSymbol;
 		$ref = StockGetReference($strSymbol);
 		if ($ref->IsSymbolA())
 		{
@@ -50,9 +49,9 @@ function GetStockDataArray($strSymbols)
 				}
 				else if ($strSymbol == 'SZ164906')			$strIndex = 'KWEB';
 
-				$arData['symbol'] = $strSymbol;
 				$iHedge = GetArbitrageRatio($ref->GetStockId());
 				$arData['hedge'] = $iHedge;
+				$arData['symbol_hedge'] = $strIndex;
 				if ($iAskQuantity)
 				{
 					$arData['ask_price_hedge'] = RefGetPeerVal($fund_ref, $strAskPrice);
@@ -65,7 +64,7 @@ function GetStockDataArray($strSymbols)
 				}
 			}
 		}
-		$ar[$strIndex] = $arData;
+		$ar[$strSymbol] = $arData;
     }
     
     return $ar;

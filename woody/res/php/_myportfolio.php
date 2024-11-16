@@ -66,7 +66,7 @@ function _echoMergeParagraph($arMerge)
 			switch ($strSymbol)
 			{
 			case 'KWEB':
-				$ar[] = strval($iTotal + 400 - 274);
+				$ar[] = strval($iTotal + 00 - 274);
 				break;
 			}
 			RefEchoTableColumn($ref, $ar);

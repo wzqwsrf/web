@@ -129,7 +129,8 @@ class MysqlReference extends StockReference
    		if ($this->IsSinaFuture() && $this->CheckAdjustFactorTime($etf_ref))
    		{
    			$this->fFactor = EtfGetCalibration($this->GetPrice(), $etf_ref->GetPrice());
-   			$calibration_sql->WriteDaily($strEtfId, $etf_ref->GetDate(), strval($this->fFactor));
+//   			$calibration_sql->WriteDaily($strEtfId, $etf_ref->GetDate(), strval($this->fFactor));
+   			$calibration_sql->WriteDailyAverage($strEtfId, $etf_ref->GetDate(), strval($this->fFactor));
     	}
    		else
    		{

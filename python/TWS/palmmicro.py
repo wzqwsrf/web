@@ -8,9 +8,7 @@ from _tgprivate import TG_TOKEN
 
 class Palmmicro:
     def __init__(self):
-        # URL to which you want to send the array
         self.strUrl = 'https://palmmicro.com/php/telegram.php?token=' + TG_TOKEN
-
         iChatId = self.GetTelegramChatId()
         self.arMsg = {
             'update_id': 886050244,
@@ -34,11 +32,12 @@ class Palmmicro:
                        }
                     }
         self.arData = {}
-        #print(f"Secret Key: {TG_TOKEN}")
+        self.iTimer = 0
+        self.iTelegramTimer = 0
     
 
     def GetTimerInterval(self):
-        return 15 # to fetch data every 15 seconds 
+        return 30 # to fetch data every 30 seconds, palmmicro.com only update once a minute. 
     
     
     def GetTelegramChatId(self):
@@ -46,16 +45,20 @@ class Palmmicro:
 
 
     #@staticmethod
-    def FetchData(self, strSymbols):
+    def FetchData(self, arSymbol):
+        iCur = int(time.time())
+        if iCur - self.iTimer < self.GetTimerInterval():
+            return self.arData
+    
+        self.iTimer = iCur
         arMessage = self.arMsg['message']
         # Get the current time in seconds since the Unix epoch
         arMessage['date'] = int(time.time())
+        strSymbols = ','.join(arSymbol)
         arMessage['text'] = f"@{strSymbols}"
-        #print(self.arMsg)
 
         # Encode the array into a JSON formatted string
         strMsgJson = json.dumps(self.arMsg).encode('utf-8')
-        #print(strMsgJson)
 
         # Send the array as JSON in the HTTP POST request
         req = urllib.request.Request(self.strUrl, data=strMsgJson, headers={'Content-Type': 'application/json'})
@@ -63,17 +66,16 @@ class Palmmicro:
             response = urllib.request.urlopen(req)
         except urllib.error.URLError as e:
             print(f"FetchData error occurred: {e}")
-            arData = {}
-            arData['error'] = True
-            return arData
+            return self.arData
 
         # Read and print the response content
         response_content = response.read().decode('utf-8')
-        #print(response_content)
 
         # Parse the JSON response and display the chat_id field
         response_data = json.loads(response_content)
         response.close()
+
+        self.arData.clear()
         self.arData = response_data['text']
         return self.arData
 
@@ -86,7 +88,7 @@ class Palmmicro:
             
     
     def GetArbitrageResult(self, symbol, arPeerData, strType):
-        arResult = {'ratio': 1.0}
+        arResult = {'ratio': 1.0, 'size': 0}
         strPeerType = self.GetPeerStr(strType) 
         price = arPeerData[strPeerType + '_price']
         size = arPeerData[strPeerType + '_size'] 
@@ -102,6 +104,11 @@ class Palmmicro:
 
     
     def SendTelegramMsg(self, strMsg):
+        iCur = int(time.time())
+        if iCur - self.iTelegramTimer < self.GetTimerInterval()/2:
+            return
+    
+        self.iTelegramTimer = iCur
         url = 'https://api.telegram.org/bot' + TG_TOKEN + '/sendMessage?text=' + urllib.parse.quote_plus(strMsg) + '&chat_id=-1001346320717'
         try:
             response = urllib.request.urlopen(url)  # Send a GET request to the URL
@@ -110,8 +117,29 @@ class Palmmicro:
             # Handle the error gracefully, e.g., retrying, logging, etc.
             return
 
-        #print("Message sent successfully")
         data = response.read()                  # Read the response data
         decoded_data = data.decode('utf-8') # Decode the response data
         #print(decoded_data)  # Print the decoded response data
         response.close()  # Close the response object
+
+
+class Calibration:
+    def __init__(self, strSymbol):
+        self.strSymbol = strSymbol
+        self.fPrice = None
+        self.fTotal = 0.0
+        self.iCount = 0
+
+
+    def SetPrice(self, fPrice):
+        self.fPrice = fPrice
+
+
+    def Calc(self, fPeerPrice):
+        if self.fPrice != None:
+            fRatio = fPeerPrice/self.fPrice
+            self.fTotal += fRatio
+            self.iCount += 1
+            print(self.strSymbol, round(fRatio, 4), 'avg', round(self.fTotal/self.iCount, 4))
+
+

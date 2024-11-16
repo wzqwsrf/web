@@ -11,7 +11,7 @@ class IntSql extends ValSql
     function CreateIntTable($strExtra = '')
     {
     	$str = $this->ComposePrimaryIdStr().','
-         	  . $this->ComposeIdStr($this->GetValName())
+         	  . $this->ComposeIntStr($this->GetValName())
          	  . $strExtra;
     	return $this->CreateTable($str);
     }

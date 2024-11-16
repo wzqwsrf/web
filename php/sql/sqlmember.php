@@ -22,7 +22,7 @@ class MemberSql extends KeyNameSql
          	  . ' `activity` INT UNSIGNED NOT NULL ,'
          	  . ' `name` VARCHAR( 64 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL ,'
          	  . ' `signature` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL ,'
-    		  . $this->ComposeIdStr($this->strIpKey).','
+    		  . $this->ComposeIntStr($this->strIpKey).','
     		  . $this->ComposeForeignStr($this->strIpKey).','
          	  . ' FULLTEXT ( `signature` ) ,'
          	  . ' INDEX ( `status` ) ,'

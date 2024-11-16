@@ -25,14 +25,14 @@ class TableSql
 		return ' FOREIGN KEY (`'.$str.'`) REFERENCES `'.rtrim($str, '_id').'`(`id`) ON DELETE CASCADE ';
     }
     
-    function ComposeIdStr($str = 'id')
+    function ComposeIntStr($str = 'id')
     {
     	return ' `'.$str.'` INT UNSIGNED NOT NULL ';
     }
 
     function ComposePrimaryIdStr()
     {
-    	return $this->ComposeIdStr().'PRIMARY KEY';
+    	return $this->ComposeIntStr().'PRIMARY KEY';
     }
 
     function ComposeCloseStr()
@@ -57,7 +57,7 @@ class TableSql
     
     function CreateIdTable($str)
     {
-       	return $this->CreateTable($this->ComposeIdStr().'AUTO_INCREMENT PRIMARY KEY ,'.$str);
+       	return $this->CreateTable($this->ComposeIntStr().'AUTO_INCREMENT PRIMARY KEY ,'.$str);
     }
 
     function _query($strQuery, $strDie)

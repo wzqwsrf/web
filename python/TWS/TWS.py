@@ -6,70 +6,90 @@ from ibapi.contract import Contract
 from ibapi.order import Order
 
 from palmmicro import Palmmicro
+from palmmicro import Calibration
 from nyc_time import GetExchangeTime
+
+
+def IsChinaMarketOpen():
+    iTime = GetExchangeTime('SZSE')
+    if iTime >= 915 and iTime <= 1130:
+        return True
+    elif iTime >= 1300 and iTime <= 1500:
+        return True
+    return False
+
+
+def IsMarketOpen():
+    iTime = GetExchangeTime()
+    if iTime >= 930 and iTime <= 1600:
+        return True
+    return False
+
+
+def GetOrderArray(arPrice, iSize = 100, iBuyPos = -1, iSellPos = -1):
+    iLen = len(arPrice)
+    if iSellPos >= iLen or iSellPos < -1:
+        iSellPos = -1
+    if iBuyPos  >= iLen or iBuyPos < -1:
+        iBuyPos = -1
+
+    ar = {'price': arPrice,
+          'BUY_id': -1,
+          'SELL_id': -1,
+          'BUY_pos': iBuyPos,
+          'SELL_pos': iSellPos,
+          'size': iSize
+         }
+    return ar
+
+
+def GetMktDataArray(strSymbol, strYearMonth = None):
+    ar = {'symbol': strSymbol,
+          'year_month': strYearMonth,
+          'bid_price': None,
+          'ask_price': None,
+          'last_price': None,
+          'bid_size': None,
+          'ask_size': None
+         }
+    return ar
+
 
 class MyEWrapper(EWrapper):
     def __init__(self, client):
         self.client = client
-
-
-    def GetContractExchange(self):
-        iTime = GetExchangeTime('NYSE')
-        if iTime >= 350 and iTime <= 2000:
-            return 'SMART'
-        return 'OVERNIGHT'
-
-
-    def GetOrderArray(self, arPrice, iBuyPos, iSize):
-        iLen = len(arPrice)
-        iSellPos = iBuyPos + 2
-        if iSellPos >= iLen:
-            iSellPos = -1
-        if iBuyPos + 1 >= iLen:
-            iBuyPos = -1
-
-        ar = {
-            'price': arPrice,
-            'BUY_id': -1,
-            'SELL_id': -1,
-            'BUY_pos': iBuyPos,
-            'SELL_pos': iSellPos,
-            'size': iSize
-                  }
-        return ar
+        self.strNextFuture = '202503'
+        self.strDebug = ''
 
 
     def nextValidId(self, orderId: int):
-        self.iOrderId = orderId
-        
-        self.palmmicro = Palmmicro()
-        self.data = {}
+        self.arHedge = ['SH513350', 'SZ159518', 'SZ162411', 'SZ164906']
+        self.arSymbol = ['KWEB', 'XOP']
         self.arOrder = {}
-        self.arOrder['KWEB'] = self.GetOrderArray([31.0, 32.45, 32.62, 33.9, 37.96], -1, 200)
-        self.arOrder['XOP'] = self.GetOrderArray([114.65, 160.3], 1, 100)
+        self.arOrder['KWEB'] = GetOrderArray([29.32, 29.66, 30.36, 31.75, 32.09, 34.52, 38.07], 200, 1, 3)
+        self.arOrder['XOP'] = GetOrderArray([114.65, 160.3])
+        self.arOrder['MES'] = GetOrderArray([3670.97, 6152.64])
+        self.arOrder['SPX'] = GetOrderArray([3670.97, 6152.64])
 
-        strExchange = self.GetContractExchange()
-        self.arContract = {}
-        # start market data streaming
-        #self.client.reqMarketDataType(3)
-        for strSymbol in ['KWEB', 'XOP']:
-            contract = Contract()
-            contract.symbol = strSymbol
-            contract.secType = 'STK'
-            contract.exchange = strExchange
-            contract.currency = 'USD'
-            self.arContract[strSymbol] = contract
+        self.palmmicro = Palmmicro()
+        self.client.StartStreaming(orderId)
+        self.data = {}
+        for strSymbol in self.arSymbol:
+            iRequestId = self.client.StockReqMktData(strSymbol)
+            self.data[iRequestId] = GetMktDataArray(strSymbol)
+        '''
+        strSymbol = 'MES'
+        self.cal_mes = Calibration(strSymbol)
+        iRequestId = self.client.FutureReqMktData(strSymbol)
+        self.data[iRequestId] = GetMktDataArray(strSymbol)
+        iRequestId = self.client.FutureReqMktData(strSymbol, self.strNextFuture)
+        self.data[iRequestId] = GetMktDataArray(strSymbol, self.strNextFuture)
 
-            self.client.reqMktData(len(self.data) + 1, self.arContract[strSymbol], "", False, False, [])
-            self.data[len(self.data) + 1] = {
-                'symbol': strSymbol,
-                'last_processed_time': 0,
-                'bid_price': None,
-                'ask_price': None,
-                'bid_size': None,
-                'ask_size': None
-            }
-
+        strSymbol = 'SPX'
+        self.cal_spx = Calibration(strSymbol)
+        iRequestId = self.client.IndexReqMktData(strSymbol)
+        self.data[iRequestId] = GetMktDataArray(strSymbol)
+        '''
 
     def error(self, reqId, errorCode, errorString, contract):
         print('Error:', reqId, errorCode, errorString)
@@ -80,10 +100,15 @@ class MyEWrapper(EWrapper):
         if tickType == 1:  # Bid price
             data['bid_price'] = price
             self.BidPriceTrade(reqId)
+            self.CheckPriceAndSize(reqId)
         elif tickType == 2:  # Ask price
             data['ask_price'] = price
             self.AskPriceTrade(reqId)
-        self.CheckPriceAndSize(reqId)
+            self.CheckPriceAndSize(reqId)
+        elif tickType == 4:
+            data['last_price'] = price
+            if IsMarketOpen():
+                self.LastPriceTrade(reqId)
 
 
     def tickSize(self, reqId, tickType, size):
@@ -98,22 +123,24 @@ class MyEWrapper(EWrapper):
     def orderStatus(self, orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld, mktCapPrice):
         print('Order Status - OrderId:', orderId, 'Status:', status, 'Filled:', filled, 'Remaining:', remaining, 'AvgFillPrice:', avgFillPrice)
         if remaining == 0:
-            for symbol in ['KWEB', 'XOP']:
-                arOrder = self.arOrder[symbol]
+            for strSymbol in self.arSymbol:
+                arOrder = self.arOrder[strSymbol]
                 arPrice = arOrder['price']
                 iLen = len(arPrice)
                 if arOrder['BUY_id'] == orderId:
                     arOrder['BUY_id'] = -1
+                    iOldSellPos = arOrder['SELL_pos']
                     self.IncSellPos(arOrder, 'BUY_pos', iLen)
                     arOrder['BUY_pos'] -= 1
-                    if arOrder['SELL_id'] != -1 and arOrder['SELL_pos'] != -1:
-                        self.PlaceOrder(symbol, arPrice[arOrder['SELL_pos']], 'SELL', arOrder['SELL_id'])
+                    if arOrder['SELL_id'] != -1 and arOrder['SELL_pos'] > -1 and arOrder['SELL_pos'] != iOldSellPos:
+                        self.client.CallPlaceOrder(strSymbol, arPrice[arOrder['SELL_pos']], arOrder['size'], 'SELL', arOrder['SELL_id'])
                 elif arOrder['SELL_id'] == orderId:
                     arOrder['SELL_id'] = -1
+                    iOldBuyPos = arOrder['BUY_pos']
                     arOrder['BUY_pos'] = arOrder['SELL_pos'] - 1
                     self.IncSellPos(arOrder, 'SELL_pos', iLen)
-                    if arOrder['BUY_id'] != -1 and arOrder['BUY_pos'] != -1:
-                        self.PlaceOrder(symbol, arPrice[arOrder['BUY_pos']], 'BUY', arOrder['BUY_id'])
+                    if arOrder['BUY_id'] != -1 and arOrder['BUY_pos'] > -1 and arOrder['BUY_pos'] != iOldBuyPos:
+                        self.client.CallPlaceOrder(strSymbol, arPrice[arOrder['BUY_pos']], arOrder['size'], 'BUY', arOrder['BUY_id'])
 
 
     def IncSellPos(self, arOrder, strFrom, iLen):
@@ -121,14 +148,141 @@ class MyEWrapper(EWrapper):
         if arOrder['SELL_pos'] >= iLen:
             arOrder['SELL_pos'] = -1
 
+
+    def LastPriceTrade(self, reqId):
+        data = self.data[reqId]
+        strSymbol = data['symbol']
+        if strSymbol == 'MES':
+            if data['year_month'] == self.strNextFuture:
+                self.cal_mes.Calc(data['last_price'])
+            else:
+                self.cal_mes.SetPrice(data['last_price'])
+                self.cal_spx.Calc(data['last_price'])
+        elif strSymbol == 'SPX':
+            self.cal_spx.SetPrice(data['last_price'])
+
     
-    def PlaceOrder(self, symbol, price, strAction, iOrderId):
-        arOrder = self.arOrder[symbol]
-        contract = self.arContract[symbol]
+    def AskPriceTrade(self, reqId):
+        data = self.data[reqId]
+        strSymbol = data['symbol']
+        arOrder = self.arOrder[strSymbol]
+        if arOrder['BUY_id'] == -1:
+            iPos = arOrder['BUY_pos']
+            if iPos != -1:
+                fPrice = arOrder['price'][iPos]
+                if data['ask_price'] > fPrice:
+                    arOrder['BUY_id'] = self.client.CallPlaceOrder(strSymbol, fPrice, arOrder['size'], 'BUY')
+
+
+    def BidPriceTrade(self, reqId):
+        data = self.data[reqId]
+        strSymbol = data['symbol']
+        arOrder = self.arOrder[strSymbol]
+        if arOrder['SELL_id'] == -1:
+            iPos = arOrder['SELL_pos']
+            if iPos != -1:
+                fPrice = arOrder['price'][iPos]
+                if data['bid_price'] < fPrice:
+                    arOrder['SELL_id'] = self.client.CallPlaceOrder(strSymbol, fPrice, arOrder['size'], 'SELL')
+
+
+    def CheckPriceAndSize(self, reqId):
+        if IsChinaMarketOpen():
+            data = self.data[reqId]
+            if all(data[attr] is not None for attr in ['bid_price', 'ask_price', 'bid_size', 'ask_size']):
+                self.ProcessPriceAndSize(reqId)
+
+
+    def GetSellBuyStr(self, strType):
+        if strType == 'ask':
+            return 'Sell'
+        elif strType == 'bid':
+            return 'Buy'
+
+    
+    def DebugPriceAndSize(self, strSymbol, strHedge, data, arReply, arResult, strType):
+        fRatio = arResult['ratio']
+        iSize = arResult['size']
+        if iSize > 0 and ((fRatio > 1.005 and strType == 'ask') or (fRatio < 0.999 and strType == 'bid')):
+            strPeerType = self.palmmicro.GetPeerStr(strType)
+            strDebug = str(round((fRatio - 1.0)*100.0, 2)) + '% '
+            strDebug += self.GetSellBuyStr(strType) + ' ' + str(iSize) + ' ' + strSymbol + ' at ' + str(data[strPeerType + '_price']) + ' and '
+            strDebug += self.GetSellBuyStr(strPeerType) + ' ' + str(arResult['size_hedge']) + ' ' + strHedge + ' at ' + arReply[strType + '_price']
+            if self.strDebug != strDebug:
+                print(strDebug)
+                self.strDebug = strDebug
+                if iSize >= 100 and ((fRatio > 1.01 and strType == 'ask') or (fRatio < 0.995 and strType == 'bid')):
+                    self.palmmicro.SendTelegramMsg(strDebug)
+
+
+    def ProcessPriceAndSize(self, reqId):
+        data = self.data[reqId]
+        strSymbol = data['symbol']
+        arPalmmicro = self.palmmicro.FetchData(self.arHedge)
+        for strHedge in self.arHedge:
+            arReply = arPalmmicro[strHedge]
+            if 'symbol_hedge' in arReply and arReply['symbol_hedge'] == strSymbol:
+                for strType in ['ask', 'bid']:
+                    arResult = self.palmmicro.GetArbitrageResult(strHedge, data, strType)
+                    self.DebugPriceAndSize(strSymbol, strHedge, data, arReply, arResult, strType)
+
+
+def GetContractExchange():
+    iTime = GetExchangeTime()
+    if iTime >= 350 and iTime <= 2000:
+        return 'SMART'
+    return 'OVERNIGHT'
+
+
+class MyEClient(EClient):
+    def __init__(self, wrapper):
+        EClient.__init__(self, wrapper)
+        self.wrapper = wrapper
+
+
+    def StartStreaming(self, iOrderId):
+        self.iOrderId = iOrderId
+        self.iRequestId = 0
+        self.arContract = {}
+
+
+    def callReqMktData(self, strSymbol, contract):
+        contract.symbol = strSymbol
+        contract.currency = 'USD'
+        self.arContract[strSymbol] = contract
+        self.iRequestId += 1
+        self.reqMktData(self.iRequestId, contract, '', False, False, [])
+        return self.iRequestId
+
+
+    def FutureReqMktData(self, strSymbol, strYearMonth = '202412'):
+        contract = Contract()
+        contract.secType = 'FUT'
+        contract.exchange = 'CME'
+        contract.lastTradeDateOrContractMonth = strYearMonth
+        return self.callReqMktData(strSymbol, contract)
+
+
+    def StockReqMktData(self, strSymbol):
+        contract = Contract()
+        contract.secType = 'STK'
+        contract.exchange = GetContractExchange()
+        return self.callReqMktData(strSymbol, contract)
+
+
+    def IndexReqMktData(self, strSymbol):
+        contract = Contract()
+        contract.secType = 'IND'
+        contract.exchange = 'CBOE'
+        return self.callReqMktData(strSymbol, contract)
+
+
+    def CallPlaceOrder(self, strSymbol, price, iSize, strAction, iOrderId = -1):
+        contract = self.arContract[strSymbol]
 
         order = Order()
         order.action = strAction
-        order.totalQuantity = arOrder['size']
+        order.totalQuantity = iSize
         order.orderType = 'LMT'
         order.lmtPrice = price
         if contract.exchange != 'OVERNIGHT':
@@ -139,101 +293,8 @@ class MyEWrapper(EWrapper):
             self.iOrderId += 1
 
         # Place the order
-        self.client.placeOrder(iOrderId, contract, order)
-        arOrder[strAction + '_id'] = iOrderId
-
-
-    def AskPriceTrade(self, reqId):
-        data = self.data[reqId]
-        symbol = data['symbol']
-        arOrder = self.arOrder[symbol]
-        if arOrder['BUY_id'] == -1:
-            iPos = arOrder['BUY_pos']
-            if iPos != -1:
-                fPrice = arOrder['price'][iPos]
-                if data['ask_price'] > fPrice:
-                    self.PlaceOrder(symbol, fPrice, 'BUY', -1)
-
-
-    def BidPriceTrade(self, reqId):
-        data = self.data[reqId]
-        symbol = data['symbol']
-        arOrder = self.arOrder[symbol]
-        if arOrder['SELL_id'] == -1:
-            iPos = arOrder['SELL_pos']
-            if iPos != -1:
-                fPrice = arOrder['price'][iPos]
-                if data['bid_price'] < fPrice:
-                    self.PlaceOrder(symbol, fPrice, 'SELL', -1)
-
-
-    def CheckPriceAndSize(self, reqId):
-        if self.IsOverNight(reqId):
-            current_time = int(time.time())
-            data = self.data[reqId]
-            if all(data[attr] is not None for attr in ['bid_price', 'ask_price', 'bid_size', 'ask_size']):
-                if current_time - data['last_processed_time'] >= self.palmmicro.GetTimerInterval():
-                    self.ProcessPriceAndSize(reqId)
-                    data['last_processed_time'] = current_time
-
-
-    def IsOverNight(self, reqId):
-        data = self.data[reqId]
-        symbol = data['symbol']
-        contract = self.arContract[symbol]
-        if contract.exchange == 'OVERNIGHT':
-            return True
-        return False
-
-
-    def IsChinaMarketOpen(self):
-        iTime = GetExchangeTime('SZSE')
-        if iTime >= 915 and iTime <= 1130:
-            return True
-        elif iTime >= 1300 and iTime <= 1500:
-            return True
-        return False
-
-
-    def GetSellBuyStr(self, strType):
-        if strType == 'ask':
-            return 'Sell'
-        elif strType == 'bid':
-            return 'Buy'
-
-    
-    def DebugPriceAndSize(self, symbol, data, arReply, arResult, strType):
-        fRatio = arResult['ratio']
-        if (fRatio > 1.005 and strType == 'ask') or (fRatio < 0.999 and strType == 'bid'):
-            print(data)
-            print(arReply)
-            strPeerType = self.palmmicro.GetPeerStr(strType)
-            iSize = arResult['size']
-            strDebug = str(round((fRatio - 1.0)*100.0, 2)) + '% '
-            strDebug += self.GetSellBuyStr(strType) + ' ' + str(iSize) + ' ' + symbol + ' at ' + str(data[strPeerType + '_price']) + ' and '
-            strDebug += self.GetSellBuyStr(strPeerType) + ' ' + str(arResult['size_hedge']) + ' ' + arReply['symbol'] + ' at ' + arReply[strType + '_price']
-            print(strDebug)
-            if (fRatio > 1.01 and strType == 'ask') or (fRatio < 0.995 and strType == 'bid'):
-                if self.IsChinaMarketOpen() and iSize >= 100:
-                    self.palmmicro.SendTelegramMsg(strDebug)
-
-
-    def ProcessPriceAndSize(self, reqId):
-        data = self.data[reqId]
-        symbol = data['symbol']
-        arPalmmicro = self.palmmicro.FetchData('164906,162411')
-        if symbol in arPalmmicro:
-            arReply = arPalmmicro[symbol]
-            for strType in ['ask', 'bid']:
-                arResult = self.palmmicro.GetArbitrageResult(symbol, data, strType)
-                self.DebugPriceAndSize(symbol, data, arReply, arResult, strType)
-            print('*')
-
-
-class MyEClient(EClient):
-    def __init__(self, wrapper):
-        EClient.__init__(self, wrapper)
-        self.wrapper = wrapper
+        self.placeOrder(iOrderId, contract, order)
+        return iOrderId
 
 
 app = MyEClient(MyEWrapper(None))

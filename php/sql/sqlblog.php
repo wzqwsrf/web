@@ -32,7 +32,7 @@ class PageCommentSql extends VisitorSql
     public function Create()
     {
     	$str = '`comment` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL ,'
-    		 . $this->ComposeIdStr($this->strIpKey).','
+    		 . $this->ComposeIntStr($this->strIpKey).','
     		 . $this->ComposeForeignStr($this->strIpKey).',';
     	return $this->CreateVisitorTable($str);
     }
