@@ -6,7 +6,7 @@ function _getPortfolioTestVal($iShares, $strSymbol)
 	switch ($strSymbol)
     {
     case 'KWEB':
-		$iQuantity = 2129;
+		$iQuantity = 1738;
 		break;
 		
     case 'SH600104':
@@ -125,7 +125,8 @@ function _echoPortfolioTableItem($trans)
 			break;
 			
 		case 'fx_susdcnh':
-			$ar[] = GetNumberDisplay(($fVal + $fCny) / floatval($ref->GetPrice()));
+			$fVal += $fCny;
+			$ar[] = GetNumberDisplay($fVal).' $'.GetNumberDisplay($fVal / floatval($ref->GetPrice()));
 			break;
    		}
     }

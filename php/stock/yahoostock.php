@@ -514,7 +514,7 @@ function UpdateYahooHistoryChart($ref)
 	        {
 //	        	if (($strClose == $strOpen) && ($strClose == $strHigh) && ($strClose == $strLow))
 //	        	{
-	        		DebugString('Holiday: '.$strDate.' '.$strOpen.' '.$strHigh.' '.$strLow.' '.$strClose.' '.$strVolume.' '.$strAdjClose);
+	        		DebugString('Zero volume, holiday? '.$strDate.' '.$strOpen.' '.$strHigh.' '.$strLow.' '.$strClose.' '.$strVolume.' '.$strAdjClose);
 	        		continue;
 //	        	}
 	        }

@@ -9,13 +9,14 @@ function _stockGroupGetStockLinks($strGroupId)
 	$arStock = SqlGetStocksArray($strGroupId);
 	foreach ($arStock as $strSymbol)
 	{
+		$sym = new StockSymbol($strSymbol);
 		if (in_array($strSymbol, $arSymbol))
 		{
-			$strStocks .= $strSymbol;
+			$strStocks .= $sym->GetDisplay();
 		}
 		else
 		{
-			$strStocks .= GetMyStockLink($strSymbol);
+			$strStocks .= $sym->GetMyStockLink();
 			$arSymbol[] = $strSymbol;
 		}
 		$strStocks .= ', ';

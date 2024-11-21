@@ -97,15 +97,20 @@ function GetMyStockLink($strSymbol = false, $strDisplay = false)
 }
 
 define('CALIBRATION_HISTORY_DISPLAY', '校准记录');
-function GetCalibrationHistoryLink($strSymbol, $bDisplaySymbol = false)
+function GetCalibrationHistoryLink($strSymbol, $strDisplay = CALIBRATION_HISTORY_DISPLAY)
 {
-    return GetStockSymbolLink('calibrationhistory', $strSymbol, ($bDisplaySymbol ? $strSymbol : CALIBRATION_HISTORY_DISPLAY));
+    return GetStockSymbolLink('calibrationhistory', $strSymbol, ($strDisplay ? $strDisplay : $strSymbol));
+}
+
+function SymCalibrationHistoryLink($sym)
+{
+    return GetCalibrationHistoryLink($sym->GetSymbol(), $sym->GetDisplay());
 }
 
 define('HOLDINGS_DISPLAY', '基金持仓');
-function GetHoldingsLink($strSymbol, $bDisplaySymbol = false)
+function GetHoldingsLink($strSymbol, $strDisplay = HOLDINGS_DISPLAY)
 {
-    return GetStockSymbolLink('holdings', $strSymbol, ($bDisplaySymbol ? $strSymbol : HOLDINGS_DISPLAY));
+    return GetStockSymbolLink('holdings', $strSymbol, ($strDisplay ? $strDisplay : $strSymbol));
 }
 
 define('STOCK_HISTORY_DISPLAY', '历史价格');
@@ -281,7 +286,11 @@ function StockGetTransactionLink($strGroupId, $strSymbol, $strDisplay = false)
     $strQuery = 'groupid='.$strGroupId;
     if ($strSymbol)	$strQuery .= '&symbol='.$strSymbol;
     
-    if ($strDisplay == false)	$strDisplay = $strSymbol;
+    if ($strDisplay == false)
+    {
+    	$sym = new StockSymbol($strSymbol);
+    	$strDisplay = $sym->GetDisplay();
+    }
 	return GetStockPageLink('mystocktransaction', $strDisplay, $strQuery);
 }
 

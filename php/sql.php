@@ -124,7 +124,7 @@ function SqlCountTableData($strTableName, $strWhere = false)
 	if ($result = mysqli_query($g_link, $strQry))
 	{
 		$record = mysqli_fetch_array($result);
-		return intval($record['total']);
+		if (isset($record['total']))		return intval($record['total']);
 	}
 	return 0;
 }

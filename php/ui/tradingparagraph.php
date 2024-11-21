@@ -119,13 +119,10 @@ function EchoFundTradingParagraph($fund, $callback = false)
     		$strEstPrice .= '/'.$ref->GetPriceDisplay($strFair, $strPrev);
     	}
 
-    	if (method_exists($fund, 'GetRealtimeNav'))
-    	{
-    		if ($strRealtime = $fund->GetRealtimeNav())
-    		{
-    			$arColumn[] = new TableColumnPremium(STOCK_DISP_REALTIME);
-    			$strEstPrice .= '/'.$ref->GetPriceDisplay($strRealtime, $strPrev);
-    		}
+   		if ($strRealtime = $fund->GetRealtimeNav())
+   		{
+   			$arColumn[] = new TableColumnPremium(STOCK_DISP_REALTIME);
+   			$strEstPrice .= '/'.$ref->GetPriceDisplay($strRealtime, $strPrev);
     	}
 
     	$strEst = GetTableColumnEst();
@@ -144,7 +141,7 @@ function EchoFundTradingParagraph($fund, $callback = false)
 
 function EchoFundPairTradingParagraph($ref)
 {
-    $strPairSymbol = RefGetMyStockLink($ref->GetPairNavRef());
+    $strPairSymbol = RefGetMyStockLink($ref->GetPairRef());
 
     $arColumn = _getTradingTableColumn();
     $col = new TableColumnPremium(STOCK_DISP_OFFICIAL);

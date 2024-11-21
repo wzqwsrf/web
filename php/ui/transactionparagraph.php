@@ -5,9 +5,8 @@ function _echoTransactionTableItem($ref, $record, $bReadOnly, $bAdmin)
 {
 	$strDate = GetSqlTransactionDate($record);
 	$strQuantity = $record['quantity']; 
-    $strSymbol = $ref->GetSymbol();
     
-    $ar = array($strDate, $strSymbol, $strQuantity);
+    $ar = array($strDate, $ref->GetDisplay(), $strQuantity);
     $strPrice = $record['price'];
 //    $ar[] = $ref->GetPriceDisplay($strPrice);
     $ar[] = strval_round($strPrice, 4);
@@ -24,6 +23,7 @@ function _echoTransactionTableItem($ref, $record, $bReadOnly, $bAdmin)
 			{
 				$nav_sql = GetNavHistorySql();
 				$strStockId = $ref->GetStockId();
+				$strSymbol = $ref->GetSymbol();
 				if (in_arrayQdii($strSymbol) || in_arrayQdiiMix($strSymbol))		$strNetValue = $nav_sql->GetClosePrev($strStockId, $strDate);
 				else																	$strNetValue = $nav_sql->GetClose($strStockId, $strDate);
 				

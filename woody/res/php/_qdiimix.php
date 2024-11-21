@@ -11,6 +11,7 @@ require_once('_szseholdings.php');
 class _QdiiMixAccount extends FundGroupAccount
 {
     var $us_ref;
+    var $pair_ref;
     var $cnh_ref;
 
     function Create()
@@ -19,7 +20,7 @@ class _QdiiMixAccount extends FundGroupAccount
         $strSymbol = $this->GetName();
         StockPrefetchExtendedData($strSymbol, $strCNH);
 
-        $this->cnh_ref = new ForexReference($strCNH);
+        $this->cnh_ref = new MyStockReference($strCNH);
         $this->ref = new HoldingsReference($strSymbol);
         switch ($strSymbol)
         {
@@ -29,10 +30,12 @@ class _QdiiMixAccount extends FundGroupAccount
         	
         case 'SZ164906':
         	$this->us_ref = new HoldingsReference('KWEB');
+        	$this->pair_ref = new FundPairReference($strSymbol);
         	break;
         	
 		default:
         	$this->us_ref = false;
+        	$this->pair_ref = false;
         	break;
         }
 
@@ -78,13 +81,13 @@ class _QdiiMixAccount extends FundGroupAccount
 			{
 				$uscny_ref = $ref->GetCnyRef();
 				$fFactor = QdiiGetCalibration($strUsNav, $nav_sql->GetClose($uscny_ref->GetStockId(), $strNavDate), $nav_sql->GetClose($strStockId, $strNavDate));
-				$calibration_sql = new CalibrationSql();
+				$calibration_sql = GetCalibrationSql();
 				$calibration_sql->WriteDaily($strStockId, $strNavDate, strval($fFactor));
 			}
 			break;
 			
 		default:
-    		$fund_est_sql = $ref->GetFundEstSql();
+    		$fund_est_sql = GetFundEstSql();
     		$strEstDate = $fund_est_sql->GetDateNow($strStockId);
     		if ($strEstDate == $strNavDate)													return;	//
     		$strDate = $ref->GetDate();
@@ -115,21 +118,16 @@ class _QdiiMixAccount extends FundGroupAccount
     {
     	return $this->us_ref;
     }
+    
+    function GetPairRef()
+    {
+    	return $this->pair_ref;
+    }
 }
 
 function _callbackQdiiMixSma($ref, $strEst = false)
 {
-	if ($strEst)
-	{
-		$uscny_ref = $ref->GetCnyRef();
-		$strStockId = $ref->GetStockId();
-		$calibration_sql = new CalibrationSql();
-		$strDate = $calibration_sql->GetDateNow($strStockId);
-		
-		$fVal = QdiiGetVal(floatval($strEst), floatval($uscny_ref->GetPrice()), floatval($calibration_sql->GetCloseNow($strStockId)));
-		$fVal = FundAdjustPosition(RefGetPosition($ref), $fVal, floatval(SqlGetNavByDate($strStockId, $strDate)));
-		return strval_round($fVal);
-	}
+	if ($strEst)	return strval_round($ref->EstFromPair(floatval($strEst)));
 	return $ref;
 }
 
@@ -137,14 +135,12 @@ function _callbackQdiiMixTrading($strVal = false)
 {
 	global $acct;
     
-	$us_ref = $acct->GetUsRef();
+	$ref = $acct->GetPairRef();
+	$us_ref = $ref->GetPairRef();
     if ($strVal)
     {
     	if ($strVal == '0')	return '';
-    	else
-    	{
-    		return $us_ref->GetPriceDisplay(RefGetPeerVal($acct->GetRef(), $strVal));
-    	}
+    	else		    		return $us_ref->GetPriceDisplay(strval($ref->EstToPair(floatval($strVal))));
     }
    	return GetTableColumnStock($us_ref).GetTableColumnPrice();
 }
@@ -167,7 +163,7 @@ function EchoAll()
 	{
 		EchoFundTradingParagraph($ref, '_callbackQdiiMixTrading');
 		EchoHoldingsEstParagraph($us_ref);
-		EchoSmaParagraph($us_ref, false, $ref, '_callbackQdiiMixSma');
+		EchoSmaParagraph($us_ref, false, $acct->GetPairRef(), '_callbackQdiiMixSma');
 	}
 	else	
 	{

@@ -53,7 +53,7 @@ function _echoHistoryTableData($his_sql, $fund_est_sql, $csv, $ref, $strStockId,
     }
 }
 
-function _echoFundHistoryParagraph($fund_est_sql, $ref, $est_ref, $csv, $iStart, $iNum, $bAdmin)
+function _echoFundHistoryParagraph($ref, $est_ref, $csv, $iStart, $iNum, $bAdmin)
 {
 	$close_col = new TableColumnPrice();
 	$nav_col = new TableColumnNav();
@@ -73,17 +73,15 @@ function _echoFundHistoryParagraph($fund_est_sql, $ref, $est_ref, $csv, $iStart,
     else	$strMenuLink = StockGetMenuLink($strSymbol, $his_sql->Count($strStockId), $iStart, $iNum);
 
 	$ar = array(new TableColumnDate(), $close_col, $nav_col, $premium_col);
-	if ($fund_est_sql)
+	$fund_est_sql = GetFundEstSql();
+	if ($fund_est_sql->Count($strStockId) > 0)
 	{
-		if ($fund_est_sql->Count($strStockId) > 0)
-		{
-			$ar[] = new TableColumnOfficalEst();
-			$ar[] = new TableColumnTime();
-			$ar[] = new TableColumnError();
-			if ($est_ref)		$ar[] = RefGetTableColumnNav($est_ref);
-		}
-		else	$fund_est_sql = false;
+		$ar[] = new TableColumnOfficalEst();
+		$ar[] = new TableColumnTime();
+		$ar[] = new TableColumnError();
+		if ($est_ref)		$ar[] = RefGetTableColumnNav($est_ref);
 	}
+	else	$fund_est_sql = false;
 	
 	EchoTableParagraphBegin($ar, $strSymbol.'fundhistory', $str.' '.$strMenuLink);
 	_echoHistoryTableData($his_sql, $fund_est_sql, $csv, $ref, $strStockId, $est_ref, $iStart, $iNum, $bAdmin);
@@ -94,12 +92,12 @@ function EchoFundHistoryParagraph($ref, $csv = false, $iStart = 0, $iNum = TABLE
 {
 	if (method_exists($ref, 'GetStockRef'))
 	{
-		_echoFundHistoryParagraph($ref->GetFundEstSql(), $ref->GetStockRef(), $ref->GetEstRef(), $csv, $iStart, $iNum, $bAdmin);
+		_echoFundHistoryParagraph($ref->GetStockRef(), $ref->GetEstRef(), $csv, $iStart, $iNum, $bAdmin);
 	}
-	else if (method_exists($ref, 'GetFundEstSql'))
+	else
 	{
 		$est_ref = method_exists($ref, 'GetPairRef') ? $ref->GetPairRef() : false;
-		_echoFundHistoryParagraph($ref->GetFundEstSql(), $ref, $est_ref, $csv, $iStart, $iNum, $bAdmin);
+		_echoFundHistoryParagraph($ref, $est_ref, $csv, $iStart, $iNum, $bAdmin);
 	}
 }
 

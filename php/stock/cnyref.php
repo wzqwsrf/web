@@ -18,15 +18,6 @@ class CnyReference extends MysqlReference
 		if ($strDate == $this->GetDate())	return $this->GetPrice();
 		return SqlGetNavByDate($this->strSqlId, $strDate);
 	}
-	
-	function GetVal($strDate = false)
-	{
-		if ($strDate)
-		{
-			if ($strClose = $this->GetClose($strDate))		return floatval($strClose);
-		}
-		return floatval($this->GetPrice());
-	}
 }
 
 class HkdUsdReference
@@ -40,9 +31,14 @@ class HkdUsdReference
    		$this->hkcny_ref = new CnyReference('HKCNY');
     }
     
-	function GetVal($strDate = false)
+	public function GetVal($strDate = false)
 	{
 		return $this->hkcny_ref->GetVal($strDate) / $this->uscny_ref->GetVal($strDate); 
+	}
+    
+	public function GetClose($strDate)
+	{
+		return $this->hkcny_ref->GetClose($strDate) / $this->uscny_ref->GetClose($strDate); 
 	}
 }
 

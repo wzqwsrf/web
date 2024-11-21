@@ -68,7 +68,7 @@ function _deleteHasFundPair($strSymbol)
 
 function _deleteHasCalibration($strStockId)
 {
-   	$calibration_sql = new CalibrationSql();
+   	$calibration_sql = GetCalibrationSql();
 	$iTotal = $calibration_sql->Count($strStockId);
 	if ($iTotal > 0)
 	{

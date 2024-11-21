@@ -2,6 +2,7 @@
 require_once('sqlkeyname.php');
 require_once('sqlkeytable.php');
 require_once('sqldailyclose.php');
+require_once('sqldailytime.php');
 require_once('sqlholdings.php');
 
 class NavHistorySql extends DailyCloseSql
@@ -112,23 +113,25 @@ class StockHistorySql extends DailyCloseSql
 
 class StockSql extends KeyNameSql
 {
-    var $his_sql;
-    var $nav_sql;
-	var $holdings_sql;
-    
+    var $calibration_sql;
     var $ema50_sql;
     var $ema200_sql;
+	var $fund_est_sql;
+    var $his_sql;
+	var $holdings_sql;
+    var $nav_sql;
     
     public function __construct()
     {
         parent::__construct('stock', 'symbol');
         
-       	$this->his_sql = new StockHistorySql();
-       	$this->nav_sql = new NavHistorySql();
-        $this->holdings_sql = new HoldingsSql();
-       	
+       	$this->calibration_sql = new CalibrationSql();
        	$this->ema50_sql = new StockEmaSql(50);
        	$this->ema200_sql = new StockEmaSql(200);
+       	$this->fund_est_sql = new FundEstSql();
+       	$this->his_sql = new StockHistorySql();
+        $this->holdings_sql = new HoldingsSql();
+       	$this->nav_sql = new NavHistorySql();
     }
 
     public function Create()
@@ -236,6 +239,18 @@ function SqlGetStockSymbolAndId($strWhere, $strLimit = false)
    		mysqli_free_result($result);
     }
     return $ar;
+}
+
+function GetCalibrationSql()
+{
+	global $g_stock_sql;
+   	return $g_stock_sql->calibration_sql;
+}
+
+function GetFundEstSql()
+{
+	global $g_stock_sql;
+   	return $g_stock_sql->fund_est_sql;
 }
 
 function GetStockHistorySql()

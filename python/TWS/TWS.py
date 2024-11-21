@@ -66,7 +66,7 @@ class MyEWrapper(EWrapper):
         self.arHedge = ['SH513350', 'SZ159518', 'SZ162411', 'SZ164906']
         self.arSymbol = ['KWEB', 'XOP']
         self.arOrder = {}
-        self.arOrder['KWEB'] = GetOrderArray([29.32, 29.66, 30.36, 31.75, 32.09, 34.52, 38.07], 200, 1, 3)
+        self.arOrder['KWEB'] = GetOrderArray([29.28, 30.74, 30.92, 31.88, 34.49, 38.07], 200, 2, 4)
         self.arOrder['XOP'] = GetOrderArray([114.65, 160.3])
         self.arOrder['MES'] = GetOrderArray([3670.97, 6152.64])
         self.arOrder['SPX'] = GetOrderArray([3670.97, 6152.64])
@@ -77,19 +77,8 @@ class MyEWrapper(EWrapper):
         for strSymbol in self.arSymbol:
             iRequestId = self.client.StockReqMktData(strSymbol)
             self.data[iRequestId] = GetMktDataArray(strSymbol)
-        '''
-        strSymbol = 'MES'
-        self.cal_mes = Calibration(strSymbol)
-        iRequestId = self.client.FutureReqMktData(strSymbol)
-        self.data[iRequestId] = GetMktDataArray(strSymbol)
-        iRequestId = self.client.FutureReqMktData(strSymbol, self.strNextFuture)
-        self.data[iRequestId] = GetMktDataArray(strSymbol, self.strNextFuture)
+        #self.IndexStreaming()
 
-        strSymbol = 'SPX'
-        self.cal_spx = Calibration(strSymbol)
-        iRequestId = self.client.IndexReqMktData(strSymbol)
-        self.data[iRequestId] = GetMktDataArray(strSymbol)
-        '''
 
     def error(self, reqId, errorCode, errorString, contract):
         print('Error:', reqId, errorCode, errorString)
@@ -147,6 +136,20 @@ class MyEWrapper(EWrapper):
         arOrder['SELL_pos'] = arOrder[strFrom] + 1
         if arOrder['SELL_pos'] >= iLen:
             arOrder['SELL_pos'] = -1
+
+
+    def IndexStreaming(self):
+        strSymbol = 'MES'
+        self.cal_mes = Calibration(strSymbol)
+        iRequestId = self.client.FutureReqMktData(strSymbol)
+        self.data[iRequestId] = GetMktDataArray(strSymbol)
+        iRequestId = self.client.FutureReqMktData(strSymbol, self.strNextFuture)
+        self.data[iRequestId] = GetMktDataArray(strSymbol, self.strNextFuture)
+
+        strSymbol = 'SPX'
+        self.cal_spx = Calibration(strSymbol)
+        iRequestId = self.client.IndexReqMktData(strSymbol)
+        self.data[iRequestId] = GetMktDataArray(strSymbol)
 
 
     def LastPriceTrade(self, reqId):

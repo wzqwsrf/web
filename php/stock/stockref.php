@@ -381,7 +381,7 @@ class StockReference extends StockSymbol
         $this->strHigh = $ar[4];
         $this->strLow = $ar[5];
 //        $this->strVolume = $ar[9];	// 这是持仓量
-        $this->strVolume = '0';
+//        $this->strVolume = '0';
     }
     
     function _onSinaFutureCN($ar)
@@ -462,18 +462,11 @@ class StockReference extends StockSymbol
 //        $this->strDate = $ar[10];
 //		$this->strDate = end($ar);
 		$this->_convertDateTimeToUS(end($ar), $ar[0]);
-    }       
 
-	function GetMyStockLink()
-	{
-		return GetMyStockLink($this->GetSymbol(), $this->GetDisplay());
-	}
-	
-    function GetStockLink()
-    {
-		if ($str = GetGroupStockLink($this->GetSymbol()))		return $str;
-		return	$this->GetMyStockLink();
-	}
+        $this->strOpen = $ar[5];
+        $this->strHigh = $ar[6];
+        $this->strLow = $ar[7];
+    }       
 }
 
 // ****************************** ExtendedTrading Class *******************************************************

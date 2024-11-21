@@ -31,13 +31,10 @@ function _echoFundEstTableItem($ref, $bFair, $bWide = false)
     	$ar[] = '';
     }
     
-    if (method_exists($ref, 'GetRealtimeNav'))
-    {
-    	if ($strRealtimePrice = $ref->GetRealtimeNav())
-    	{
-    		$ar[] = $ref->GetPriceDisplay($strRealtimePrice);
-    		$ar[] = $ref->GetPercentageDisplay($strRealtimePrice);
-    	}
+   	if ($strRealtimePrice = $ref->GetRealtimeNav())
+   	{
+   		$ar[] = $ref->GetPriceDisplay($strRealtimePrice);
+   		$ar[] = $ref->GetPercentageDisplay($strRealtimePrice);
     }
     
 	RefEchoTableColumn($ref, $ar, $bWide);
@@ -77,14 +74,11 @@ function _getFundEstTableColumn($arRef, &$bFair, $bWide = false)
 	
     foreach ($arRef as $ref)
     {
-    	if (method_exists($ref, 'GetRealtimeNav'))
-    	{
-    		if ($ref->GetRealtimeNav())
-    		{
-    			$ar[] = new TableColumnRealtimeEst();
-    			$ar[] = $premium_col;
-    			break;
-    		}
+   		if ($ref->GetRealtimeNav())
+   		{
+   			$ar[] = new TableColumnRealtimeEst();
+   			$ar[] = $premium_col;
+   			break;
     	}
     }
     return $ar;
@@ -136,7 +130,7 @@ function EchoFundEstParagraph($ref)
     	$realtime_ref = $ref->GetRealtimeRef();
     	$rt_etf_ref = $ref->GetRtEtfRef();
     
-    	$str .= $col->GetDisplay().$realtime_ref->GetMyStockLink().'和'.GetCalibrationHistoryLink($rt_etf_ref->GetSymbol(), true);
+    	$str .= $col->GetDisplay().$realtime_ref->GetMyStockLink().'和'.SymCalibrationHistoryLink($rt_etf_ref);
     	if ($rt_etf_ref != $est_ref)	$str .= '、'.$est_ref->GetMyStockLink().'和'.$rt_etf_ref->GetMyStockLink();
     	$str .= '关联程度按照100%估算。';
     }

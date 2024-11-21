@@ -34,7 +34,7 @@ function _readXlsFile($bIshares, $strPathName, $nav_sql, $shares_sql, $strStockI
 	$highestColumn = $sheet->getHighestColumn();
 
 	$oldest_ymd = new OldestYMD();
-	$calibration_sql = new CalibrationSql();
+   	$calibration_sql = GetCalibrationSql();
 	
 	// 获取一行的数据
 	$iCount = 0;

@@ -1,6 +1,18 @@
 <?php
 require_once('stock.php');
 
+function _refGetPeerVal($ref, $strQdii)
+{
+	$cny_ref = $ref->GetCnyRef();
+    $strStockId = $ref->GetStockId();
+    $calibration_sql = GetCalibrationSql();
+    $strDate = $calibration_sql->GetDateNow($strStockId);
+    		
+    $fVal = FundReverseAdjustPosition(RefGetPosition($ref), floatval($strQdii), floatval(SqlGetNavByDate($strStockId, $strDate)));
+    $fEst = QdiiGetPeerVal($fVal, floatval($cny_ref->GetPrice()), floatval($calibration_sql->GetCloseNow($strStockId)));
+    return strval_round($fEst, 4);
+}
+
 function _getHedgeQuantity($iHedge, $iQuantity)
 {
 	$fQuantity = floatval($iQuantity) / 100.0;
@@ -54,12 +66,12 @@ function GetStockDataArray($strSymbols)
 				$arData['symbol_hedge'] = $strIndex;
 				if ($iAskQuantity)
 				{
-					$arData['ask_price_hedge'] = RefGetPeerVal($fund_ref, $strAskPrice);
+					$arData['ask_price_hedge'] = _refGetPeerVal($fund_ref, $strAskPrice);
 					$arData['ask_size_hedge'] = _getHedgeQuantity($iHedge, $iAskQuantity);
 				}
 				if ($iBidQuantity)
 				{
-					$arData['bid_price_hedge'] = RefGetPeerVal($fund_ref, $strBidPrice);
+					$arData['bid_price_hedge'] = _refGetPeerVal($fund_ref, $strBidPrice);
 					$arData['bid_size_hedge'] = _getHedgeQuantity($iHedge, $iBidQuantity);
 				}
 			}

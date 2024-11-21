@@ -56,14 +56,6 @@ as I do not konw when the data will be updated, I update it once an hour stupidl
 <a href="20100529.php">Visual C++</a> coded Woody's Web Tool is modified to generate _submitXXX.php file automatically when insert copy of a _editXXXform.php file. 
 </p>
 
-<h3>Period Three Implies Chaos</h3>
-<p>Feb 26, 2016
-<br />SZ162411 is trading more than 10% higher than its net value recently, the max premium as high as 17%, so the XOP and SZ162411 arbitrage is not possible now.
-<br />Continuing to organzie the similar code, added <font color=olive>MysqlReference</font> and <font color=olive>MyStockReference</font> class.
-<font color=olive>ForexReference</font> is now extended from <font color=olive>MysqlReference</font>, same as the new <font color=olive>MyStockReference</font>.
-We called MySQL related function in <font color=olive>MysqlReference</font> class, put history and calibration database operation in the same place.
-</p>
-
 <h3>The Most Stupid Bug in Recent Years</h3>
 <p>May 15, 2016
 <br />Last week USDCNY was rising significantly again, and a new bug of SZ162411 net value estimation floated on water. On Friday, May 13, my estimation was about 1% higher than the official data.

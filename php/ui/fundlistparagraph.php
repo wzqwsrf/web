@@ -15,7 +15,7 @@ function _echoFundListItem($ref)
 {
 	$ar = array();
 	
-	$ar[] = GetCalibrationHistoryLink($ref->GetSymbol(), true);
+	$ar[] = SymCalibrationHistoryLink($ref);
     $ar[] = _getFundPairLink($ref->GetPairRef());
     $ar[] = GetNumberDisplay($ref->fRatio);
     $ar[] = GetNumberDisplay($ref->fFactor);

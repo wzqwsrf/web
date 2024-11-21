@@ -21,7 +21,7 @@ class QdiiAccount extends QdiiGroupAccount
         StockPrefetchArrayExtendedData(array_merge($this->GetLeverage(), $ar));
         
         $this->ref = new QdiiReference($strSymbol);
-        $this->cnh_ref = new ForexReference($strCNH);
+        $this->cnh_ref = new MyStockReference($strCNH);
         if ($bOil)		$this->oil_ref = new MyStockReference($strOil);
         
 		$this->QdiiCreateGroup();

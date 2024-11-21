@@ -30,9 +30,6 @@ class FundReference extends MysqlReference
 
     var $strOfficialDate;
     
-    var $fund_est_sql = false;
-    var $calibration_sql = false;
-    
     public function __construct($strSymbol) 
     {
         parent::__construct($strSymbol);
@@ -43,26 +40,15 @@ class FundReference extends MysqlReference
         }
         if ($strStockId = $this->GetStockId())
         {
-	       	$this->fund_est_sql = new FundEstSql();
-	       	$this->calibration_sql = new CalibrationSql();
-        	if ($strClose = $this->calibration_sql->GetCloseNow($strStockId))		$this->fFactor = floatval($strClose); 
+	       	$calibration_sql = GetCalibrationSql();
+        	if ($strClose = $calibration_sql->GetCloseNow($strStockId))		$this->fFactor = floatval($strClose); 
         }
     }
    
-    function GetFundEstSql()
-    {
-    	return $this->fund_est_sql;
-    }
-
     public function LoadData()
     {
         $this->LoadSinaFundData();
         $this->bConvertGB2312 = true;     // Sina name is GB2312 coded
-    }
-    
-    function GetNav()
-    {
-    	return $this->GetPrice();
     }
     
     function GetOfficialDate()
@@ -70,7 +56,7 @@ class FundReference extends MysqlReference
     	return $this->strOfficialDate;
     }
     
-    function GetOfficialNav()
+    public function GetOfficialNav()
     {
     	if ($this->fOfficialNetValue)
     	{
@@ -79,7 +65,7 @@ class FundReference extends MysqlReference
     	return false;
     }
     
-    function GetFairNav()
+    public function GetFairNav()
     {
     	if ($this->fFairNetValue)
     	{
@@ -88,7 +74,7 @@ class FundReference extends MysqlReference
     	return false;
     }
     
-    function GetRealtimeNav()
+    public function GetRealtimeNav()
     {
     	if ($this->fRealtimeNetValue)
     	{
@@ -105,17 +91,18 @@ class FundReference extends MysqlReference
     // Update database
     function UpdateEstNetValue()
     {
-   		StockUpdateEstResult($this->GetFundEstSql(), $this->GetStockId(), $this->GetOfficialNav(), $this->GetOfficialDate());
+   		StockUpdateEstResult($this->GetStockId(), $this->GetOfficialNav(), $this->GetOfficialDate());
     }
 
     function UpdateOfficialNetValue()
     {
-		return StockCompareEstResult($this->fund_est_sql, $this->GetStockId(), $this->GetPrice(), $this->GetDate(), $this->GetSymbol());
+		return StockCompareEstResult($this->GetStockId(), $this->GetPrice(), $this->GetDate(), $this->GetSymbol());
     }
 
     function InsertFundCalibration()
     {
-    	$this->calibration_sql->WriteDaily($this->GetStockId(), $this->GetDate(), strval($this->fFactor));
+       	$calibration_sql = GetCalibrationSql();
+    	$calibration_sql->WriteDaily($this->GetStockId(), $this->GetDate(), strval($this->fFactor));
     }
 
     public function GetSymbol()
@@ -182,7 +169,8 @@ class FundReference extends MysqlReference
     function _getCalibrationBaseVal()
     {
     	$strStockId = $this->GetStockId();
-		$strDate = $this->calibration_sql->GetDateNow($strStockId);
+       	$calibration_sql = GetCalibrationSql();
+		$strDate = $calibration_sql->GetDateNow($strStockId);
 		return floatval(SqlGetNavByDate($strStockId, $strDate));
 //		return floatval($this->GetPrice());
     }

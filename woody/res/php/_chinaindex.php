@@ -6,51 +6,79 @@ class _ChinaIndexAccount extends FundGroupAccount
 {
 	var $us_ref;
 	var $a50_ref;
-    var $cnh_ref;
+    
+    var $arPair;
 	
     function Create() 
     {
         $strSymbol = $this->GetName();
     	$strUS = 'ASHR';
     	$strA50 = 'hf_CHA50CFD';
-        $strCNH = 'fx_susdcnh';
-        StockPrefetchExtendedData($strSymbol, $strUS, $strA50, $strCNH);
+        StockPrefetchExtendedData($strSymbol, $strUS, $strA50);
 
         $this->ref = new FundPairReference($strSymbol);
         $this->us_ref = new FundPairReference($strUS);
-        $this->a50_ref = new MyStockReference($strA50);
-        $this->cnh_ref = new ForexReference($strCNH);
-
+        $this->a50_ref = new FundPairReference($strA50);
+		
         GetChinaMoney($this->ref);
         SzseGetLofShares($this->ref);
         YahooUpdateNetValue($this->us_ref);
-    	$this->us_ref->SetTimeZone();
-    	if ($this->us_ref->IsStockMarketTrading(GetNowYMD()))	$this->us_ref->ManualCalibration();
-    		
-        $this->CreateGroup(array($this->ref, $this->ref->GetPairNavRef(), $this->us_ref));
+   		$this->us_ref->DailyCalibration();
+   		
+   		$this->ref->SetRealtimeCallback('_RealtimeCallback');
+   		$this->us_ref->SetRealtimeCallback('_RealtimeCallback');
+    	
+   		$this->arPair = array($this->ref, $this->us_ref, $this->a50_ref);
+        $this->CreateGroup(array_merge(array($this->ref->GetPairRef()), $this->arPair));
     }
+
+    function GetUsRef()
+    {
+    	return $this->us_ref;
+    }
+
+    function GetA50Ref()
+    {
+    	return $this->a50_ref;
+    }
+    
+    function GetPairArray()
+    {
+    	return $this->arPair;
+    }
+}
+
+function _RealtimeCallback()
+{
+    global $acct;
+    
+    $a50_ref = $acct->GetA50Ref();
+    return $a50_ref->EstToPair();
 }
 
 function EchoAll()
 {
     global $acct;
 
-    $ref = $acct->GetRef();
+    $arPair = $acct->GetPairArray();
+    list($ref, $us_ref, $a50_ref) = $arPair;
+    $cnh_ref = $us_ref->GetCnyRef();
     
-	EchoFundArrayEstParagraph(array($ref, $acct->us_ref), '');
-    EchoReferenceParagraph(array_merge($acct->GetStockRefArray(), array($acct->a50_ref, $acct->cnh_ref)), $acct->IsAdmin());
-    EchoFundListParagraph(array($ref, $acct->us_ref));
+	EchoFundArrayEstParagraph($arPair, '');
+    EchoReferenceParagraph(array_merge($acct->GetStockRefArray(), array($cnh_ref)), $acct->IsAdmin());
+    EchoFundListParagraph($arPair);
     EchoFundPairTradingParagraph($ref);
     EchoFundPairSmaParagraph($ref);
-    EchoFundPairSmaParagraph($acct->us_ref, '');
+    EchoFundPairSmaParagraph($us_ref, '');
+    EchoFundPairSmaParagraph($a50_ref, '');
     EchoFundHistoryParagraph($ref);
-    EchoFundHistoryParagraph($acct->us_ref);
+    EchoFundHistoryParagraph($us_ref);
 //   	EchoFundShareParagraph($ref);
-//   	EchoFundShareParagraph($acct->us_ref);
+//   	EchoFundShareParagraph($us_ref);
 
     if ($group = $acct->EchoTransaction()) 
     {
-    	$acct->EchoMoneyParagraph($group, $acct->us_ref->cny_ref);
+    	$acct->EchoMoneyParagraph($group, $cnh_ref);
 	}
 	
     $acct->EchoLinks('chinaindex', 'GetChinaIndexLinks');
@@ -69,11 +97,14 @@ function GetMetaDescription()
 {
     global $acct;
 
-    $strDescription = RefGetStockDisplay($acct->ref);
-    $strEst = RefGetStockDisplay($acct->ref->GetPairNavRef());
-    $strUS = RefGetStockDisplay($acct->us_ref);
-    $strCNY = RefGetStockDisplay($acct->us_ref->cny_ref);
-    $str = "用{$strEst}估算{$strDescription}净值. 参考{$strCNY}比较{$strUS}净值.";
+    $ref = $acct->GetRef();
+    $us_ref = $acct->GetUsRef();
+    
+    $strDescription = RefGetStockDisplay($ref);
+    $strEst = RefGetStockDisplay($ref->GetPairRef());
+    $strUS = RefGetStockDisplay($us_ref);
+    $strCNY = RefGetStockDisplay($us_ref->GetCnyRef());
+    $str = "用{$strEst}估算{$strDescription}净值。参考{$strCNY}比较{$strUS}净值。";
     return CheckMetaDescription($str);
 }
 

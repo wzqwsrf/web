@@ -162,11 +162,12 @@ function StockGetPercentage($strDivisor, $strDividend)
     return (floatval($strDividend)/$f - 1.0) * 100.0;
 }
 
-function StockCompareEstResult($fund_est_sql, $strStockId, $strNetValue, $strDate, $strSymbol)
+function StockCompareEstResult($strStockId, $strNetValue, $strDate, $strSymbol)
 {
 	$nav_sql = GetNavHistorySql();
     if ($nav_sql->InsertDaily($strStockId, $strDate, $strNetValue))
     {
+    	$fund_est_sql = GetFundEstSql();
        	if ($strEstValue = $fund_est_sql->GetClose($strStockId, $strDate))
        	{
        		$fPercentage = StockGetPercentage($strNetValue, $strEstValue);
@@ -182,11 +183,12 @@ function StockCompareEstResult($fund_est_sql, $strStockId, $strNetValue, $strDat
     return false;
 }
 
-function StockUpdateEstResult($fund_est_sql, $strStockId, $strNetValue, $strDate)
+function StockUpdateEstResult($strStockId, $strNetValue, $strDate)
 {
 	$nav_sql = GetNavHistorySql();
 	if ($nav_sql->GetRecord($strStockId, $strDate) == false)
     {   // Only update when net value is NOT ready
+    	$fund_est_sql = GetFundEstSql();
 		$fund_est_sql->WriteDaily($strStockId, $strDate, $strNetValue);
 	}
 }
@@ -204,18 +206,6 @@ function RefGetPosition($ref)
 	$sql = new FundPositionSql();
    	if ($fRatio = $sql->ReadVal($ref->GetStockId()))	return $fRatio;
 	return $ref->GetDefaultPosition();  
-}
-
-function RefGetPeerVal($ref, $strQdii)
-{
-	$cny_ref = $ref->GetCnyRef();
-    $strStockId = $ref->GetStockId();
-    $calibration_sql = new CalibrationSql();
-    $strDate = $calibration_sql->GetDateNow($strStockId);
-    		
-    $fVal = FundReverseAdjustPosition(RefGetPosition($ref), floatval($strQdii), floatval(SqlGetNavByDate($strStockId, $strDate)));
-    $fEst = QdiiGetPeerVal($fVal, floatval($cny_ref->GetPrice()), floatval($calibration_sql->GetCloseNow($strStockId)));
-    return strval_round($fEst, 4);
 }
 
 function FundGetHedgeVal($strStockId)
@@ -238,9 +228,9 @@ function _getAllSymbolArray($strSymbol)
     {
         if (in_arrayQdiiMix($strSymbol))
         {
+        	$ar = array_merge($ar, SqlGetHoldingsSymbolArray($strSymbol));
         	if ($strSymbol == 'SZ164906')				$ar[] = 'KWEB';
 			else if ($strSymbol == 'SH501225')		$ar[] = 'SMH';
-        	$ar = array_merge($ar, SqlGetHoldingsSymbolArray($strSymbol));
         }
         else if (in_arrayQdii($strSymbol))
         {
@@ -295,6 +285,7 @@ function _getAllSymbolArray($strSymbol)
     }
     else
     {
+       	$ar = array_merge($ar, SqlGetHoldingsSymbolArray($strSymbol));
     	if ($strSymbolH = SqlGetAdrhPair($strSymbol))
         {
            	$ar[] = $strSymbolH;
@@ -305,10 +296,13 @@ function _getAllSymbolArray($strSymbol)
             }
         }
         
-       	$ar = array_merge($ar, SqlGetHoldingsSymbolArray($strSymbol));
-       	if ($strPairSymbol = SqlGetFundPair($strSymbol))			   	$ar[] = $strPairSymbol;
+       	if ($strPairSymbol = SqlGetFundPair($strSymbol))
+       	{
+       		$ar[] = $strPairSymbol;
+         	if ($strSymbol == 'ASHR' || $strSymbol == 'hf_CHA50CFD')	$ar[] = 'fx_susdcnh';
+//         	DebugPrint($ar, __FUNCTION__, true);
+      	}
     }
-//    DebugPrint($ar, '_getAllSymbolArray', true);
     return $ar;
 }
 
@@ -336,8 +330,7 @@ function StockGetReference($strSymbol)
 	$sym = new StockSymbol($strSymbol);
 
 /*    if ($sym->IsSinaFund())				return new FundReference($strSymbol);
-    else*/ if ($sym->IsSinaForex())   		return new ForexReference($strSymbol);
-	else if ($sym->IsEastMoneyForex())	return new CnyReference($strSymbol);
+	else*/ if ($sym->IsEastMoneyForex())	return new CnyReference($strSymbol);
     										return new MyStockReference($strSymbol);
 }
 

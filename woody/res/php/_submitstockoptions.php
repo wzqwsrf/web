@@ -192,6 +192,7 @@ function _updateStockOptionFund($strSymbol, $strVal)
 
 function _updateOptionDailySql($sql, $strStockId, $strDate, $strVal)
 {
+	DebugString(__FUNCTION__.' '.$strVal.' '.$strDate, true);
 	return $sql->ModifyDaily($strStockId, $strDate, $strVal);
 }
 
@@ -255,7 +256,7 @@ function _updateStockOptionDividend($ref, $strSymbol, $strStockId, $his_sql, $st
 	if (_updateOptionDailySql($sql, $strStockId, $strDate, $strVal))
 	{
 		DebugString('Dividend updated');
-		$calibration_sql = new CalibrationSql();
+       	$calibration_sql = GetCalibrationSql();
 		$nav_sql = GetNavHistorySql();
 		$fNav = floatval($nav_sql->GetClose($strStockId, $strDate));
 //		$fNav = floatval(SqlGetNavByDate($strStockId, $strDate));
@@ -299,6 +300,17 @@ function _updateStockOptionCalibration($strSymbol, $strStockId, $strDate, $strVa
 		{
 			$strVal = strval(EtfGetCalibration($strVal, $strNav));
 		}
+		else if ($strSymbol == 'ASHR')
+		{
+			$ref = new FundPairReference($strSymbol);
+			YahooGetNetValue($ref);
+			$strVal = strval($ref->GetFactor($strVal, SqlGetNavByDate($strStockId, $strDate), $strDate));
+		}
+		else if ($strSymbol == 'hf_CHA50CFD')
+		{
+			$ref = new FundPairReference($strSymbol);
+			$strVal = strval($ref->GetFactor($strVal, $ref->GetPrice(), $strDate));
+		}
 		else
 		{
 			if (in_arrayChinaIndex($strSymbol))									return;
@@ -312,7 +324,8 @@ function _updateStockOptionCalibration($strSymbol, $strStockId, $strDate, $strVa
 			$strVal = strval(QdiiGetCalibration($strVal, $strCNY, $strNav));
 		}
 	}
-	_updateOptionDailySql(new CalibrationSql(), $strStockId, $strDate, $strVal);
+	
+	_updateOptionDailySql(GetCalibrationSql(), $strStockId, $strDate, $strVal);
 }
 
 class _SubmitOptionsAccount extends Account

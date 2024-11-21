@@ -22,7 +22,7 @@ function EchoCalibrationHistoryParagraph($ref, $iStart = 0, $iNum = TABLE_COMMON
 {
 	$strSymbol = $ref->GetSymbol();
 	$strStockId = $ref->GetStockId();
-	$calibration_sql = new CalibrationSql();
+   	$calibration_sql = GetCalibrationSql();
    	if (IsTableCommonDisplay($iStart, $iNum))
    	{
    		$strMenuLink = '';
@@ -31,7 +31,7 @@ function EchoCalibrationHistoryParagraph($ref, $iStart = 0, $iNum = TABLE_COMMON
    	else
    	{
    		$strMenuLink = StockGetMenuLink($strSymbol, $calibration_sql->Count($strStockId), $iStart, $iNum);
-   		$strLink = GetFundLinks($strSymbol).'<br />'.$strMenuLink;
+   		$strLink = GetFundListLink().' '.GetFundLinks($strSymbol).'<br />'.$strMenuLink;
    	}
     
    	$ar = array(new TableColumnDate(), new TableColumnCalibration(), new TableColumnTime(), new TableColumn('次数', 50));

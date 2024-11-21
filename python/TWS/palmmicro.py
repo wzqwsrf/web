@@ -140,6 +140,7 @@ class Calibration:
             fRatio = fPeerPrice/self.fPrice
             self.fTotal += fRatio
             self.iCount += 1
-            print(self.strSymbol, round(fRatio, 4), 'avg', round(self.fTotal/self.iCount, 4))
+            if self.iCount <= 10 or (self.iCount%10) == 0:
+                print(self.strSymbol, round(fRatio, 4), 'avg', round(self.fTotal/self.iCount, 4))
 
 

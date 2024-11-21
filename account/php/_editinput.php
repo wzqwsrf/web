@@ -358,6 +358,12 @@ function _getSinaJsFutureArray($bChinese)
 	return	 array('Current price', 'The percentage of current price change', 'Bid price', 'Ask price', 'Today high', 'Today low', 'Time', 'Last adjusted close', 'Open price', 'Volume', 'Bid quantity?', 'Ask quantity?', 'Date', 'GB2312 coded name');
 }
 
+function _getSinaJsForexArray($bChinese)
+{
+	if ($bChinese)	return	 array('时间', '?', '?', '昨日收盘价', '振幅*10000', STOCK_DISP_OPEN, STOCK_DISP_HIGH, STOCK_DISP_LOW, '当前价格', 'GB2312编码的名字', '相对昨日收盘价的变化百分比', '相对昨日收盘价的变化', '振幅百分比', '?', '?', '?', '?', '日期');
+	return	 array('Time', '?', '?', 'Last close', 'Amplitude*10000', 'Open price', 'Today high', 'Today low', 'Current price', 'GB2312 coded name', '% Change from last close', 'Change from last close', '% amplitude', '?', '?', '?', '?', 'Date');
+}
+
 function _getSinaJsHongkongArray($bChinese)
 {
 	if ($bChinese)	return	 array('英文名字', 'GB2312编码的中文名字', STOCK_DISP_OPEN, '昨日收盘价', STOCK_DISP_HIGH, STOCK_DISP_LOW, '当前价格，收盘后数据可以当成今日收盘价？', '相对昨日收盘价的变化', '相对昨日收盘价的变化百分比', '当前买价？', '当前卖价？', '总成交金额', '成交'.STOCK_DISP_QUANTITY, 
@@ -388,6 +394,7 @@ function _getSinaJsInterpretationArray($strSymbol, $bChinese)
 	else if (preg_match('/^'.SINA_FUND_PREFIX.'\d{6}$/', $strSymbol))	return _getSinaJsFundArray($bChinese);
 	else if (str_starts_with($strSymbol, SINA_US_PREFIX))				return _getSinaJsAmericanArray($bChinese);
 	else if (str_starts_with($strSymbol, SINA_FUTURE_PREFIX))			return _getSinaJsFutureArray($bChinese);
+	else if (str_starts_with($strSymbol, SINA_FOREX_PREFIX))				return _getSinaJsForexArray($bChinese);
 	else if (str_starts_with($strSymbol, SINA_HK_PREFIX))				return _getSinaJsHongkongArray($bChinese);	// rt_hkHSCEI, rt_hk00386
 	else if (str_ends_with($strSymbol, '0'))								return _getSinaJsChineseFutureArray($bChinese);
 	return false;
@@ -593,7 +600,7 @@ function _getDefaultInput($strPage)
     	break;
     		
    	case 'sinajs':
-    	$str = 'sz162411,f_162411,gb_xop,hf_CL,rt_hk00386,AU0,b_TPX,rt_hkHSIII';
+    	$str = 'sz162411,f_162411,gb_xop,hf_CL,fx_susdcnh,rt_hk00386,AU0,b_TPX,rt_hkHSIII';
    		break;
    		
     default:

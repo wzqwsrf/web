@@ -48,6 +48,15 @@ class MysqlReference extends StockReference
 		$his_sql = GetStockHistorySql();
 		return $his_sql->GetClose($this->strSqlId, $strDate);
 	}
+	
+	public function GetVal($strDate = false)
+	{
+		if ($strDate)
+		{
+			if ($strClose = $this->GetClose($strDate))		return floatval($strClose);
+		}
+		return floatval($this->GetPrice());
+	}
 
     function _loadSqlId($strSymbol)
     {
@@ -125,11 +134,10 @@ class MysqlReference extends StockReference
     {
     	$strEtfSymbol = $etf_ref->GetSymbol();
    		$strEtfId = $etf_ref->GetStockId();
-   		$calibration_sql = new CalibrationSql();
+       	$calibration_sql = GetCalibrationSql();
    		if ($this->IsSinaFuture() && $this->CheckAdjustFactorTime($etf_ref))
    		{
    			$this->fFactor = EtfGetCalibration($this->GetPrice(), $etf_ref->GetPrice());
-//   			$calibration_sql->WriteDaily($strEtfId, $etf_ref->GetDate(), strval($this->fFactor));
    			$calibration_sql->WriteDailyAverage($strEtfId, $etf_ref->GetDate(), strval($this->fFactor));
     	}
    		else
@@ -137,15 +145,6 @@ class MysqlReference extends StockReference
    			if ($strClose = $calibration_sql->GetCloseNow($strEtfId))	$this->fFactor = floatval($strClose);
    		}
         return $this->fFactor;
-    }
-}
-
-class ForexReference extends MysqlReference
-{
-    public function LoadData()
-    {
-		$this->LoadSinaForexData();
-        $this->bConvertGB2312 = true;     // Sina name is GB2312 coded
     }
 }
 

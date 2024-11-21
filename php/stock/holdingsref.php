@@ -43,11 +43,6 @@ class HoldingsReference extends MyStockReference
     	}
     }
     
-    function GetFundEstSql()
-    {
-    	return $this->nav_ref->GetFundEstSql();
-    }
-    
     function GetNavRef()
     {
     	return $this->nav_ref;
@@ -76,11 +71,6 @@ class HoldingsReference extends MyStockReference
     function GetHoldingRefArray()
     {
     	return $this->ar_holdings_ref;
-    }
-    
-    function GetNav()
-    {
-    	return $this->nav_ref->GetPrice();
     }
     
     function GetAdjustHkd($strDate = false)
@@ -232,32 +222,32 @@ class HoldingsReference extends MyStockReference
     		
     		if ($this->uscny_ref->GetClose($strDate) === false)
     		{   // Load last value from database
-    			$fund_est_sql = $this->GetFundEstSql();
+    			$fund_est_sql = GetFundEstSql();
     			$strDate = $fund_est_sql->GetDatePrev($this->GetStockId(), $strDate);
     		}
     	}
     	return $strDate;
     }
     
-    function GetOfficialNav($bStrict = false)
+    public function GetOfficialNav()
     {
     	$strDate = $this->GetOfficialDate();
-    	$strNav = strval($this->_estNav($strDate, $bStrict));
-   		StockUpdateEstResult($this->GetFundEstSql(), $this->GetStockId(), $strNav, $strDate);
+    	$strNav = strval($this->_estNav($strDate, false));
+   		StockUpdateEstResult($this->GetStockId(), $strNav, $strDate);
    		return $strNav;
     }
 
-    function GetFairNav($bStrict = false)
+    public function GetFairNav()
     {
     	$strDate = $this->GetOfficialDate(); 
 		if (($this->uscny_ref->GetDate() != $strDate) || ($this->_getEstDate() != $strDate))
 		{
-			return strval($this->_estNav(false, $bStrict));
+			return strval($this->_estNav(false, false));
 		}
 		return false;
     }
 
-    function GetRealtimeNav()
+    public function GetRealtimeNav()
     {
     	if ($this->IsFundA())
     	{

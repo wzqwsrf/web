@@ -182,8 +182,9 @@ function _getBestEstNav($ref, $strDate)
 function _getStockOptionCalibration($strSymbol, $strDate)
 {
 	$est_ref = false;
-	if (in_arrayChinaIndex($strSymbol))
+	if ($ref = StockGetFundPairReference($strSymbol))
 	{
+		$est_ref = $ref->GetPairRef();
 	}
 	else if ($fund = StockGetQdiiReference($strSymbol))
     {

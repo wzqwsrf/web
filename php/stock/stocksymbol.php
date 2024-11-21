@@ -1045,6 +1045,17 @@ class StockSymbol
 		return $this->GetSymbol();
     }
 
+	function GetMyStockLink()
+	{
+		return GetMyStockLink($this->GetSymbol(), $this->GetDisplay());
+	}
+	
+    function GetStockLink()
+    {
+		if ($str = GetGroupStockLink($this->GetSymbol()))		return $str;
+		return	$this->GetMyStockLink();
+	}
+
     public function GetSymbol()
     {
         return $this->strSymbol;

@@ -43,7 +43,7 @@ class QdiiGroupAccount extends FundGroupAccount
         	{
         		if ($realtime_ref->GetDate() == $strDate)
         		{
-        			$calibration_sql = new CalibrationSql();
+        			$calibration_sql = GetCalibrationSql();
         			$calibration_sql->WriteDaily($est_ref->GetStockId(), $strDate, strval(EtfGetCalibration($realtime_ref->GetPrice(), $strNav)));
         		}
         	}
@@ -57,6 +57,7 @@ class QdiiGroupAccount extends FundGroupAccount
     		$leverage_ref = new FundPairReference($strSymbol);
     		$this->ar_leverage_ref[] = $leverage_ref;
     		YahooUpdateNetValue($leverage_ref);
+    		$leverage_ref->DailyCalibration();
     	}
         $this->CreateGroup(array_merge($arRef, $this->ar_leverage_ref));
     }

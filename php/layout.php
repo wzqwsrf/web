@@ -62,7 +62,7 @@ function GetWechatPay($iType = 0)
 		break;
         	
 	case 3:
-		$strPathName = ResizeJpg('/debug/wechat/3da7b9d122031b12.jpg');
+		$strPathName = ResizeJpg('/debug/wechat/d22a20e0be61e58f.jpg');
 		$strRemark = '香港保诚保险投保微信群二维码';
 		$strImage = GetImgElement($strPathName, $strRemark);
 		$strText = GetFontElement($strRemark, 'navy');
