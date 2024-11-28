@@ -1,13 +1,10 @@
 <?php
 require_once('_fundgroup.php');
-require_once('../../php/ui/fundlistparagraph.php');
 
 class _ChinaIndexAccount extends FundGroupAccount
 {
 	var $us_ref;
 	var $a50_ref;
-    
-    var $arPair;
 	
     function Create() 
     {
@@ -16,20 +13,18 @@ class _ChinaIndexAccount extends FundGroupAccount
     	$strA50 = 'hf_CHA50CFD';
         StockPrefetchExtendedData($strSymbol, $strUS, $strA50);
 
-        $this->ref = new FundPairReference($strSymbol);
-        $this->us_ref = new FundPairReference($strUS);
+        $this->ref = new FundPairReference($strSymbol, '_RealtimeCallback');
+        $this->us_ref = new FundPairReference($strUS, '_RealtimeCallback');
         $this->a50_ref = new FundPairReference($strA50);
 		
         GetChinaMoney($this->ref);
         SzseGetLofShares($this->ref);
         YahooUpdateNetValue($this->us_ref);
    		$this->us_ref->DailyCalibration();
+   		$this->ref->DailyCalibration();
    		
-   		$this->ref->SetRealtimeCallback('_RealtimeCallback');
-   		$this->us_ref->SetRealtimeCallback('_RealtimeCallback');
-    	
    		$this->arPair = array($this->ref, $this->us_ref, $this->a50_ref);
-        $this->CreateGroup(array_merge(array($this->ref->GetPairRef()), $this->arPair));
+        $this->CreateGroup(array($this->ref->GetPairRef(), $this->ref, $this->us_ref, $this->a50_ref));
     }
 
     function GetUsRef()
@@ -40,11 +35,6 @@ class _ChinaIndexAccount extends FundGroupAccount
     function GetA50Ref()
     {
     	return $this->a50_ref;
-    }
-    
-    function GetPairArray()
-    {
-    	return $this->arPair;
     }
 }
 
@@ -60,19 +50,21 @@ function EchoAll()
 {
     global $acct;
 
-    $arPair = $acct->GetPairArray();
-    list($ref, $us_ref, $a50_ref) = $arPair;
+    $ref = $acct->GetRef();
+    $us_ref = $acct->GetUsRef();
+    $a50_ref = $acct->GetA50Ref();
     $cnh_ref = $us_ref->GetCnyRef();
     
-	EchoFundArrayEstParagraph($arPair, '');
+	EchoFundArrayEstParagraph(array($ref, $us_ref), '');
     EchoReferenceParagraph(array_merge($acct->GetStockRefArray(), array($cnh_ref)), $acct->IsAdmin());
-    EchoFundListParagraph($arPair);
+    EchoFundListParagraph(array($ref, $us_ref, $a50_ref));
     EchoFundPairTradingParagraph($ref);
     EchoFundPairSmaParagraph($ref);
     EchoFundPairSmaParagraph($us_ref, '');
     EchoFundPairSmaParagraph($a50_ref, '');
     EchoFundHistoryParagraph($ref);
     EchoFundHistoryParagraph($us_ref);
+	EchoNvCloseHistoryParagraph($us_ref);
 //   	EchoFundShareParagraph($ref);
 //   	EchoFundShareParagraph($us_ref);
 

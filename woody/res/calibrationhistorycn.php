@@ -11,7 +11,7 @@ function EchoAll()
     {
    		EchoCalibrationHistoryParagraph($ref, $acct->GetStart(), $acct->GetNum(), $acct->IsAdmin());
     }
-    $acct->EchoLinks('calibrationhistory');
+    $acct->EchoLinks();
 }    
 
 function GetMetaDescription()

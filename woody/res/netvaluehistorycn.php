@@ -23,7 +23,7 @@ function EchoAll()
    			}
    		}
     }
-    $acct->EchoLinks('netvaluehistory');
+    $acct->EchoLinks();
 }    
 
 function GetMetaDescription()

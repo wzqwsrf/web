@@ -3,12 +3,10 @@ require('php/_myphoto.php');
 
 function EchoAll($bChinese)
 {
-	$strSnowball = PhotoSnowball();
-	$strNasdaq100 = VideoNasdaq100();
+	$strEat = GetHtmlElement(GetBlogMonthDay('20190128').GetBreakElement().ImgWoody20190128());
 	
     echo <<<END
-$strSnowball
-$strNasdaq100
+$strEat
 END;
 }
 

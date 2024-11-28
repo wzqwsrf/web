@@ -22,8 +22,6 @@ define('QDII_HK_DISPLAY', '港股QDII');
 define('QDII_JP_DISPLAY', '日本QDII');
 define('QDII_EU_DISPLAY', '欧洲QDII');
 
-define('FUND_DEMO_SYMBOL', 'SZ162411');
-
 function GetStockCategoryArray()
 {
     return array('biotech' => BIOTECH_GROUP_DISPLAY,
@@ -115,13 +113,13 @@ function GetHoldingsLink($strSymbol, $strDisplay = HOLDINGS_DISPLAY)
 
 define('STOCK_HISTORY_DISPLAY', '历史价格');
 define('STOCK_HISTORY_UPDATE', '更新历史价格');
-function GetStockHistoryLink($strSymbol, $strDisplay = false)
+function GetStockHistoryLink($strSymbol, $strDisplay = STOCK_HISTORY_DISPLAY)
 {
-    return GetStockSymbolLink('stockhistory', $strSymbol, ($strDisplay ? $strDisplay : STOCK_HISTORY_DISPLAY));
+    return GetStockSymbolLink('stockhistory', $strSymbol, ($strDisplay ? $strDisplay : $strSymbol));
 }
 
 define('FUND_HISTORY_DISPLAY', '基金溢价记录');
-function GetFundHistoryLink($strSymbol = FUND_DEMO_SYMBOL)
+function GetFundHistoryLink($strSymbol)
 {
     return GetStockSymbolLink('fundhistory', $strSymbol, FUND_HISTORY_DISPLAY);
 }
@@ -173,7 +171,7 @@ function GetThanousParadoxLink($strSymbol)
 }
 
 define('FUND_ACCOUNT_DISPLAY', '基金场内申购账户');
-function GetFundAccountLink($strSymbol = FUND_DEMO_SYMBOL, $iNum = false)
+function GetFundAccountLink($strSymbol, $iNum = false)
 {
     return GetStockSymbolLink('fundaccount', $strSymbol, ($iNum ? strval($iNum) : FUND_ACCOUNT_DISPLAY));
 }
@@ -322,7 +320,7 @@ function StockGetGroupTransactionLinks($strGroupId)
 }
 
 // ****************************** Other internal link related functions *******************************************************
-function GetGroupStockLink($strSymbol = FUND_DEMO_SYMBOL, $bFull = false)
+function GetGroupStockLink($strSymbol, $bFull = false)
 {
     if (in_arrayAll($strSymbol))		return GetStockPageLink(strtolower($strSymbol), ($bFull ? SqlGetStockName($strSymbol).'('.$strSymbol.')' : $strSymbol));
     return false;

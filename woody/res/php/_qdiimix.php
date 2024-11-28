@@ -40,6 +40,8 @@ class _QdiiMixAccount extends FundGroupAccount
         }
 
         $this->_updateStockHoldings($strSymbol);
+		if ($this->pair_ref)	$this->pair_ref->DailyCalibration();
+
         $arRef = array($this->ref);
         if ($this->us_ref)	$arRef[] = $this->us_ref; 
 
@@ -77,13 +79,6 @@ class _QdiiMixAccount extends FundGroupAccount
 			$us_ref = $this->us_ref;
 			$strUsId = $us_ref->GetStockId();
 			if ($strHoldingsDate != $date_sql->ReadDate($strUsId))		$bUpdated = CopyHoldings($date_sql, $strUsId, $strStockId);
-			if ($strUsNav = $nav_sql->GetClose($strUsId, $strNavDate))
-			{
-				$uscny_ref = $ref->GetCnyRef();
-				$fFactor = QdiiGetCalibration($strUsNav, $nav_sql->GetClose($uscny_ref->GetStockId(), $strNavDate), $nav_sql->GetClose($strStockId, $strNavDate));
-				$calibration_sql = GetCalibrationSql();
-				$calibration_sql->WriteDaily($strStockId, $strNavDate, strval($fFactor));
-			}
 			break;
 			
 		default:
@@ -163,7 +158,9 @@ function EchoAll()
 	{
 		EchoFundTradingParagraph($ref, '_callbackQdiiMixTrading');
 		EchoHoldingsEstParagraph($us_ref);
-		EchoSmaParagraph($us_ref, false, $acct->GetPairRef(), '_callbackQdiiMixSma');
+		$pair_ref = $acct->GetPairRef();
+		EchoFundListParagraph(array($pair_ref));
+		EchoSmaParagraph($us_ref, false, $pair_ref, '_callbackQdiiMixSma');
 	}
 	else	
 	{
@@ -173,6 +170,7 @@ function EchoAll()
 
     EchoFundHistoryParagraph($ref);
    	EchoFundShareParagraph($ref);
+	if ($us_ref)	EchoNvCloseHistoryParagraph($us_ref);
 
     if ($group = $acct->EchoTransaction()) 
     {

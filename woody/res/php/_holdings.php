@@ -120,7 +120,7 @@ function EchoAll()
 			EchoTableParagraphEnd();
 		}
     }
-    $acct->EchoLinks('holdings');
+    $acct->EchoLinks();
 }
 
 function GetMetaDescription()

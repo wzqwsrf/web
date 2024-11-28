@@ -39,7 +39,7 @@ function GetCategoryArray($strItem)
         break;
         
     case 'commodity':
-        $ar = array_merge(QdiiGetCommoditySymbolArray(), QdiiGetGoldSymbolArray());
+        $ar = array_merge(QdiiGetCommoditySymbolArray(), QdiiGetGoldSymbolArray(), array('SZ164701'));
         break;
         
     case 'hangseng':

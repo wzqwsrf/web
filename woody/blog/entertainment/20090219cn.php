@@ -39,13 +39,27 @@
 <br /><img src=../../myphoto/2008/head_s.jpg alt="Dinner at a restaurant near Beijing Olympic Park" />
 </p>
 
-<h3>又是十年</h3>
+<?php
+function Echo20190329($strHead)
+{
+	$strHead = GetHeadElement($strHead);
+	$strSZ162411 = GetBlogLink(20150818);
+	$strPHP = GetBlogLink(20100905);
+	$strMia = GetBlogLink(20141204);
+	$strImg = ImgWoody20190128();
+
+    echo <<<END
+	$strHead
 <p>2019年3月29日
-<br />最近因为软件开发上陷入瓶颈, 在全面整理<a href="20150818cn.php">华宝油气净值</a>的<a href="20100905cn.php">PHP</a>代码, 碰到这个文件, 心中感慨不少.
-<br />转眼又是失败的十年过去, 我的绿卡也在<a href="20141204cn.php">林近岚</a>出生前5个月的时候被美国移民局收了.
-<br />人生靠自圆其说的讲述自己的故事支撑, 所以我直到今天还不想承认后悔.
-<br /><img src=../photo/20190128.jpg alt="Jan 28, 2019. Woody. 301 W Valley Blvd, Ste 101, San Gabriel, CA." />
+<br />最近因为软件开发上陷入瓶颈，在全面整理{$strSZ162411}净值的{$strPHP}代码，碰到这个文件，心中感慨不少。
+<br />转眼又是失败的十年过去，我的绿卡也在{$strMia}出生前5个月的时候被美国移民局收了。
+<br />人生靠自圆其说的讲述自己的故事支撑，所以我直到今天还不想承认后悔。
+<br />$strImg
 </p>
+END;
+}
+	Echo20190329('又是十年');
+?>
 
 </div>
 

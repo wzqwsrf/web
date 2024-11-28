@@ -69,7 +69,7 @@ function EchoAll()
 	global $acct;
     
 	_echoStockDebug();
-    $acct->EchoLinks();
+    $acct->EchoLinks('chaos');
 }
 
 function GetMetaDescription()

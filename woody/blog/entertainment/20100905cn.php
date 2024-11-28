@@ -1,6 +1,8 @@
 <?php
 require('php/_entertainment.php');
 
+define('FUND_DEMO_SYMBOL', 'SZ162411');
+
 function GetMetaDescription()
 {
 	return 'Palmmicro PA6488开发的副产品。我的第一个PHP程序：用户和网络日志评论的CRUD(Create创建/Retrieve读取/Update更新/Delete删除)。';
@@ -82,7 +84,7 @@ function _echoPage20170319($strPage)
 {
 	$strHead = GetHeadElement('查询公网'._getAccountToolTag($strPage));
 	$strCalibration = GetCalibrationHistoryLink('USO');
-	$strSZ162411 = GetGroupStockLink();	
+	$strSZ162411 = GetGroupStockLink(FUND_DEMO_SYMBOL);	
 	$strVisitor = GetAllVisitorLink();
 	$strPA1688 = GetInternalLink('/pa1688/indexcn.html', 'PA1688');
 	$strIpInfo = GetExternalLink(GetIpInfoUrl());
@@ -112,6 +114,8 @@ function _echoPage20170410($strPage)
 	$strIs_numeric = GetCodeElement('is_numeric');
 	$strCurl = GetCodeElement('curl');
 	$strHttp = GetQuoteElement('http');
+	$strJson_decode = GetCodeElement('json_decode');
+	$strStrip_tags = GetCodeElement('strip_tags');
 	$strImage = ImgAccountTool($strPage);
 	
     echo <<<END
@@ -120,7 +124,7 @@ function _echoPage20170410($strPage)
 <br />做完{$strIp}这个简单的单行输入然后把输入显示出来的用户界面后，发现自己无意中实现了一个副产品。
 一直有人用各种参数试探攻击我的网页，所以早就想解码这些{$strSimpleTest}然后显示出来看看到底是些什么参数，没想到这个界面调用{$strUrldecode}后就直接实现了这个功能。
 <br />另外一个一直想解码显示的是从1970年1月1日开始所有秒数Unix的时间戳，也顺手加了{$strIs_numeric}区分后显示出来。
-<br />最重要的是，随着{$strCurl}使用不断增加，经常要重复写代码测试读取某个数据接口。我干脆加了个判断，如果输入以{$strHttp}开头，就调用{$strCurl}函数去读一下，然后保存下来进一步调试。
+<br />最重要的是，随着{$strCurl}使用不断增加，经常要重复写代码测试读取某个数据接口。我干脆加了个判断，如果输入以{$strHttp}开头，就调用{$strCurl}函数去读一下，然后保存下来，先调用{$strJson_decode}看是否成功，最后把调用{$strStrip_tags}后的文本显示出来。
 $strImage
 </p>
 END;
@@ -215,6 +219,7 @@ function _echoPage20190412($strPage)
 								  	  '对数字5来说，因为5*5已经比17大，不用继续除下去。最终结果就是68=2*2*17。'));
 	
 	$strUNICODE = GetNameLink('UNICODE');
+	$strAdrH = GetAdrhCompareLink();
 	$strMia = GetBlogLink(20141204);
 	$strQuote = GetBlockquoteElement('做人要是没有梦想，跟咸鱼有什么两样？');
 	
@@ -228,6 +233,7 @@ $strImage
 $strList
 <p>接下来一个最直接的优化想法，就是先把一定范围内的已知质数算出来，这样在进行上面的计算时，就不用算17是不是4的整数倍数。
 基于{$strUNICODE}大数组的教训，这次直接把前4972个质数存到了MySQL的表中。不过结果让我很失望，查数据库中已知质数表的结果反而要比直接算要明显的慢。
+<br />发现数据库查询比计算慢也不是完全无用，我想起来当初为了想象中的优化加入的基金仓位fundposition表，又把代码改了回去，应该还是用A股后6位数字判断LOF效率更高。不过fundposition现在也没法废弃了，因为{$strAdrH}中现在要用它。
 <br />网上查了下效率更高的算法，读过陶哲轩写的Pollard Rho的文章后觉得自己到底还是个数学白痴，放弃。
 <br />不过我还是很积极的在php下新建了一个子目录tutorial，把这个新文件primenumber.php放了进去。同时开始憧憬几年后真的开始自己做软硬件课件教{$strMia}编程序的话，今天这些工作可以做为其中的一节软件课。 
 </p>
@@ -276,7 +282,7 @@ function _echoPage20190920($strPage)
 {
 	$strHead = GetHeadElement('用'._getAccountToolTag($strPage).'的方法在华宝油气溢价套利时估算'.FUND_ACCOUNT_DISPLAY);
 	$strCramer = _getAccountToolLink('cramersrule');
-	$strFundAccount = GetFundAccountLink();
+	$strFundAccount = GetFundAccountLink(FUND_DEMO_SYMBOL);
 	$strLinear = GetAccountToolLink($strPage);
 	$strImage = ImgAccountTool($strPage);
 	
@@ -295,7 +301,7 @@ function _echo20191107($strHead)
 	$strHead = GetHeadElement($strHead);
 	$strLinear = _getAccountToolLink('linearregression');
 	$strBegin = GetNameLink('daylightsaving', '夏令时');
-	$strFundHistory = GetFundHistoryLink();
+	$strFundHistory = GetFundHistoryLink(FUND_DEMO_SYMBOL);
 	
     echo <<<END
 	$strHead

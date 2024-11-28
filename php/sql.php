@@ -25,6 +25,8 @@ define('TABLE_STOCK_GROUP', 'stockgroup');
 define('TABLE_STOCK_GROUP_ITEM', 'stockgroupitem');
 define('TABLE_STOCK_SPLIT', 'stocksplit');
 define('TABLE_VISITOR', 'visitor');
+define('TABLE_TELEGRAM_BOT', 'telegrambot');
+define('TABLE_WECHAT_BOT', 'wechatbot');
 
 $g_link = false;
 

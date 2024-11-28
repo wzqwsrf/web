@@ -55,7 +55,7 @@ function EchoAll()
    			}
    		}
    	}
-    $acct->EchoLinks('stockhistory');
+    $acct->EchoLinks();
 }
 
 function GetMetaDescription()

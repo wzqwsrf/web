@@ -254,7 +254,6 @@ function EchoAll()
             EchoRemarks($strSymbol);
         }
     }
-//    $acct->EchoLinks('fundaccount');
     $acct->EchoLinks();
 }
 

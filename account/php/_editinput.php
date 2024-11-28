@@ -109,13 +109,23 @@ function _getSimpleTestString($strInput, $bChinese)
 {
 	if (str_starts_with($strInput, 'http'))
 	{
-    	if ($str = url_get_contents($strInput))
+    	if ($strRead = url_get_contents($strInput))
     	{
-    		if ($ar = json_decode($str, true))		DebugPrint($ar);
     		$strFileName = DebugGetPathName('simpletest.txt');
-    		file_put_contents($strFileName, $str);
+    		file_put_contents($strFileName, $strRead);
     		DebugString('Saved '.$strInput.' to '.$strFileName);
-    		$str = GetFileDebugLink($strFileName);
+    		$str = GetFileDebugLink($strFileName).GetBreakElement();
+    		if ($ar = json_decode($strRead, true))
+    		{
+    			DebugPrint($ar);
+    			$str .= strip_tags(print_r($ar, true));
+    		}
+    		else
+    		{
+    			$strRead = strip_tags($strRead);
+    			DebugString($strRead);
+    			$str .= $strRead;
+    		}
     	}
     	else	$str = $bChinese ? 'Curl读错误' : 'Curl read error';
 	}
@@ -378,7 +388,6 @@ function _getSinaJsChineseFutureArray($bChinese)
 	return	 array('Name', 'Time HH:MM:SS', 'Open price', 'Today high', 'Today low', 'Last close', 'Bid', 'Ask', 'Current price', 'Adjusted close', 'Last adjusted close', 'Bid quantity', 'Ask quantity', 'Volume', 'Total quantity', 'Exchange short name', 'Short name', 'Date');
 }
 
-// var hq_str_sz164906="中国互联" ==> sz164906;
 function _getSinaSymbol($strFirst)
 {
 	$str = str_replace('var hq_str_', '', $strFirst);

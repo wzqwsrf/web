@@ -59,14 +59,14 @@ class MyEWrapper(EWrapper):
     def __init__(self, client):
         self.client = client
         self.strNextFuture = '202503'
-        self.strDebug = ''
+        self.arDebug = {}
 
 
     def nextValidId(self, orderId: int):
         self.arHedge = ['SH513350', 'SZ159518', 'SZ162411', 'SZ164906']
         self.arSymbol = ['KWEB', 'XOP']
         self.arOrder = {}
-        self.arOrder['KWEB'] = GetOrderArray([29.28, 30.74, 30.92, 31.88, 34.49, 38.07], 200, 2, 4)
+        self.arOrder['KWEB'] = GetOrderArray([28.5, 30.12, 30.39, 31.36, 34.22, 38.13], 200, 1, 3)
         self.arOrder['XOP'] = GetOrderArray([114.65, 160.3])
         self.arOrder['MES'] = GetOrderArray([3670.97, 6152.64])
         self.arOrder['SPX'] = GetOrderArray([3670.97, 6152.64])
@@ -77,7 +77,7 @@ class MyEWrapper(EWrapper):
         for strSymbol in self.arSymbol:
             iRequestId = self.client.StockReqMktData(strSymbol)
             self.data[iRequestId] = GetMktDataArray(strSymbol)
-        #self.IndexStreaming()
+        self.IndexStreaming()
 
 
     def error(self, reqId, errorCode, errorString, contract):
@@ -206,14 +206,14 @@ class MyEWrapper(EWrapper):
     def DebugPriceAndSize(self, strSymbol, strHedge, data, arReply, arResult, strType):
         fRatio = arResult['ratio']
         iSize = arResult['size']
-        if iSize > 0 and ((fRatio > 1.005 and strType == 'ask') or (fRatio < 0.999 and strType == 'bid')):
+        if iSize > 0 and ((fRatio > 1.001 and strType == 'ask') or (fRatio < 0.999 and strType == 'bid')):
             strPeerType = self.palmmicro.GetPeerStr(strType)
             strDebug = str(round((fRatio - 1.0)*100.0, 2)) + '% '
             strDebug += self.GetSellBuyStr(strType) + ' ' + str(iSize) + ' ' + strSymbol + ' at ' + str(data[strPeerType + '_price']) + ' and '
             strDebug += self.GetSellBuyStr(strPeerType) + ' ' + str(arResult['size_hedge']) + ' ' + strHedge + ' at ' + arReply[strType + '_price']
-            if self.strDebug != strDebug:
+            if strHedge not in self.arDebug or self.arDebug[strHedge] != strDebug:
                 print(strDebug)
-                self.strDebug = strDebug
+                self.arDebug[strHedge] = strDebug
                 if iSize >= 100 and ((fRatio > 1.01 and strType == 'ask') or (fRatio < 0.995 and strType == 'bid')):
                     self.palmmicro.SendTelegramMsg(strDebug)
 

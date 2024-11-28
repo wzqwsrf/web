@@ -45,11 +45,17 @@ function EchoAll()
 	}
 	
     $acct->EchoDebugParagraph();
-    $acct->EchoLinks(false, 'GetQdiiLinks');
+    $acct->EchoLinks('qdii', 'GetQdiiLinks');
 }
 
 function GetQdiiLinks($sym)
 {
+   	global $acct;
+   	
+   	$ref = $acct->GetRef();
+   	if ($realtime_ref = $ref->GetRealtimeRef())		$strRealtimeSymbol = $realtime_ref->GetSymbol();
+   	else												$strRealtimeSymbol = false;
+
 	$str = GetJisiluQdiiLink();
 	
 	$strSymbol = $sym->GetSymbol();
@@ -73,7 +79,6 @@ function GetQdiiLinks($sym)
 		$str .= ' '.GetSpdrOfficialLink('XBI').' '.GetSpindicesOfficialLink('SPSIBI');
 	}
 	
-	$strRealtimeSymbol = QdiiGetRealtimeSymbol($strSymbol);
 	if ($strCmeUrl = GetCmeUrl($strRealtimeSymbol))				$str .= ' '.GetExternalLink($strCmeUrl, '芝商所');
 	
 	$str .= GetSpySoftwareLinks();

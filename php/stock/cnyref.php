@@ -20,7 +20,7 @@ class CnyReference extends MysqlReference
 	}
 }
 
-class HkdUsdReference
+class UsdHkdReference
 {
 	var $uscny_ref;
 	var $hkcny_ref;
@@ -33,12 +33,12 @@ class HkdUsdReference
     
 	public function GetVal($strDate = false)
 	{
-		return $this->hkcny_ref->GetVal($strDate) / $this->uscny_ref->GetVal($strDate); 
+		return $this->uscny_ref->GetVal($strDate) / $this->hkcny_ref->GetVal($strDate); 
 	}
     
 	public function GetClose($strDate)
 	{
-		return $this->hkcny_ref->GetClose($strDate) / $this->uscny_ref->GetClose($strDate); 
+		return $this->uscny_ref->GetClose($strDate) / $this->hkcny_ref->GetClose($strDate); 
 	}
 }
 

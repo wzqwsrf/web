@@ -171,8 +171,17 @@ function GetXueqiuLink($sym, $strDisplay = false)
 			break;
 		}
 	}
+	else if ($sym->IsSinaFuture())
+	{
+    	switch ($strSymbol)
+    	{
+   		case 'hf_CHA50CFD':
+			$strXueqiu = 'CNmain';
+			break;
+		}
+	}
     $strHttp = GetXueqiuUrl().'S/'.$strXueqiu;
-    return GetExternalLink($strHttp, ($strDisplay ? $strDisplay : $strSymbol));
+    return GetExternalLink($strHttp, ($strDisplay ? $strDisplay : $sym->GetDisplay()));
 }
 
 function GetXueqiuIdLink($strId, $strDisplay)
@@ -185,13 +194,13 @@ function GetYahooStockLink($sym)
     $strHttp = GetYahooStockUrl($sym->GetYahooSymbol());
     return GetExternalLink($strHttp, $sym->GetDisplay());
 }
-/*
+
 function GetYahooNavLink($strSymbol)
 {
     $strHttp = GetYahooStockUrl(GetYahooNetValueSymbol($strSymbol));
     return GetExternalLink($strHttp, $strSymbol);
 }
-*/
+
 function GetSinaFundLink($sym)
 {
     $strDigit = $sym->IsFundA();
@@ -356,6 +365,16 @@ function GetEtfNavLink($strSymbol)
 function GetUscfLink()
 {
 	return GetOfficialLink('http://www.uscfinvestments.com', 'USO'); 
+}
+
+function GetSecondListingLink()
+{
+	return GetExternalLink(GetAastocksSecondListingUrl(), '阿思達克二次回港上市');
+}
+
+function GetAdrLink()
+{
+	return GetExternalLink(GetAastocksAdrUrl(), '阿思達克ADR');
 }
 
 ?>

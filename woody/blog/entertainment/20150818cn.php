@@ -18,7 +18,7 @@
 <p>2015年8月18日
 <br />眼看Qualcomm收购CSR<?php echo GetBlogLink(20141016); ?>的现金快要到账，最近我在琢磨在A股中国特色的QDII基金华宝油气和美股XOP之间套利。每天看Yahoo新浪等网站的股票行情，时不时还要用鼠标点开计算器算算转换价格，时间长了后有点烦。
 <br />后来我想起来5年前学习的<?php echo GetBlogLink(20100905); ?>，于是打算写我的第二个PHP程序，统一把套利需要常看的行情显示在一起。
-同时根据SPDR标普油气开采指数ETF(XOP)、标普油气开采指数(^SPSIOP)、以及美元对人民币的汇率计算<?php echo GetGroupStockLink('SZ162411', true); ?>净值。今天出了第一版，记录下相关开发过程以备日后查阅。A股的QDII基金缺乏及时的信息更新，希望这里能够补上这个生态位空缺。
+同时根据SPDR标普油气开采指数ETF(XOP)、标普油气开采指数(^SPSIOP)、以及美元对人民币的汇率计算<?php echo GetGroupStockLink(FUND_DEMO_SYMBOL, true); ?>净值。今天出了第一版，记录下相关开发过程以备日后查阅。A股的QDII基金缺乏及时的信息更新，希望这里能够补上这个生态位空缺。
 <br />谢谢<?php EchoXueqiuId('6188729918', 'abkoooo'); ?>帮助提供了新浪实时美股数据接口的格式。
 美股、A股、期货和汇率都用新浪实时的数据接口：<?php EchoSinaDataLink('gb_xop,sz162411,hf_CL,USDCNY'); ?>
 <br />一开始发现无论怎么弄<?php echo GetCodeElement('fopen'); ?>打开这些链接都会失败，估计是我用的Yahoo网站服务不支持<?php echo GetCodeElement('allow_url_fopen'); ?>。 
@@ -60,7 +60,7 @@
 	EchoPage20150827('qdiihk');
 ?>
 
-<h3>股票<a name="transaction">交易</a>记录</h3>
+<h3>股票<a name="mystocktransaction">交易</a>记录</h3>
 <p>2015年9月13日
 <br />跟我的第一个PHP程序结合起来, 用户登录后可以输入相关股票交易记录. 根据交易记录计算华宝油气和XOP对冲交易策略和数据.
 <br />交易记录的输入和处理分别在文件/woody/res/php/<b>_edittransactionform.php</b>和<b>_submittransaction.php</b>. 
@@ -188,6 +188,36 @@
 	Echo20191025('增加'.GetNameTag('fundposition', FUND_POSITION_DISPLAY).'页面');
 	Echo20200113('华宝油气的C类份额');
 	Echo20200326('国泰商品已经只剩大半桶油');
+	
+function Echo20210624($strHead)
+{
+	$strHead = GetHeadElement($strHead);
+	$strKWEB = GetHoldingsLink('KWEB', false);
+	$strQDII = _getQdiiLink();
+	$strSZ164906 = GetGroupStockLink('SZ164906');
+	$strFundHistory = GetNameLink('fundhistory', FUND_HISTORY_DISPLAY);
+	$strLof = _getLofLink();
+	$strElementary = GetNameLink('elementary', '小学生');
+	$strImage = ImgMrFox();
+	$strAdr = GetNameLink('adrhcompare', 'ADR');
+	$strSource = GetSecondListingLink();
+	$strUpdate = DebugIsAdmin() ? GetInternalLink('/php/test/updatesecondlisting.php', '更新二次回港上市数据') : '';
+	
+    echo <<<END
+	$strHead
+<p>2021年6月24日
+<br />虽然原则上来说XOP也可以使用这个页面，但是它其实是为同时有港股和美股的{$strKWEB}持仓准备的。
+<br />{$strQDII}基金总是越跌规模越大，流动性越好，前些年是华宝油气，而今年最热门的变成了中概互联。按SZ162411对应XOP的模式，中概互联的小弟SZ164906之前是用KWEB估值的。
+不过因为有1/3的港股持仓，它的净值在港股交易时段会继续变化，所以原来的{$strSZ164906}页面其实没有什么实际用处。唯一的好处是在{$strFundHistory}中累积了几年的官方估值误差数据，帮我确认了用KWEB持仓估值的可行性。
+<br />跟A股{$strLof}基金每个季度才公布一次前10大持仓不同，美股ETF每天都会公布自己的净值和详细持仓比例。因为KWEB和SZ164906跟踪同一个中证海外中国互联网指数H11136，这样可以从KWEB官网下载持仓文件后，根据它的实际持仓估算出净值。然后SZ164906的参考估值也就可以跟随白天的港股交易变动了。
+<br />写了快6年的估值软件终于从{$strElementary}水平进化到了初中生水平，还是有些成就感的。暑假即将来到，了不起的狐狸爸爸要开始教已经读了一年小学的娃在Roblox上编程了。
+$strImage
+<br />KWEB的持仓中混合了部分二次回港上市的股票，需要单独处理一下。虽然它们跟港股在美股的{$strAdr}是不同的概念，但是在数据结构上是一致的，犹豫了一分钟后，我就把这两者合并了。
+<br />数据来源：{$strSource}	{$strUpdate}
+</p>
+END;
+}
+
 	Echo20210624('增加'.GetNameTag('holdings', HOLDINGS_DISPLAY).'页面');
 	Echo20210714('增加'.GetNameTag('fundshare', FUND_SHARE_DISPLAY).'页面');
 	Echo20210728('chinainternet');

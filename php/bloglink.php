@@ -180,6 +180,12 @@ function ImgWoody20060701($bChinese = true)
 	return GetImgQuote('/woody/myphoto/2006/baihuashan.jpg', GetBlogYmd('20060701', $bChinese).($bChinese ? '绿野百花山' : ' Baihua Mountain with Lvye.'), $bChinese);
 }
 
+function ImgWoody20190128($bChinese = true)
+{
+	$strYmd = GetBlogYmd('20190128', $bChinese);
+	return GetWoodyImgQuote('20190128.jpg', $strYmd.'San Gabriel的麻辣香锅', $strYmd.'. Woody. 301 W Valley Blvd, Ste 101, San Gabriel, CA.', $bChinese);
+}
+
 function ImgWorriedWoody($bChinese = true)
 {
 	return ImgAutoQuote('/woody/image/20141121/E55A5341.JPG', ($bChinese ? '我们两个都有点发愁' : 'Woody and Mia Lin are both worried!'), $bChinese);

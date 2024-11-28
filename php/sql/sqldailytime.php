@@ -99,8 +99,8 @@ class CalibrationSql extends DailyTimeSql
     	}
     	else
     	{
-    		$ymd = new StringYMD($strDate);
-    		if ($ymd->IsWeekend())     			return false;   // sina fund may provide false weekend data
+//    		$ymd = new StringYMD($strDate);
+//    		if ($ymd->IsWeekend())     			return false;   // hf_CHA50CFD calibration may in Sunday, which is Monday for SH000300
     		
     		return $this->InsertDaily($strKeyId, $strDate, $strClose);
     	}

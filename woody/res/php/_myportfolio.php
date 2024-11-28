@@ -175,7 +175,7 @@ function EchoAll()
     $portfolio->arStockGroup[] = $portfolio; 
     $acct->EchoMoneyParagraphs($portfolio->arStockGroup, new CnyReference('USCNY'), new CnyReference('HKCNY'));
     
-    $acct->EchoLinks('myportfolio');
+    $acct->EchoLinks();
 }
 
 function GetTitle()

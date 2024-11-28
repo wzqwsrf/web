@@ -24,7 +24,7 @@ function EchoAll()
            	EchoTransactionParagraph($acct, $strGroupId);
         }
     }
-    $acct->EchoLinks('transaction');
+    $acct->EchoLinks();
 }
 
 function GetTitle()

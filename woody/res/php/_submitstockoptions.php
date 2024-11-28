@@ -271,7 +271,6 @@ function _updateStockOptionDividend($ref, $strSymbol, $strStockId, $his_sql, $st
   		}
   		else if ($strSymbol == 'XOP')
   		{
-//  			$strQdii = 'SZ162411';	// 'SZ159518'
 			foreach (QdiiGetXopSymbolArray() as $strQdii)
 			{
 				$strQdiiId = SqlGetStockId($strQdii);
@@ -294,13 +293,9 @@ function _updateStockOptionCalibration($strSymbol, $strStockId, $strDate, $strVa
 	if (!empty($strVal))
 	{
 		$strNav = SqlGetNavByDate($strStockId, $strDate);
-		if ($strNav == false)	return;
+//		if ($strNav == false)	return;
 		
-		if ($strSymbol == 'INDA')
-		{
-			$strVal = strval(EtfGetCalibration($strVal, $strNav));
-		}
-		else if ($strSymbol == 'ASHR')
+		if ($strSymbol == 'INDA' || $strSymbol == 'ASHR')
 		{
 			$ref = new FundPairReference($strSymbol);
 			YahooGetNetValue($ref);
@@ -430,7 +425,7 @@ class _SubmitOptionsAccount extends Account
 				{
 				case 'KWEB':
 					ReadKraneHoldingsCsvFile($strSymbol, $strStockId, $strDate, $strVal);
-					_updateStockOptionCalibration('SZ164906', SqlGetStockId('SZ164906'), $strDate, $strVal);
+//					_updateStockOptionCalibration('SZ164906', SqlGetStockId('SZ164906'), $strDate, $strVal);
 					break;
 				}
 			}

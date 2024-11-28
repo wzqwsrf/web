@@ -4,8 +4,6 @@ require_once('sqlvisitor.php');
 
 define('TABLE_BOT_MSG', 'botmsg');
 define('TABLE_BOT_SRC', 'botsrc');
-define('TABLE_TELEGRAM_BOT', 'telegrambot');
-define('TABLE_WECHAT_BOT', 'wechatbot');
 
 class BotMsgSql extends KeyNameSql
 {

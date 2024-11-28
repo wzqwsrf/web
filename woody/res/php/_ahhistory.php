@@ -75,7 +75,7 @@ function EchoAll()
    			_echoAhHistoryParagraph($ref, $h_ref, $acct->GetStart(), $acct->GetNum(), $acct->IsAdmin());
 		}
     }
-    $acct->EchoLinks();
+    $acct->EchoLinks('chaos');
 }
 
 function GetMetaDescription()

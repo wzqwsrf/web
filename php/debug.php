@@ -17,11 +17,6 @@ function IsZeroString($strZero)
 	return false;
 }
 
-function str_replace_utf8_space($str)
-{
-	return str_replace("\xC2\xA0", '', $str);	// &nbsp;
-}
-
 function strval_round($fVal, $iPrecision = false)
 {
 	if ($iPrecision === false)
@@ -212,13 +207,8 @@ function DebugGetChinaMoneyFile()
 function DebugGetSymbolFile($strSection, $strSymbol)
 {
     $strPath = DebugGetPath($strSection);
-    
     $str = strtolower($strSymbol);
-    $str = str_replace('+', '_', $str);
-    $str = str_replace(',', '_', $str);
-    $str = str_replace('^', '_', $str);
-    $str = str_replace('.', '_', $str);
-    $str = str_replace(':', '_', $str);
+    $str = str_replace(array('+', ',', '^', '.', ':'), '_', $str);
     return "$strPath/$str.txt";
 }
 

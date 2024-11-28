@@ -67,7 +67,7 @@ function EchoAll()
     							$strNewLine.'保存后在客户号区域按鼠标右键，选择'.GetInfoElement('清除全部客户号记录').'，然后关闭AutoIt.exe软件重新运行，就会使用改动后的客户号和密码。',
     							'点击'.GetInfoElement('客户号').'可以切换全选或者全不选',
     							GetFontElement('废弃电脑前，要记得清除全部客户号记录，避免泄露。')));
-    $acct->EchoLinks();
+    $acct->EchoLinks('chaos');
 //    	'在小屏幕笔记本上，显示设置的'.GetInfoElement('缩放与布局').'中，'.GetInfoElement('更改文本、应用等项目的大小').'的选项缺省不是100%。这时AutoIt自带的WinGetPos函数不会跟着调整倍数，导致找不到验证码位置。',
     echo GetKnownBugs(array(
     						 '从0.61版本开始，使用海王星3.07新增加的PIN码安全方式登录。如果被提示没有PIN码或者过期，需要手工在证书管理中使用默认PIN码申请一下。',

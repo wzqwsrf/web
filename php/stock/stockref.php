@@ -477,7 +477,7 @@ class ExtendedTradingReference extends StockReference
     {
         parent::__construct($strSymbol);
         
-        $this->strExternalLink = '';	// GetYahooNavLink($strSymbol);
+        $this->strExternalLink = '';
         $this->strPrice = $ar[21];
         $this->_convertDateTimeFromUS($ar[24], $ar[29]);
         $this->strPrevPrice = $ar[26];

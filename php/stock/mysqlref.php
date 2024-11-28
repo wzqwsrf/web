@@ -1,10 +1,10 @@
 <?php
-
+/*
 function EtfGetCalibration($strEst, $strEtf)
 {
 	return floatval($strEst) / floatval($strEtf);
 }
-
+*/
 class MysqlReference extends StockReference
 {
     var $strSqlId = false;      // ID in mysql database
@@ -118,7 +118,7 @@ class MysqlReference extends StockReference
     	}
     	return $this->strChineseName;
     }
-
+/*
     // ETF Factor functions
     function EstEtf($fVal)
     {
@@ -145,7 +145,7 @@ class MysqlReference extends StockReference
    			if ($strClose = $calibration_sql->GetCloseNow($strEtfId))	$this->fFactor = floatval($strClose);
    		}
         return $this->fFactor;
-    }
+    }*/
 }
 
 ?>

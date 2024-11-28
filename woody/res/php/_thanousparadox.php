@@ -119,7 +119,7 @@ function EchoAll()
 //            DebugString($strSymbol.' Thanous Paradox: '.DebugGetStopWatchDisplay($fStart));
         }
     }
-    $acct->EchoLinks('thanousparadox');
+    $acct->EchoLinks();
 }
 
 function GetMetaDescription()

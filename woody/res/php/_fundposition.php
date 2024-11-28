@@ -183,7 +183,7 @@ function EchoAll()
         }
 		if ($fund)		_echoFundPositionParagraph($fund, $cny_ref, $est_ref, $strSymbol, $strInput, $acct->IsAdmin());
     }
-    $acct->EchoLinks('fundposition');
+    $acct->EchoLinks();
 }
 
 function GetMetaDescription()

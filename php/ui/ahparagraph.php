@@ -5,7 +5,7 @@ function _callbackSortPair($ref)
 	return $ref->GetPriceRatio();
 }
 
-function _echoPairItem($ref, $bWide)
+function _echoPairItem($ref, $pos_sql, $bWide)
 {
 	$ar = array($ref->GetMyStockLink());
 	
@@ -21,7 +21,7 @@ function _echoPairItem($ref, $bWide)
 		if ($fRatio = $ref->GetPriceRatio())
 		{
 			$ar[] = GetRatioDisplay($fRatio);
-			$ar[] = GetRatioDisplay(1.0 / $fRatio);
+		   	if ($strPos = $pos_sql->ReadVal($ref->GetStockId(), true))		$ar[] = rtrim0($strPos);
 		}
 	}
     
@@ -30,9 +30,11 @@ function _echoPairItem($ref, $bWide)
 
 function _echoPairParagraph($ar, $strId, $str, $arRef, $bWide)
 {
-	EchoTableParagraphBegin($ar, $strId, $str);
 	if (count($arRef) > 2)	$arRef = RefSortByNumeric($arRef, '_callbackSortPair');
-	foreach ($arRef as $ref)		_echoPairItem($ref, $bWide);
+	$pos_sql = new FundPositionSql();
+
+	EchoTableParagraphBegin($ar, $strId, $str);
+	foreach ($arRef as $ref)		_echoPairItem($ref, $pos_sql, $bWide);
     EchoTableParagraphEnd();
 }
 
@@ -50,8 +52,9 @@ function EchoAbParagraph($arRef, $bWide = false)
 			array(new TableColumnSymbol(STOCK_DISP_BSHARES),
 			      new TableColumnPrice(STOCK_DISP_BSHARES),
 				  new TableColumnRMB(STOCK_DISP_BSHARES),
-				  new TableColumnRatio('A/B'),
-				  new TableColumnRatio('B/A')));
+				  new TableColumnRatio('A/B')
+				  )
+			);
 	_echoPairParagraph($ar, 'ab', $str, $arRef, $bWide);
 }
 
@@ -63,8 +66,9 @@ function EchoAhParagraph($arRef, $bWide = false)
 			array(new TableColumnSymbol(STOCK_DISP_HSHARES),
 			     new TableColumnPrice(STOCK_DISP_HSHARES),
 				 new TableColumnRMB(STOCK_DISP_HSHARES),
-				 new TableColumnRatio('A/H'),
-				 new TableColumnRatio('H/A')));
+				 new TableColumnRatio('A/H')
+				 )
+			);
 	_echoPairParagraph($ar, 'ah', $str, $arRef, $bWide);
 }
 
@@ -76,7 +80,9 @@ function EchoAdrhParagraph($arRef, $bWide = false)
 			     new TableColumnPrice(STOCK_DISP_HSHARES),
 				 new TableColumnUSD(STOCK_DISP_HSHARES),
 				 new TableColumnRatio('ADR/H'),
-				 new TableColumnRatio('H/ADR')));
+				 new TableColumnPosition()
+				 )
+			);
 	_echoPairParagraph($ar, 'adr', $str, $arRef, $bWide);
 }
 

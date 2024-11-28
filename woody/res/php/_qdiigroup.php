@@ -1,6 +1,5 @@
 <?php
 require_once('_fundgroup.php');
-require_once('../../php/ui/fundlistparagraph.php');
 
 function TradingUserDefined($strVal = false)
 {
@@ -38,14 +37,15 @@ class QdiiGroupAccount extends FundGroupAccount
     	
         if ($ar = YahooUpdateNetValue($est_ref))
         {
-        	list($strNav, $strDate) = $ar;
+//        	list($strNav, $strDate) = $ar;
         	if ($est_ref->GetSymbol() == 'INDA')
         	{
-        		if ($realtime_ref->GetDate() == $strDate)
+        		$est_ref->DailyCalibration();
+/*        		if ($realtime_ref->GetDate() == $strDate)
         		{
         			$calibration_sql = GetCalibrationSql();
         			$calibration_sql->WriteDaily($est_ref->GetStockId(), $strDate, strval(EtfGetCalibration($realtime_ref->GetPrice(), $strNav)));
-        		}
+        		}*/
         	}
         }
         
@@ -86,6 +86,7 @@ class QdiiGroupAccount extends FundGroupAccount
     	EchoFutureSmaParagraph($ref);
     	EchoFundHistoryParagraph($ref);
     	EchoFundShareParagraph($ref);
+    	EchoNvCloseHistoryParagraph($ref->GetEstRef());
     }
 
     function GetLeverageSymbols($strEstSymbol)

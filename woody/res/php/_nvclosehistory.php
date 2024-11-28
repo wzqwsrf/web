@@ -55,7 +55,7 @@ function EchoAll()
 			_echoNvCloseGraph($csv);
     	}
     }
-    $acct->EchoLinks('nvclosehistory');
+    $acct->EchoLinks();
 }
 
 function GetMetaDescription()

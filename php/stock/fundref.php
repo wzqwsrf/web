@@ -19,7 +19,7 @@ class FundReference extends MysqlReference
 {
     var $stock_ref = false;     // MyStockReference
     var $est_ref = false;       // MyStockRefenrence for fund net value estimation
-    var $realtime_ref = false;
+//    var $realtime_ref = false;
     var $rt_etf_ref = false;
     var $cny_ref;
 
@@ -153,7 +153,9 @@ class FundReference extends MysqlReference
 
     function GetRealtimeRef()
     {
-    	return $this->realtime_ref;
+//    	return $this->realtime_ref;
+		if ($this->rt_etf_ref != false)	return $this->rt_etf_ref->GetPairRef();
+    	return $this->est_ref->GetPairRef();
     }
 
     function GetRtEtfRef()

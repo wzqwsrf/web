@@ -56,7 +56,7 @@ function _echoMyStockTransactions($acct, $ref, $strStockId)
 
 function _getFundOptionLinks($strSymbol)
 {
-	return ' '.GetStockOptionLink(STOCK_OPTION_NAV, $strSymbol).' '.GetStockOptionLink(STOCK_OPTION_CALIBRATION, $strSymbol).' '.GetStockOptionLink(STOCK_OPTION_FUND, $strSymbol).' '.GetStockOptionLink(STOCK_OPTION_HOLDINGS, $strSymbol);
+	return ' '.GetStockOptionLink(STOCK_OPTION_NAV, $strSymbol).' '.GetStockOptionLink(STOCK_OPTION_CALIBRATION, $strSymbol).' '.GetStockOptionLink(STOCK_OPTION_HOLDINGS, $strSymbol);
 }
 
 function _getMyStockLinks($sym)
@@ -65,6 +65,7 @@ function _getMyStockLinks($sym)
     $str = GetStockEditDeleteLink($strSymbol);
    	$str .= ' '.GetStockOptionLink(STOCK_OPTION_SPLIT, $strSymbol);
    	$str .= ' '.GetStockOptionLink(STOCK_OPTION_DIVIDEND, $strSymbol);
+   	$str .= ' '.GetStockOptionLink(STOCK_OPTION_FUND, $strSymbol);
    	if (SqlGetFundPair($strSymbol) == false)
    	{
    		$str .= ' '.GetStockOptionLink(STOCK_OPTION_EMA, $strSymbol);
@@ -221,7 +222,7 @@ function EchoAll()
     	}
     }
 	else	EchoStockParagraph($acct->GetStart(), $acct->GetNum(), $bAdmin);
-    $acct->EchoLinks(false, 'GetMyStockLinks');
+    $acct->EchoLinks('chaos', 'GetMyStockLinks');
 }
 
 function GetMetaDescription()

@@ -110,11 +110,12 @@ class StockAccount extends TitleAccount
     
     function EchoLinks($strVer = false, $callback = false)
     {
+    	$strPage = $this->GetPage();
     	$strNewLine = GetBreakElement();
-    	$strWechatPay = GetHtmlElement(GetWechatPay(($this->GetPage() == 'autotractor') ? 2 : 0));
+    	$strWechatPay = GetHtmlElement(GetWechatPay(($strPage == 'autotractor') ? 2 : 0));
     	$bAdmin = $this->IsAdmin();
     	
-    	$str = GetStockMenuLinks().$strNewLine.GetAllLofLink().' '.GetAhCompareLink().' '.GetAutoTractorLink().' '.GetAccountToolLink('simpletest').' '.GetDevLink('entertainment/20150818cn.php'.($strVer ? '#'.$strVer : '')).$strNewLine;
+    	$str = GetStockMenuLinks().$strNewLine.GetAllLofLink().' '.GetAhCompareLink().' '.GetAutoTractorLink().' '.GetAccountToolLink('simpletest').' '.GetDevLink('entertainment/20150818cn.php#'.($strVer ? $strVer : $strPage)).$strNewLine;
 		if ($strLoginId = $this->GetLoginId())
     	{
     		$str .= GetMyPortfolioLink().$this->_getPersonalLinks($strLoginId);

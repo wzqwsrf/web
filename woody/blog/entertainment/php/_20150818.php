@@ -6,6 +6,7 @@ require_once('../../../php/ui/ahparagraph.php');
 require_once('../../../php/ui/calibrationhistoryparagraph.php');
 require_once('../../../php/ui/fundestparagraph.php');
 require_once('../../../php/ui/fundhistoryparagraph.php');
+require_once('../../../php/ui/fundlistparagraph.php');
 require_once('../../../php/ui/fundshareparagraph.php');
 require_once('../../../php/ui/netvaluehistoryparagraph.php');
 require_once('../../../php/ui/smaparagraph.php');
@@ -13,17 +14,19 @@ require_once('../../../php/ui/nvclosehistoryparagraph.php');
 require_once('../../../php/ui/stockhistoryparagraph.php');
 require_once('_entertainment.php');
 
+define('A_DEMO_SYMBOL', 'SH510300');
 define('AB_DEMO_SYMBOL', 'SZ000488');
 define('ADRH_DEMO_SYMBOL', 'TCEHY');
 define('AH_DEMO_SYMBOL', 'SH600028');
-define('STOCK_DEMO_SYMBOL', 'XOP');
+define('FUND_DEMO_SYMBOL', 'SZ162411');
+define('US_DEMO_SYMBOL', 'XOP');
 
 function DemoPrefetchData()
 {
-    StockPrefetchExtendedData(AB_DEMO_SYMBOL, ADRH_DEMO_SYMBOL, AH_DEMO_SYMBOL, FUND_DEMO_SYMBOL, STOCK_DEMO_SYMBOL);
+    StockPrefetchExtendedData(A_DEMO_SYMBOL, AB_DEMO_SYMBOL, ADRH_DEMO_SYMBOL, AH_DEMO_SYMBOL, FUND_DEMO_SYMBOL, US_DEMO_SYMBOL);
 }
 
-function EchoNvCloseDemo($strSymbol = STOCK_DEMO_SYMBOL)
+function EchoNvCloseDemo($strSymbol = US_DEMO_SYMBOL)
 {
     $ref = new MyStockReference($strSymbol);
    	EchoNvCloseHistoryParagraph($ref);
@@ -90,7 +93,7 @@ function Echo20150824($strHead)
 </p>
 END;
 
-   	EchoStockHistoryParagraph(new MyStockReference(STOCK_DEMO_SYMBOL));
+   	EchoStockHistoryParagraph(new MyStockReference(US_DEMO_SYMBOL));
 }
 
 function EchoPage20150827($strPage)
@@ -127,7 +130,7 @@ function Echo20160108($strHead)
 </p>
 END;
 
-	EchoFundHistoryParagraph(StockGetFundReference());
+	EchoFundHistoryParagraph(StockGetFundReference(FUND_DEMO_SYMBOL));
 }
 
 function Echo20160126($strHead)
@@ -197,7 +200,7 @@ function Echo20160216($strHead)
 </p>
 END;
 
-	EchoCalibrationHistoryParagraph(StockGetFundReference());
+	EchoCalibrationHistoryParagraph(StockGetFundReference(FUND_DEMO_SYMBOL));
 }
 
 function Echo20160222($strHead)
@@ -216,7 +219,7 @@ function Echo20160222($strHead)
 </p>
 END;
 
-	EchoNetValueHistoryParagraph(StockGetFundReference());
+	EchoNetValueHistoryParagraph(StockGetFundReference(FUND_DEMO_SYMBOL));
 }
 
 function Echo20160226($strHead)
@@ -348,9 +351,11 @@ function EchoPage20160818($strPage)
 <br />先说明一下如何把华宝油气{$strOfficalEst}精确到0.001元。说实在话，刚开始我也不可能想到花了整整一年时间才做到这一点。
 </p>
 	$strEstList
+<p>为了避免每次都依靠A股后6位数字判断LOF，我增加了fundposition表来记录估值中使用的仓位。
+</p>
 END;
 
-	EchoFundArrayEstParagraph(array(StockGetFundReference()));
+	EchoFundArrayEstParagraph(array(StockGetFundReference(FUND_DEMO_SYMBOL)));
 	EchoTableParagraphBegin(array(new TableColumn('估值因素', 140), $offical_col, $fair_col, $realtime_col), 'estcompare');
 	EchoTableColumn(array('T日美股交易',		'XOP净值',	'XOP净值',	'XOP净值'));
 	EchoTableColumn(array('CL期货',			'否',		'否',		'是'));
@@ -561,7 +566,7 @@ function Echo20180327($strHead)
 </p>
 END;
 
-	EchoQdiiSmaParagraph(StockGetFundReference());
+	EchoQdiiSmaParagraph(StockGetFundReference(FUND_DEMO_SYMBOL));
 }
 
 function Echo20180404($strHead)
@@ -572,7 +577,7 @@ function Echo20180404($strHead)
 	$strWeixin = _getWeixinLink();
 	$str00700 = GetRemarkElement('00700');
 	$strTencent = GetRemarkElement('腾讯');
-	$strSource = GetExternalLink(GetAastocksAdrUrl());
+	$strSource = GetAdrLink();
 	$strUpdate = DebugIsAdmin() ? GetInternalLink('/php/test/updateadr.php', '更新H股ADR数据') : '';
 	$strTableSql = GetCodeElement('TableSql');
 	$strValSql = GetCodeElement('ValSql');
@@ -659,29 +664,33 @@ function Echo20180620($strPage)
 	$strFundReference = GetCodeElement('FundReference');
 	$strMysqlReference = GetCodeElement('MysqlReference');
 	$strFundPairReference = GetCodeElement('FundPairReference');
+	$strFundListTag = GetNameTag('fundlist', FUND_LIST_DISPLAY);
 	
     echo <<<END
 	$strHead
 <p>2018年6月20日
 <br />配合抄底{$strChinaIndex}加入{$strSH510300}页面，根据沪深300指数SH000300估算SH510300和ASHR的净值，看看有没有华宝油气和XOP这种跨市场套利的机会。
 <br />为了避免原有代码进一步走向{$strChaos}，不想从原有的{$strFundReference}类扩展这种新估值模式，从{$strMysqlReference}类继承了一个新的{$strFundPairReference}。
+<br />同时增加一个{$strFundListTag}新页面，用来记录使用{$strFundPairReference}的所有品种。
 </p>
 END;
+
+	EchoFundListParagraph(array(new FundPairReference(A_DEMO_SYMBOL)));
 }
 
 function Echo20191025($strHead)
 {
 	$strHead = GetHeadElement($strHead);
-	$strFundAccount = GetFundAccountLink();
+	$strFundAccount = GetFundAccountLink(FUND_DEMO_SYMBOL);
 	$strNavHistory = GetNameLink('netvaluehistory', NETVALUE_HISTORY_DISPLAY);
 	$strNavHistoryLink = GetNetValueHistoryLink(FUND_DEMO_SYMBOL, 'num=0', '统计');
 	$strFundPositionLink = GetFundPositionLink(FUND_DEMO_SYMBOL);
+	$strQDII = _getQdiiLink();
 	$strSZ160216 = GetFundPositionLink('SZ160216', true);
 	$strLof = _getLofLink();
 	$strSH501018Tag = _getStockTag('SH501018');
 	$strSH501018Link = GetGroupStockLink('SH501018', true);
 	$strMaster = GetXueqiuIdLink('1873146750', '惊艳大师');
-	$strQDII = _getQdiiLink();
 	$strElementaryTag = GetNameTag('elementary', '小学生');
 	$strWei = GetXueqiuIdLink('1135063033', '魏大户');
 	$strOilFundTag = _getStockCategoryTag('oilfund');
@@ -704,7 +713,7 @@ function Echo20191025($strHead)
 不过这3天累计的涨幅达到了5.14%，我于是灵机一动，想到了可以优化一下算法：不用拘泥于单日的涨跌，只要连续几天的累计涨幅或者跌幅超过了4%就计算一次仓位。
 <br />这样我又增加了一个专门估算仓位的新页面：$strFundPositionLink
 <br />加了新页面后继续脑洞大开，我又加了一行输入界面，从此可以自行设置4%的阈值。
-<br />既然现在有了实测的数据，当然要把它们派上用场。不过我暂时只把SZ162411和{$strSZ160216}仓位用在了估值上，而其它的{$strLof}依旧使用缺省的95%仓位。如果小于1，在估值页面上会显示实际使用的估值仓位。
+<br />既然现在有了实测的数据，当然要把它们派上用场，在{$strQDII}估值中被打入冷宫的fundposition表又复活了。不过我暂时只把SZ162411和{$strSZ160216}仓位用在了估值上，而其它的{$strLof}依旧使用缺省的95%仓位。如果小于1，在估值页面上会显示实际使用的估值仓位。
 <br />国泰商品跟华宝油气是2011到2012年基本上同时代的第一批QDII基金，开始几年没啥人气。2015年传说中的著名网络写手烟雨江南邱晓华卸任基金经理前，把名字上依然保持着大宗商品的SZ160216改造成了一个纯油基金，净值几乎100%跟随USO和美油期货CL。
 也就是说，我可以用USO准确的给这4年以来的国泰商品估值。
 <br />100%跟随CL就意味着可以套利。在CL砸向2016初的26美元那一轮中，可以抄底油价又可以套利的国泰商品跟华宝油气一样迅速成长起来，QDII场内流动性仅次于华宝油气。在华宝油气2016年1月21日因为外汇额度彻底关门后，国泰商品也在2016年2月24日彻底关门。
@@ -713,7 +722,7 @@ function Echo20191025($strHead)
 <br />事实上，当{$strSH501018Tag}计划在2016年中间上市的时候，我看到的套利群体是对它寄予厚望的，希望它能重复国泰商品100%跟CL的模式方便大家赚钱。可惜南方基金没采用现成的套利促进流动性的模式，所以它到现在的流动性也还是苦哈哈。
 <br />因为国内监管的要求，FOF的持仓不能过于集中。SZ160216费了不少力气让自己的持仓跟USO保持100%一致。因为美股市场上没有足够多的原油ETF品种选择，它同时持有了小部分2倍日内杠杆的原油ETF和看多美元的ETF，甚至还有一点点贵金属ETF，说白了就是为了满足监管的分散要求。
 而{$strSH501018Link}更离谱，它持仓了很大一部分欧洲市场上的原油ETF，由于市场收盘时间不同，市场假期也有差异，我用USO给它估值就不准了，反向计算出来的仓位就更加不靠谱。
-<br />想给它正确估值，使用SZ162411的这种单一品种参考模式是不行的。{$strMaster}计算{$strQDII}净值的Excel虽然在我的网页工具出来后落寞了许多，不过他说了，用XOP估算华宝油气净值只是{$strElementaryTag}水平，能够用实际的详细持仓明细估算净值才算初中生水平！
+<br />想给它正确估值，使用SZ162411的这种单一品种参考模式是不行的。{$strMaster}计算净值的Excel虽然在我的网页工具出来后落寞了许多，不过他说了，用XOP估算华宝油气净值只是{$strElementaryTag}水平，能够用实际的详细持仓明细估算净值才算初中生水平！
 <br />{$strWei}在雪球和公众号上写了一系列A股大时代的故事，一直用这个封面图片。因为我今天也忍不住开始讲{$strOilFundTag}基金历史的故事，就东施效颦也放个图。
 $strImage
 </p>
@@ -755,30 +764,6 @@ function Echo20200326($strHead)
 END;
 }
 
-function Echo20210624($strHead)
-{
-	$strHead = GetHeadElement($strHead);
-	$strKWEB = GetHoldingsLink('KWEB', false);
-	$strQDII = _getQdiiLink();
-	$strSZ164906 = GetGroupStockLink('SZ164906');
-	$strFundHistory = GetNameLink('fundhistory', FUND_HISTORY_DISPLAY);
-	$strLof = _getLofLink();
-	$strElementary = GetNameLink('elementary', '小学生');
-	$strImage = ImgMrFox();
-	
-    echo <<<END
-	$strHead
-<p>2021年6月24日
-<br />虽然原则上来说XOP也可以使用这个页面，但是它其实是为同时有港股和美股的{$strKWEB}持仓准备的。
-<br />{$strQDII}基金总是越跌规模越大，流动性越好，前些年是华宝油气，而今年最热门的变成了中概互联。按SZ162411对应XOP的模式，中概互联的小弟SZ164906之前是用KWEB估值的。
-不过因为中国互联有1/3的港股持仓，它的净值在港股交易时段会继续变化，所以原来的{$strSZ164906}页面其实没有什么实际用处。唯一的好处是在{$strFundHistory}中累积了几年的官方估值误差数据，帮我确认了用KWEB持仓估值中国互联的可行性。
-<br />跟A股{$strLof}基金每个季度才公布一次前10大持仓不同，美股ETF每天都会公布自己的净值和详细持仓比例。因为KWEB和中国互联跟踪同一个中证海外中国互联网指数H11136，这样可以从KWEB官网下载持仓文件后，根据它的实际持仓估算出净值。然后SZ164906的参考估值也就可以跟随白天的港股交易变动了。
-<br />写了快6年的估值软件终于从{$strElementary}水平进化到了初中生水平，还是有些成就感的。暑假即将来到，了不起的狐狸爸爸要开始教已经读了一年小学的娃在Roblox上编程了。
-$strImage
-</p>
-END;
-}
-
 function Echo20210714($strHead)
 {
 	$strHead = GetHeadElement($strHead);
@@ -789,12 +774,12 @@ function Echo20210714($strHead)
 	$strHead
 <p>2021年7月14日
 <br />相对于{$strNavHistory}等其它历史数据，这个页面来得实在是比较晚，主要是之前做华宝油气套利时不需要特别关注每天的场内新增份额，反正流动性足够好。不过随着XOP一路上涨，华宝油气的上百亿场内规模只剩下了零头，失去了流动性的华宝油气和XOP跨市场套利变成了屠龙之技。
-我也被迫开始关注像中国互联这种流动性不是那么好的品种，为以后的套利早做打算。
+我也被迫开始关注像SZ164906这种流动性不是那么好的品种，为以后的套利早做打算。
 <br />历史数据页面汇总：{$strFundLinks}
 </p>
 END;
 	
-	EchoFundShareParagraph(StockGetFundReference());
+	EchoFundShareParagraph(StockGetFundReference(FUND_DEMO_SYMBOL));
 }
 
 function Echo20210728($strPage)

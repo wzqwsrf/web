@@ -42,12 +42,4 @@ class HoldingsDateSql extends DateSql
     }
 }
 
-class NavFileDateSql extends DateSql
-{
-    public function __construct()
-    {
-        parent::__construct('navfiledate');
-    }
-}
-
 ?>

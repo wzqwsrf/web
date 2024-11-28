@@ -366,21 +366,4 @@ function SqlCountHoldings($strSymbol)
 	return $holdings_sql->Count(SqlGetStockId($strSymbol));
 }
 
-function SqlGetHoldingsSymbolArray($strSymbol)
-{
-   	$arSymbol = array();
-	if (SqlCountHoldings($strSymbol) > 0)
-	{
-		$sql = GetStockSql();
-		$strStockId = $sql->GetId($strSymbol);
-		$holdings_sql = GetHoldingsSql();
-    	$ar = $holdings_sql->GetHoldingsArray($strStockId);
-    	foreach ($ar as $strId => $strRatio)
-    	{
-    		$arSymbol[] = $sql->GetStockSymbol($strId);
-    	}
-    }
-   	return $arSymbol;
-}
-
 ?>

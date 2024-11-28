@@ -41,17 +41,17 @@ class MyPairReference extends MyStockReference
         	else if ($this->pair_ref->IsSymbolH())
         	{
         		if ($this->IsSymbolA())			$strCNY = 'HKCNY';
-				else if ($this->IsSymbolUS())	$this->cny_ref = new HkdUsdReference();
+				else if ($this->IsSymbolUS())	$this->cny_ref = new UsdHkdReference();
         	}
         	else
         	{
         		if ($this->IsSymbolA())			$strCNY = 'USCNY';
         	}
         	if ($strCNY)		$this->cny_ref = new CnyReference($strCNY);
-    	}
     	
-       	$this->fRatio = RefGetPosition($this);
-       	$this->LoadCalibration();
+        	$this->fRatio = RefGetPosition($this);
+        	$this->LoadCalibration();
+    	}
     }
     
     function LoadCalibration()
@@ -97,7 +97,8 @@ class MyPairReference extends MyStockReference
     	if ($fPairVal == false)	$fPairVal = floatval($this->pair_ref->GetPrice());
     	if ($fCny == false)		$fCny = $this->GetDefaultCny();
     	
-		$fVal = QdiiGetVal($fPairVal, $fCny, $this->fFactor);
+    	if ($this->IsSymbolA())	$fVal = QdiiGetVal($fPairVal, $fCny, $this->fFactor);
+    	else						$fVal = ($fPairVal / $fCny) / $this->fFactor;
 		return FundAdjustPosition($this->fRatio, $fVal, ($this->fLastCalibrationVal ? $this->fLastCalibrationVal : $fVal));
     }
     
@@ -107,7 +108,8 @@ class MyPairReference extends MyStockReference
     	if ($fCny == false)		$fCny = $this->GetDefaultCny();
     	
 		$fVal = FundReverseAdjustPosition($this->fRatio, $fMyVal, ($this->fLastCalibrationVal ? $this->fLastCalibrationVal : $fMyVal));
-		return QdiiGetPeerVal($fVal, $fCny, $this->fFactor);
+		if ($this->IsSymbolA())	return QdiiGetPeerVal($fVal, $fCny, $this->fFactor);
+		return ($fVal * $fCny) * $this->fFactor;
     }
 
     function GetPriceRatio($strDate = false)
@@ -138,7 +140,6 @@ class AbPairReference extends MyPairReference
     }
 }
 
-// https://www.gswarrants.com.hk/tc/ajax/adr-result
 class AdrPairReference extends MyPairReference
 {
     public function __construct($strAdr) 
@@ -158,14 +159,15 @@ class AhPairReference extends MyPairReference
 class FundPairReference extends MyPairReference
 {
 	var $nav_ref = false;
-	var $realtime_callback = false;
+	var $realtime_callback;
  
-    public function __construct($strSymbol) 
+    public function __construct($strSymbol, $callback = false) 
     {
         parent::__construct($strSymbol, new FundPairSql());
         
 		if ($this->pair_ref)
 		{
+			$this->realtime_callback = $callback;
 			$strPair = $this->pair_ref->GetSymbol();
 			if ($this->pair_ref->IsSinaFuture())
 			{
@@ -199,14 +201,16 @@ class FundPairReference extends MyPairReference
 	function DailyCalibration()
 	{
 		$strStockId = $this->GetStockId();
-		$strDate = $this->GetDate();
 		$nav_sql = GetNavHistorySql();
-		if ($strNav = $nav_sql->GetClose($strStockId, $strDate))
+		$calibration_sql = GetCalibrationSql();
+		$strDate = $nav_sql->GetDateNow($strStockId);
+		if ($strDate == $calibration_sql->GetDateNow($strStockId))	return;
+		
+		if ($strNav = $nav_sql->GetCloseNow($strStockId))
 		{
 			if ($strPairNav = PairNavGetClose($this->pair_ref, $strDate))	
 			{
 				$fFactor = $this->GetFactor($strPairNav, $strNav, $strDate);
-				$calibration_sql = GetCalibrationSql();
 				$calibration_sql->WriteDaily($strStockId, $strDate, strval($fFactor));
         	
 				$this->LoadCalibration();
@@ -226,8 +230,8 @@ class FundPairReference extends MyPairReference
  		if ($this->cny_ref)
  		{
  			$fCny = $this->cny_ref->GetVal($strDate);
- 			if ($this->IsSymbolA())	$fNav *= $fCny;
- 			else						$fNav /= $fCny;
+ 			if ($this->IsSymbolA())	$fNav /= $fCny;
+ 			else						$fNav *= $fCny;
  		}
 		return $fPairNav / $fNav;
  	}
@@ -269,11 +273,6 @@ function _adjustByCny($fVal, $fCny, $bSymbolA)
     	return $this->_adjustByCny($fVal, $fCny, $this->IsSymbolA());
     }
 */
-	function SetRealtimeCallback($callback)
-	{
-		$this->realtime_callback = $callback;
-	}
-
     function GetOfficialDate()
     {
         $strOfficialDate = $this->pair_ref->GetDate();

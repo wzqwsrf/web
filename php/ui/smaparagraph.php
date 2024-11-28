@@ -236,7 +236,7 @@ function EchoAhPairSmaParagraph($ref, $str = false, $callback2 = false)
 	EchoSmaParagraph($ref, $str, $ref, '_callbackAhPairSma', $callback2);
 }
 
-function GetFutureInterestPremium($fRate = 0.04375, $strEndDate = '2024-12-20')
+function GetFutureInterestPremium($fRate = 0.04500, $strEndDate = '2024-12-20')
 {
 	$end_ymd = new StringYMD($strEndDate);
 	date_default_timezone_set('America/New_York');
@@ -251,7 +251,7 @@ function _callbackFutureSma($ref, $strEst = false)
 	if ($strEst)
 	{
 		$f = floatval($strEst) * GetFutureInterestPremium();
-		if (DebugIsAdmin())	$f *= 1.0110;
+		if (DebugIsAdmin())	$f *= 1.0111;
 		return strval_round(round(4.0 * $f) / 4.0, 2);
 	}
 	return $ref;

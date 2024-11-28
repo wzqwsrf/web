@@ -179,9 +179,9 @@ class TableColumnProfit extends TableColumn
 
 class TableColumnQuantity extends TableColumn
 {
-	public function __construct($strPrefix = false)
+	public function __construct($iWidth = 100)
 	{
-        parent::__construct(STOCK_DISP_QUANTITY, 100, 'indigo', $strPrefix);
+        parent::__construct(STOCK_DISP_QUANTITY, $iWidth, 'indigo');
 	}
 }
 

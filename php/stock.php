@@ -32,24 +32,15 @@ function StockGetSymbol($str)
     return $str;
 }
 
-function StockGetSymbolArray($ar)
-{
-    $arSymbol = array();
-    foreach ($ar as $str)
-    {
-    	if (!empty($str))
-    	{
-    		$arSymbol[] = StockGetSymbol($str);
-    	}
-    }
-    return $arSymbol;
-}
-
 function GetInputSymbolArray($strSymbols)
 {
-	$str = str_replace(array(',', '，', "\\n", "\\r", "\\r\\n"), ' ', $strSymbols);
-    $ar = explode(' ', $str);
-    return StockGetSymbolArray($ar);
+	$strSymbols = str_replace(array(',', '，', '、', "\\n", "\\r", "\\r\\n"), ' ', $strSymbols);
+    $arSymbol = array();
+    foreach (explode(' ', $strSymbols) as $str)
+    {
+    	if (!empty($str))		$arSymbol[] = StockGetSymbol($str);
+    }
+    return $arSymbol;
 }
 
 function GetYahooNetValueSymbol($strEtfSymbol)
@@ -220,6 +211,25 @@ function StockPrefetchArrayData($arSymbol)
     PrefetchSinaStockData(array_unique($arSymbol));
 }
 
+function _addFundPairSymbol(&$ar, $strSymbol)
+{
+	$ar[] = $strSymbol;
+	if ($strPairSymbol = SqlGetFundPair($strSymbol))	$ar[] = $strPairSymbol;
+}
+
+function _addHoldingsSymbol(&$ar, $strSymbol)
+{
+	if (SqlCountHoldings($strSymbol) > 0)
+	{
+		$sql = GetStockSql();
+		$holdings_sql = GetHoldingsSql();
+    	foreach ($holdings_sql->GetHoldingsArray($sql->GetId($strSymbol)) as $strId => $strRatio)
+    	{
+    		_addFundPairSymbol($ar, $sql->GetStockSymbol($strId));
+    	}
+    }
+}
+
 function _getAllSymbolArray($strSymbol)
 {
    	$ar = array($strSymbol);
@@ -228,32 +238,27 @@ function _getAllSymbolArray($strSymbol)
     {
         if (in_arrayQdiiMix($strSymbol))
         {
-        	$ar = array_merge($ar, SqlGetHoldingsSymbolArray($strSymbol));
+        	_addHoldingsSymbol($ar, $strSymbol);
         	if ($strSymbol == 'SZ164906')				$ar[] = 'KWEB';
 			else if ($strSymbol == 'SH501225')		$ar[] = 'SMH';
         }
         else if (in_arrayQdii($strSymbol))
         {
-        	if ($strEstSymbol = QdiiGetEstSymbol($strSymbol))	        		$ar[] = $strEstSymbol; 
-        	if ($strRealtimeSymbol = QdiiGetRealtimeSymbol($strSymbol))		$ar[] = $strRealtimeSymbol; 
-        	if ($strRtEtfSymbol = QdiiGetRtEtfSymbol($strSymbol))				$ar[] = $strRtEtfSymbol; 
+        	if ($strEstSymbol = QdiiGetEstSymbol($strSymbol))		_addFundPairSymbol($ar, $strEstSymbol);
+        	if ($strRtEtfSymbol = QdiiGetRtEtfSymbol($strSymbol))	_addFundPairSymbol($ar, $strRtEtfSymbol);
         }
         else if (in_arrayQdiiHk($strSymbol))
         {
-        	if ($strEstSymbol = QdiiHkGetEstSymbol($strSymbol))		        $ar[] = $strEstSymbol; 
-        	if ($strRealtimeSymbol = QdiiHkGetRealtimeSymbol($strSymbol))		$ar[] = $strRealtimeSymbol; 
+        	if ($strEstSymbol = QdiiHkGetEstSymbol($strSymbol))	_addFundPairSymbol($ar, $strEstSymbol);
         }
         else if (in_arrayQdiiJp($strSymbol))
         {
-        	if ($strEstSymbol = QdiiJpGetEstSymbol($strSymbol))		        $ar[] = $strEstSymbol; 
-        	if ($strRealtimeSymbol = QdiiJpGetRealtimeSymbol($strSymbol))		$ar[] = $strRealtimeSymbol; 
+        	if ($strEstSymbol = QdiiJpGetEstSymbol($strSymbol))	_addFundPairSymbol($ar, $strEstSymbol); 
         }
         else if (in_arrayQdiiEu($strSymbol))
         {
-        	if ($strEstSymbol = QdiiEuGetEstSymbol($strSymbol))		        $ar[] = $strEstSymbol; 
-        	if ($strRealtimeSymbol = QdiiEuGetRealtimeSymbol($strSymbol))		$ar[] = $strRealtimeSymbol; 
+        	if ($strEstSymbol = QdiiEuGetEstSymbol($strSymbol))	_addFundPairSymbol($ar, $strEstSymbol); 
         }
-//      else if (in_arrayChinaIndex($strSymbol))
         else
         {
         	if ($strPairSymbol = SqlGetFundPair($strSymbol))			   		$ar[] = $strPairSymbol;
@@ -285,7 +290,7 @@ function _getAllSymbolArray($strSymbol)
     }
     else
     {
-       	$ar = array_merge($ar, SqlGetHoldingsSymbolArray($strSymbol));
+       	_addHoldingsSymbol($ar, $strSymbol);
     	if ($strSymbolH = SqlGetAdrhPair($strSymbol))
         {
            	$ar[] = $strSymbolH;
@@ -300,9 +305,9 @@ function _getAllSymbolArray($strSymbol)
        	{
        		$ar[] = $strPairSymbol;
          	if ($strSymbol == 'ASHR' || $strSymbol == 'hf_CHA50CFD')	$ar[] = 'fx_susdcnh';
-//         	DebugPrint($ar, __FUNCTION__, true);
       	}
     }
+//   	DebugPrint($ar, __FUNCTION__, true);
     return $ar;
 }
 
@@ -317,7 +322,6 @@ function StockPrefetchArrayExtendedData($ar)
    		else								$arAll[] = $strSymbol;	// new stock symbol	
     }
     StockPrefetchArrayData($arAll);
-//    DebugPrint($arAll, 'StockPrefetchArrayExtendedData', true);
 }
 
 function StockPrefetchExtendedData()
@@ -343,7 +347,7 @@ function StockGetQdiiReference($strSymbol)
     return false;
 }
 
-function StockGetFundReference($strSymbol = FUND_DEMO_SYMBOL)
+function StockGetFundReference($strSymbol)
 {
 	if ($ref = StockGetQdiiReference($strSymbol))	return $ref;
 	else if (in_arrayQdiiMix($strSymbol))			return new HoldingsReference($strSymbol);

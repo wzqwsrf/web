@@ -13,7 +13,7 @@ function EchoAll()
         SzseGetLofShares($ref);
         EchoFundShareParagraph($ref, $acct->GetStart(), $acct->GetNum(), $acct->IsAdmin());
     }
-    $acct->EchoLinks('fundshare');
+    $acct->EchoLinks();
 }
 
 function GetMetaDescription()

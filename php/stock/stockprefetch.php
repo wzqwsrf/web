@@ -47,13 +47,6 @@ function _checkBetweenMarketClose($now_ymd, $iFileTime, $iWeekday, $iWeekend)
 
 function StockNeedNewQuotes($sym, $strFileName, $iInterval = SECONDS_IN_MIN)
 {
-/*	$strSymbol = $sym->GetSymbol();
-	if (in_array($strSymbol, array('SZ162411', 'SZ164906')))	
-	{
-		$iInterval /= 2;
-//		DebugString('accelerate '.$strSymbol.' to '.strval($iInterval), true);
-	}
-*/	
     $now_ymd = GetNowYMD();
 	if (($iFileTime = $now_ymd->NeedFile($strFileName, $iInterval)) == false)		return false;	// update on every minute
 	
@@ -149,6 +142,8 @@ function _prefetchSinaData($arSym)
 
 function PrefetchSinaStockData($arSymbol)
 {
+//    DebugPrint($arSymbol, __FUNCTION__, true);
+    
     $arUnknown = array();
     $arPrefetch = array();
     foreach ($arSymbol as $strSymbol)
