@@ -66,7 +66,7 @@ function _echoMergeParagraph($arMerge)
 			switch ($strSymbol)
 			{
 			case 'KWEB':
-//				$ar[] = strval($iTotal + 00 - 00);
+				$ar[] = strval($iTotal + 00 - 13);
 				break;
 			}
 			RefEchoTableColumn($ref, $ar);
@@ -132,8 +132,8 @@ function _echoPortfolio($portfolio, $sql, $strMemberId, $bAdmin)
 		                $portfolio->OnStockTransaction($trans);
 		                $ref = $trans->GetRef();
 		                if ($ref->IsSymbolA())			$arTransA[] = $trans;
-		                else if ($ref->IsSymbolH())      	$arTransH[] = $trans;
-		                else			                	$arTransUS[] = $trans;
+		                else if ($ref->IsSymbolH())     $arTransH[] = $trans;
+		                else			                $arTransUS[] = $trans;
 		            }
 		        }
 		    }

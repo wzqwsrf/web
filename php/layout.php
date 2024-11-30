@@ -56,13 +56,13 @@ function GetWechatPay($iType = 0)
 //		$strPathName = ResizeJpg('/debug/wechat/59692929fecbbe0d.jpg');
 //		$strRemark = '华宝拖拉机开户微信群二维码';
 		$strPathName = ResizeJpg('/debug/wechat/bec5dabc01d8c812.jpg');
-		$strRemark = '华宝拖拉机开户微信群拉朋友进群二维码';
+		$strRemark = '华宝拖拉机开户群已经超过200人，需要扫二维码后请求拉朋友进群。';
 		$strImage = GetImgElement($strPathName, $strRemark);
 		$strText = GetFontElement($strRemark, 'navy');
 		break;
         	
 	case 3:
-		$strPathName = ResizeJpg('/debug/wechat/d22a20e0be61e58f.jpg');
+		$strPathName = ResizeJpg('/debug/wechat/4b3c530478f4ba00.jpg');
 		$strRemark = '香港保诚保险投保微信群二维码';
 		$strImage = GetImgElement($strPathName, $strRemark);
 		$strText = GetFontElement($strRemark, 'navy');
