@@ -28,12 +28,13 @@ function EchoNobody()
 {
 	$bChinese = UrlIsEnglish() ? false : true;
 	$strLang = $bChinese ? 'zh-Hans' : 'en';
+	$strContentType = GetContentType();
 	
     echo <<<END
 <!DOCTYPE html>
 <html lang="$strLang">
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	$strContentType
 END;
 
 	EchoHead($bChinese);

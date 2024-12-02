@@ -160,10 +160,10 @@ function LogBotVisit($strType, $strMsg, $strSrc)
     $visitor_sql = new BotVisitorSql($strType);
     $msg_sql = new BotMsgSql();
     $src_sql = new BotSrcSql();
-    $ip_sql = new IpSql();
+//    $ip_sql = new IpSql();
 	    
     $strIp = UrlGetIp();
-	$ip_sql->InsertIp($strIp);
+//	$ip_sql->InsertIp($strIp);
 	$msg_sql->InsertText($strMsg);
 	$src_sql->InsertSrc($strSrc);
 	$visitor_sql->InsertBotVisitor($msg_sql->GetId($strMsg), GetIpId($strIp), $src_sql->GetId($strSrc));

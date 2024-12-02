@@ -28,7 +28,12 @@ class Account
     
     var $strLoginEmail = false;
 
-    var $ip_sql;
+//    var $ip_sql;
+    var $ip_crawler_sql;
+    var $ip_malicious_sql;
+    var $ip_visit_sql;
+    var $ip_login_sql;
+    
     var $page_sql;
     var $visitor_sql;
 
@@ -39,25 +44,30 @@ class Account
     	session_start();
     	SqlConnectDatabase();
 
-	    $tick_sql = new IpTickSql();
+	    $tick_sql = new IpIntSql('iptick', 'tick');
    		$ymd = GetNowYMD();
    		$iCurTick = $ymd->GetTick();
     	
 	    $strIp = UrlGetIp();
-	    $this->ip_sql = new IpSql();
-	    $strStatus = $this->ip_sql->GetStatus($strIp);
-	    if ($strStatus == IP_STATUS_MALICIOUS)	die('403 Forbidden');
-	    else if ($strStatus == IP_STATUS_CRAWLER)
+//	    $this->ip_sql = new IpSql();
+		$this->ip_crawler_sql = new IpCrawlerSql();
+		$this->ip_malicious_sql = new IpMaliciousSql();
+		$this->ip_visit_sql = new IpVisitSql();
+		$this->ip_login_sql = new IpLoginSql();
+
+//	    $strStatus = $this->ip_sql->GetStatus($strIp);
+//	    if ($strStatus == IP_STATUS_MALICIOUS)	die('403 Forbidden');
+//	    else if ($strStatus == IP_STATUS_CRAWLER)
+	    if ($this->IsMalicious($strIp))		die('403 Forbidden');
+	    else if ($this->IsCrawler($strIp))
 	    {
-	    	if ($iTick = $tick_sql->ReadTick($strIp))
+	    	if ($iTick = $tick_sql->ReadInt($strIp))
 	    	{
 	    		if ($iCurTick - $iTick < SECONDS_IN_DAY)		SwitchToLink('/account/code429.php');
 	    	}
 	    	$this->bAllowCurl = false;
 	    }
-//	    SwitchToLink('/account/code429.php');
-
-		$this->ip_sql->InsertIp($strIp);
+//		$this->ip_sql->InsertIp($strIp);
 
 	    $strUri = UrlGetUri();
 	    $this->page_sql = new PageSql();
@@ -73,10 +83,11 @@ class Account
 	    	$iPageCount = $this->visitor_sql->CountUniqueDst($strId);
 	    	$strDebug = '访问次数: '.strval($iCount).'<br />不同页面数: '.strval($iPageCount).'<br />';
 	    	if ($this->GetLoginId())						$strDebug .= 'logined!<br />';
-	    	if ($strStatus == IP_STATUS_CRAWLER)
+//	    	if ($strStatus == IP_STATUS_CRAWLER)
+	    	if ($this->bAllowCurl === false)
 	    	{
 	    		$strDebug .= '已标注的老爬虫';
-	    		$tick_sql->WriteTick($strIp, $iCurTick);
+	    		$tick_sql->WriteInt($strIp, $iCurTick);
 	    	}
 	    	else
 	    	{
@@ -88,7 +99,8 @@ class Account
 	    		}
 	    	}
 			trigger_error($strDebug);
-	    	$this->ip_sql->AddVisit($strIp, $iCount);
+//	    	$this->ip_sql->AddVisit($strIp, $iCount);
+	    	$this->AddVisit($strIp, $iCount);
 	    	$this->visitor_sql->DeleteBySrc($strId);        
 	    }
 
@@ -99,21 +111,60 @@ class Account
 		InitGlobalStockSql();
     }
 
+    function IsCrawler($strIp)
+    {
+    	return $this->ip_crawler_sql->GetRecord($strIp);
+    }
+
+    function IsMalicious($strIp)
+    {
+    	return $this->ip_malicious_sql->GetRecord($strIp);
+    }
+
     function SetCrawler($strIp)
     {
-    	return $this->ip_sql->SetStatus($strIp, IP_STATUS_CRAWLER);
+//    	return $this->ip_sql->SetStatus($strIp, IP_STATUS_CRAWLER);
+    	return $this->ip_crawler_sql->InsertIp($strIp);
     }
     
     function SetMalicious($strIp)
     {
-    	return $this->ip_sql->SetStatus($strIp, IP_STATUS_MALICIOUS);
+//    	return $this->ip_sql->SetStatus($strIp, IP_STATUS_MALICIOUS);
+    	return $this->ip_malicious_sql->InsertIp($strIp);
     }
     
+    function SetNormal($strIp)
+    {
+		if ($this->ip_crawler_sql->DeleteByIp($strIp))	return true;
+    	return $this->ip_malicious_sql->DeleteByIp($strIp);
+    }
+    
+    function IncLogin($strIp)
+    {
+		return $this->ip_login_sql->Inc($strIp);
+    }
+
+    function GetLogin($strIp)
+    {
+		return $this->ip_login_sql->ReadInt($strIp);
+    }
+
+    function AddVisit($strIp, $iCount)
+    {
+		return $this->ip_visit_sql->Add($strIp, $iCount);
+    }
+
+    function GetVisit($strIp)
+    {
+		return $this->ip_visit_sql->ReadInt($strIp);
+    }
+
+/*    
     function GetIpSql()
     {
     	return $this->ip_sql;
     }
-    
+*/    
     function GetPageUri($strPageId)
     {
     	return $this->page_sql->GetUri($strPageId);

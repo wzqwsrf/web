@@ -37,6 +37,36 @@ function TestModifyTransactions($strGroupId, $strSymbol, $strNewSymbol, $iRatio)
 }
 */
 
+/*
+function TestIpTables()
+{
+	$ip_sql = new IpSql();
+	$ip_crawler_sql = new IpCrawlerSql();
+	$ip_malicious_sql = new IpMaliciousSql();
+	$ip_visit_sql = new IpVisitSql();
+	$ip_login_sql = new IpLoginSql();
+	
+   	if ($result = $ip_sql->GetData())
+   	{
+   		while ($record = mysqli_fetch_assoc($result)) 
+   		{
+   			$strIp = GetIp($record['id']);
+   			
+   			$iVisit = intval($record['visit']);
+   			if ($iVisit > 0)	$ip_visit_sql->WriteInt($strIp, $iVisit);
+   			
+   			$iLogin = intval($record['login']);
+   			if ($iLogin > 0)	$ip_login_sql->WriteInt($strIp, $iLogin);
+
+			$strStatus = $record['status'];
+			if ($strStatus == IP_STATUS_MALICIOUS)		$ip_malicious_sql->InsertIp($strIp);
+			else if ($strStatus == IP_STATUS_CRAWLER)	$ip_crawler_sql->InsertIp($strIp);
+    	}
+   		mysqli_free_result($result);
+    }
+}
+*/
+
 function DebugLogFile()
 {
     $strFileName = UrlGetRootDir().'logs/scripts.log';
@@ -73,7 +103,7 @@ function DebugClearPath($strSection)
 	$acct = new Account();
 	if ($acct->AllowCurl() == false)		die('Crawler not allowed on this page');
 
-    echo '<meta http-equiv="content-type" content="text/html; charset=UTF-8">';
+    echo GetContentType();
 
 	file_put_contents(DebugGetFile(), DEBUG_UTF8_BOM.'Start debug:'.PHP_EOL);
 //	DebugString($_SERVER['DOCUMENT_ROOT']);
@@ -99,5 +129,7 @@ function DebugClearPath($strSection)
 //	TestModifyTransactions('1831', 'CHU', '00762', 10);
 //	TestModifyTransactions('160', 'SNP', '00386', 100);
 
+//	TestIpTables();
+	
 	phpinfo();
 ?>

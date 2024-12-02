@@ -60,7 +60,8 @@ function _echoHoldingItem($ref, $arRatio, $strDate, $his_sql, $fNavChange, $fAdj
 	$strPrice = $ref->GetPrice();
 	$fRatio = floatval($arRatio[$strStockId]);
 //	$fChange = $ref->GetPercentage($strClose, $strPrice) / 100.0;
-	$fChange = floatval($strPrice) / floatval($strClose);
+	$fClose = floatval($strClose);
+	$fChange = ($fClose > MIN_FLOAT_VAL) ? floatval($strPrice) / $fClose : 0.0;
     if ($fAdjust)		$fChange *= $fAdjust;
 	
 	$ar = array();

@@ -1,10 +1,10 @@
 <?php
 require_once('sqlint.php');
-
+/*
 define('IP_STATUS_NORMAL', '0');
 define('IP_STATUS_CRAWLER', '1');
 define('IP_STATUS_MALICIOUS', '2');
-
+*/
 function GetIp($strId)
 {
 	return long2ip($strId);
@@ -14,7 +14,7 @@ function GetIpId($strIp)
 {
 	return sprintf("%u", ip2long($strIp));
 }
-
+/*
 class IpSql extends TableSql
 {
     public function __construct()
@@ -115,22 +115,75 @@ class IpSql extends TableSql
     	return false;
     }
 }
+*/
+class IpAddressSql extends TableSql
+{
+    public function GetRecord($strIp)
+    {
+   		return $this->GetRecordById(GetIpId($strIp));
+    }
 
-class IpTickSql extends IntSql
+    function InsertIp($strIp)
+    {
+       	if ($this->GetRecord($strIp) == false)
+       	{
+       		if ($strId = GetIpId($strIp))
+       		{
+       			return $this->InsertId($strId);
+       		}
+       	}
+		return false;
+    }
+    
+    function DeleteByIp($strIp)
+    {
+    	return $this->DeleteById(GetIpId($strIp));
+    }
+}
+
+class IpCrawlerSql extends IpAddressSql
 {
     public function __construct()
     {
-        parent::__construct('iptick', 'tick');
+        parent::__construct('ipcrawler');
+    }
+}
+
+class IpMaliciousSql extends IpAddressSql
+{
+    public function __construct()
+    {
+        parent::__construct('ipmalicious');
+    }
+}
+
+class IpIntSql extends IntSql
+{
+    public function WriteInt($strIp, $iTick)
+    {
+    	return parent::WriteInt(GetIpId($strIp), $iTick);
     }
     
-    function WriteTick($strIp, $iTick)
+    public function ReadInt($strIp)
     {
-    	return $this->WriteInt(GetIpId($strIp), $iTick);
+    	return parent::ReadInt(GetIpId($strIp));
     }
-    
-    function ReadTick($strIp)
+}
+
+class IpVisitSql extends IpIntSql
+{
+    public function __construct()
     {
-    	return $this->ReadInt(GetIpId($strIp));
+        parent::__construct('ipvisit');
+    }
+}
+
+
+class IpLoginSql extends IpIntSql
+{
+    public function __construct()
+    {
+        parent::__construct('iplogin');
     }
 }
 

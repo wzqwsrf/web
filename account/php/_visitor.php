@@ -17,6 +17,8 @@ function _getVisitorContentsDisplay($strContents)
 
 function _echoVisitorData($strId, $visitor_sql, $contents_sql, $iStart, $iNum, $bChinese)
 {
+	global $acct;
+	
     $arBlogId = array();
     $arId = array();
     $strType = $contents_sql->GetTableName();
@@ -42,14 +44,17 @@ function _echoVisitorData($strId, $visitor_sql, $contents_sql, $iStart, $iNum, $
 				$ar[] = SelectColumnItem($strUriLink, GetInternalLink($strUri, $strUriLink), $strDstId, $arBlogId);
 			}
             
+			$strColor = false;
             if ($strId == false)
             {
             	$strSrcId = $record[$strSrcIndex];
 				$strIp = GetIp($strSrcId);
+				if ($acct->IsMalicious($strIp))		$strColor = 'red';
+				else if ($acct->IsCrawler($strIp))	$strColor = 'yellow';
 				$ar[] = SelectColumnItem($strIp, GetVisitorLink($strIp, $bChinese), $strSrcId, $arId);
             }
             
-		    EchoTableColumn($ar);
+		    EchoTableColumn($ar, $strColor);
         }
         mysqli_free_result($result);
     }
@@ -113,7 +118,7 @@ function EchoAll($bChinese = true)
         $str = $acct->IpLookupString($strIp, $bChinese);
         $strId = GetIpId($strIp);
         $iPageCount = $visitor_sql->CountUniqueDst($strId);
-        $str .= '<br />'.($bChinese ? '保存的不同页面数量' : 'Saved unique page number').': '.strval($iPageCount);
+        if ($iPageCount > 0)		$str .= '<br />'.($bChinese ? '保存的不同页面数量' : 'Saved unique page number').': '.strval($iPageCount);
     }
     else
     {

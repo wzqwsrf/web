@@ -548,8 +548,8 @@ function _echoInputResult($acct, $strPage, $strInput, $bChinese)
     case 'ip':
 		if (filter_valid_ip($strInput))
 		{
-			$sql = $acct->GetIpSql();
-			$sql->InsertIp($strInput);
+//			$sql = $acct->GetIpSql();
+//			$sql->InsertIp($strInput);
 			$str = $acct->IpLookupString($strInput, $bChinese);
 		}
 		else

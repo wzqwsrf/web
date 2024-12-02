@@ -254,7 +254,7 @@ function in_arrayHkMix($strSymbol)
 
 function QdiiMixGetSymbolArray()
 {
-    $ar = array_merge(array('SH501225', 'SH501312', 'SH513360', 'SZ159509', 'SZ160644', 'SZ164701') 
+    $ar = array_merge(array('SH501225', 'SH501312', 'SH513360', 'SZ159509', 'SZ159529', 'SZ160644', 'SZ164701') 
     				   , GetChinaInternetSymbolArray()
     				   , GetHkMixSymbolArray()
     				   , GetMsciUs50SymbolArray());

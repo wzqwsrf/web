@@ -1,5 +1,10 @@
 <?php
 
+function GetContentType()
+{
+	return '<meta http-equiv="content-type" content="text/html; charset=UTF-8">';
+}
+
 function GetDoubleQuotes($str)
 {
 	return '"'.$str.'"';

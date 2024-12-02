@@ -305,9 +305,45 @@ Func AppClose($hWnd, $idDebug)
 	_DlgClickButton($idDebug, '退出确认', '退出系统')
 EndFunc
 
+Func _getFundName($strSymbol)
+	Switch $strSymbol
+		Case '160216'
+			$strName = '国泰商品'
+		Case '160416'
+			$strName = '华安量化'
+		Case '161116'
+			$strName = '易基黄金'
+		Case '161125'
+			$strName = '标普500'
+		Case '161126'
+			$strName = '标普医药'
+		Case '161127'
+			$strName = '标普生物'
+		Case '161128'
+			$strName = '标普科技'
+		Case '161130'
+			$strName = '纳指LOF'
+		Case '161226'
+			$strName = '白银基金'
+		Case '162411'
+			$strName = '华宝油气'
+		Case '163208'
+			$strName = '诺安油气'
+		Case '164824'
+			$strName = '印度基金'
+		Case '164906'
+			$strName = '中国互联'
+		Case '501225'
+			$strName = '全球芯片'
+	EndSwitch
+	return $strName
+EndFunc
+
 Func _addSymbolSpecialKey($idDebug, $strSymbol)
 	If $strSymbol == '160216' Or $strSymbol == '160416' Or $strSymbol == '160717' Or $strSymbol == '161116'  Or $strSymbol == '161125' Or $strSymbol == '161126' Or $strSymbol == '161127' Or $strSymbol == '161128' Or $strSymbol == '161130' Or $strSymbol == '161226' Or $strSymbol == '163208' Or $strSymbol == '164824' Or $strSymbol == '164906' Then
-		_DlgClickButton($idDebug, '请选择', '深圳股票')
+		;_DlgClickButton($idDebug, '请选择', '深圳股票')
+		$strName = _getFundName($strSymbol)
+		_DlgClickButton($idDebug, '提示', '深圳(' & $strName & ')')
 	EndIf
 EndFunc
 
@@ -1059,7 +1095,7 @@ Func _loadListViewAccount($iSoftware, $idListViewAccount, ByRef $arCheckboxAccou
 EndFunc
 
 Func AppMain()
-	$idFormMain = GUICreate("通达信单独委托版全自动拖拉机0.77", 803, 506, 289, 0)
+	$idFormMain = GUICreate("通达信单独委托版全自动拖拉机0.78", 803, 506, 289, 0)
 
 	$idListViewAccount = GUICtrlCreateListView("客户号", 24, 24, 146, 454, BitOR($GUI_SS_DEFAULT_LISTVIEW,$WS_VSCROLL), BitOR($WS_EX_CLIENTEDGE,$LVS_EX_CHECKBOXES))
 	GUICtrlSendMsg(-1, $LVM_SETCOLUMNWIDTH, 0, 118)
@@ -1089,7 +1125,7 @@ Func AppMain()
 
 	$GroupSoftware = GUICtrlCreateGroup("软件", 336, 400, 225, 81)
 	$iSoftware = 0
-	$RadioYinhe = GUICtrlCreateRadio("银河证券海王星单独委托版3.20", 352, 424, 193, 17)
+	$RadioYinhe = GUICtrlCreateRadio("银河证券海王星单独委托版3.21", 352, 424, 193, 17)
 	GUICtrlSetState(-1, _getRadioState($RadioYinhe, $iSoftware, 'Yinhe', $GUI_CHECKED))
 	$RadioHuabao = GUICtrlCreateRadio("华宝证券通达信版独立交易8.21", 352, 448, 193, 17)
 	GUICtrlSetState(-1, _getRadioState($RadioHuabao, $iSoftware, 'Huabao', $GUI_UNCHECKED))
