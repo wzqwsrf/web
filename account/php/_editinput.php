@@ -170,6 +170,7 @@ function _getLinearRegressionStockArrays(&$arX, &$arY, $strInput, $strSeparator,
     }
     else	$iGap = 20;
     
+    StockPrefetchArrayExtendedData($arInput);
     $arRef = array();
 	foreach ($arInput as $strSymbol)
 	{

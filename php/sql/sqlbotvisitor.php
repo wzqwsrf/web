@@ -58,12 +58,6 @@ class BotVisitorSql extends VisitorSql
     	return $this->CreateVisitorTable($str);
     }
     
-    function _addCommentArray(&$ar, $strComment, $strIp = false)
-    {
-    	$ar['comment'] = $strComment;
-    	$ar[$this->strIpKey] = GetIpId($strIp ? $strIp : UrlGetIp());
-    }
-    
     function InsertBotVisitor($strMsgId, $strIpId, $strFromId, $strDate = false, $strTime = false)
     {
     	$ar = $this->MakeVisitorInsertArray($strMsgId, $strIpId, $strDate, $strTime);

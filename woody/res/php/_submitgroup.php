@@ -6,6 +6,7 @@ function _getStockIdArray($strSymbols)
 {
 	$arStockId = array();
     $arSymbol = GetInputSymbolArray($strSymbols);
+    StockPrefetchArrayExtendedData($arSymbol);
 	foreach ($arSymbol as $strSymbol)
 	{
 	    $strStockId = SqlGetStockId($strSymbol);

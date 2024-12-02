@@ -20,9 +20,16 @@ class TableSql
     	return $str.'_id';
     }
     
+    function Remove_id($str)
+    {
+    	return rtrim($str, '_id');
+    }
+    
     function ComposeForeignStr($str)
     {
-		return ' FOREIGN KEY (`'.$str.'`) REFERENCES `'.rtrim($str, '_id').'`(`id`) ON DELETE CASCADE ';
+    	$strTable = $this->Remove_id($str);
+    	if ($strTable == 'ip')	return ' INDEX ( `ip_id` )';
+		return ' FOREIGN KEY (`'.$str.'`) REFERENCES `'.$strTable.'`(`id`) ON DELETE CASCADE ';
     }
     
     function ComposeIntStr($str = 'id')

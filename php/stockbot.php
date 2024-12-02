@@ -125,8 +125,8 @@ function StockBotGetStr($strText, $strVersion)
 {
 	InitGlobalStockSql();
 	
-	$strText = str_replace(array('【', '】', '，', '。', '、', "\xC2\xA0"), '', $strText);	// &nbsp;
-	$strText = trim($strText, " ,.\n\r\t\v\0");
+	$strText = str_replace(array('【', '】', '，', '。', '、', '“',  '”', '‘', '’', '：', '；', "\xC2\xA0"), '', $strText);	// &nbsp;
+	$strText = trim($strText, " ,.:;~`{}[]'\"\n\r\t\v\0");
 	$strText = SqlCleanString($strText);
 
 //   	$fStart = microtime(true);
