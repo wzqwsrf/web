@@ -66,7 +66,7 @@ class MyEWrapper(EWrapper):
         self.arHedge = ['SH513350', 'SZ159518', 'SZ162411', 'SZ164906']
         self.arSymbol = ['KWEB', 'XOP']
         self.arOrder = {}
-        self.arOrder['KWEB'] = GetOrderArray([28.42, 30.41, 30.54, 31.22, 34.02, 38.25], 200, 1, 3)
+        self.arOrder['KWEB'] = GetOrderArray([28.44, 30.58, 30.7, 31.14, 33.85, 38.25], 200, 2, 4)
         self.arOrder['XOP'] = GetOrderArray([114.65, 160.3])
         self.arOrder['MES'] = GetOrderArray([3670.97, 6152.64])
         self.arOrder['SPX'] = GetOrderArray([3670.97, 6152.64])
