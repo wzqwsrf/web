@@ -19,7 +19,7 @@ define('PROFILE_CLOSE_ACCOUNT_CN', '帐号已经关闭');
 
 function AcctDeleteMember($strMemberId)
 {
-	SqlDeleteFundPurchaseByMemberId($strMemberId);
+//	SqlDeleteFundPurchaseByMemberId($strMemberId);
 	SqlDeleteStockGroupByMemberId($strMemberId);
 	SqlDeleteBlogCommentByMemberId($strMemberId);
 	SqlDeleteProfileByMemberId($strMemberId);
@@ -119,11 +119,8 @@ END;
 
 function _echoAccountFundAmount($strMemberId, $bChinese)
 {
-    $iTotal = SqlCountFundPurchase($strMemberId);
-    if ($iTotal == 0)   return;
-
     $str = $bChinese ? '申购金额' : 'Fund Amount';
-    EchoFundPurchaseParagraph($str, $strMemberId, $bChinese, 0, $iTotal);
+    EchoFundPurchaseParagraph($str, $strMemberId, $bChinese);
 }
 
 function EchoAll($bChinese = true)

@@ -89,12 +89,12 @@ function _deleteStockSymbol($ref)
 	else if (_deleteHasAhPair($strSymbol))			return;
 	else if (_deleteHasFundPair($strSymbol))			return;
 	else if (_deleteHasCalibration($strStockId))		return;
-	else if (($iTotal = SqlCountFundPurchaseByStockId($strStockId)) > 0)
+/*	else if (($iTotal = SqlCountFundPurchaseByStockId($strStockId)) > 0)
 	{
 		DebugVal($iTotal, 'Fund purchase existed');
 		return;
 	}
-
+*/
 	if (SqlDeleteStockGroupItemByStockId($strStockId))
 	{
 		SqlDeleteStockEma($strStockId);

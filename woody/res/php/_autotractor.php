@@ -17,7 +17,7 @@ function EchoAll()
     $strAutoItFull =  GetBoldElement('C:\Program Files (x86)\AutoIt3\AutoIt3.exe');
     echo GetListElement(array('在'.$strNepturnLink.'下载并在缺省路径C:\中国银河证券海王星独立交易\Tc.exe位置安装'.$strNepturn.'，桌面图标会显示'.GetInfoElement('中国银河证券海王星独立交易').'，注意它不同于'.GetFontElement('海王星金融终端').'软件。VPN下在银河官网下载经常会停留在8M字节不动，要关闭后才能完整下载。',
     							'在'.$strHuabaoLink.'下载并在缺省路径C:\tc_hbzq\Tc.exe位置安装'.$strHuabao.'，桌面图标会显示'.GetInfoElement('华宝证券独立交易').'。',
-    							'下载并安装开源的'.GetExternalLink('https://www.autoitscript.com/site/autoit/downloads/', 'AutoIt').'工具软件包。普通用户实际仅需用到x86版本的'.$strAutoItFull.'文件。一定要小心软件来源，千万不要运行来历不明的.exe文件，同时也要留意不要让本机上的杀毒软件误拦截'.$strAutoIt.'的运行。',
+    							'下载并安装开源的'.GetExternalLink('https://www.autoitscript.com/site/autoit/downloads/', 'AutoIt').'工具软件包。普通用户实际仅需用到x86版本的'.$strAutoItFull.'文件。通达信还在使用上世纪WIN95时代开始的WIN32控件，去用x64的工具链就无法兼容了。一定要小心软件来源，千万不要运行来历不明的.exe文件，同时也要留意不要让本机上的杀毒软件误拦截'.$strAutoIt.'的运行。',
     							'在本页面下载银河华宝拖拉机自动化PC软件脚本的2个文件到同一个子目录下，分别是'.GetFileLink('/autoit/yinhe.au3').'和'.GetFileLink('/debug/autoitscript/yinheaccounts.au3').'。'));
 /*    							'下载开源的'.GetExternalLink('https://tesseract-ocr.github.io/', 'Tesseract软件').'用来识别登录验证码。也可以在'.GetExternalLink('https://sourceforge.net/projects/tesseract-ocr-alt/files/', 'SourceForge').'下载一个镜像文件'.GetFileLink('/download/tesseract-ocr-setup-3.02.02.exe').'，然后一路回车缺省安装。',
     							'在本页面下载银河拖拉机自动化PC软件脚本的3个文件到同一个子目录下，分别是'.GetFileLink('/autoit/yinhe.au3').'、'.GetFileLink('/debug/autoitscript/yinheaccounts.au3').'和'.GetFileLink('/debug/autoitscript/Tesseract.au3').'。'));
@@ -70,13 +70,13 @@ function EchoAll()
     $acct->EchoLinks('chaos');
 //    	'在小屏幕笔记本上，显示设置的'.GetInfoElement('缩放与布局').'中，'.GetInfoElement('更改文本、应用等项目的大小').'的选项缺省不是100%。这时AutoIt自带的WinGetPos函数不会跟着调整倍数，导致找不到验证码位置。',
     echo GetKnownBugs(array(
-    						 '从0.61版本开始，使用海王星3.07新增加的PIN码安全方式登录。如果被提示没有PIN码或者过期，需要手工在证书管理中使用默认PIN码申请一下。',
+    						 '从0.61版本开始，使用海王星3.07新增加的PIN码安全方式登录。第一次从验证码切换到PIN码时需要手工操作，以后如果被提示没有PIN码或者过期，也需要手工在证书管理中使用默认PIN码申请一下。事实上，因为AutoIt只是模拟鼠标键盘操作，碰到任何问题时先手工操作一下看看总是有帮助的。',
     						 '在小屏幕电脑上，海王星窗口内容可能会被遮挡，需要手工最大化后才能继续运行。可以先手工登录一次，把窗口扩大到比最大化小一点的状态后退出，下一次就能成功自动运行。',
     						 '使用双屏或者多屏如果有问题的话，改成单屏显示。',
     						 '卖出一个账户后就退出时，需要把卖出或者赎回总数量设置到足够大，比如1000000。',
     						 '除了Parallels Desktop for Mac外，海王星不能在大多数虚拟机中使用。',
     						 '网速很重要！在目前代码中有大量模拟按键或者鼠标后等待一秒的被动行为，在网速慢的时候会因为等待时间不够长而出错。我就可能需要在运行代码前先手工把电脑上的网络从天威宽带切换到自己手机上的移动4G热点。',
-    						 '在基金概要文件那部分，浏览器会弹出框让选择打开或者下载，需要手工点一下，要不到不了下一步。给浏览器安装adobe的阅读pdf插件后能解决这个问题。在电脑上安装一下Adobe官方的免费PDF阅读器软件也可以解决这个问题。',
+    						 '在基金概要文件那部分，浏览器会弹出框让选择打开或者下载，需要手工点一下，要不到不了下一步。这是要给PDF文件设置缺省打开的应用程序，给浏览器安装adobe的阅读PDF插件后能解决这个问题。在电脑上安装一下Adobe官方的免费PDF阅读器软件也可以解决这个问题。安装最后问是否设置为默认应用程序的时候要确认。',
     						 'WIN7系统下海王星不能正常退出。可以运行系统自带的注册表编辑器regedit.exe，依次定位到HKEY_CURRENT_USER\Software\Microsoft\Windows\WindowsError Reporting，在右侧窗口中找到并双击打开DontshowUI，然后在弹出的窗口中将默认值0修改为1。'));
 }
 

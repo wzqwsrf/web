@@ -129,6 +129,12 @@ class GroupItemAmountSql extends IntSql
     {
         parent::__construct('groupitemamount');
     }
+    
+    function ReadAmount($strGroupItemId)
+    {
+		if ($str =	 $this->ReadString($strGroupItemId))	return $str;
+		return '100000';
+    }
 }
 
 // ****************************** Stock Group Item table *******************************************************

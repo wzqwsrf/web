@@ -1,6 +1,8 @@
 <?php
 require_once('stock.php');
 
+// 'SH513350', 'SZ159518', 'SZ161127', 'SZ162411', 'SZ164906'
+
 function _refGetPeerVal($ref, $strQdii)
 {
 	$cny_ref = $ref->GetCnyRef();

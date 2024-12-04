@@ -15,7 +15,6 @@ require_once('sql/_sqlcommon.php');
 
 define('DB_DATABASE', 'n5gl0n39mnyn183l_camman');
 
-define('TABLE_FUND_PURCHASE', 'fundpurchase');
 define('TABLE_MEMBER', 'member');
 define('TABLE_PAGE', 'page');
 define('TABLE_PAGE_COMMENT', 'pagecomment');

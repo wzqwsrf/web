@@ -70,9 +70,9 @@ function _getStockOptionAmount($strLoginId, $strStockId)
 	if ($strGroupItemId = SqlGetMyStockGroupItemId($strLoginId, $strStockId))
 	{
 		$amount_sql = new GroupItemAmountSql();
-		if ($str =	 $amount_sql->ReadString($strGroupItemId))		return $str;
+		return $amount_sql->ReadAmount($strGroupItemId);
     }
-    return FUND_PURCHASE_AMOUNT;
+    return '出错了';
 }
 
 function _getStockOptionAh($strSymbol)

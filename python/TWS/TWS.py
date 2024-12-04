@@ -63,10 +63,11 @@ class MyEWrapper(EWrapper):
 
 
     def nextValidId(self, orderId: int):
-        self.arHedge = ['SH513350', 'SZ159518', 'SZ162411', 'SZ164906']
-        self.arSymbol = ['KWEB', 'XOP']
+        self.arHedge = ['SZ161127', 'SZ162411', 'SZ164906']
+        self.arSymbol = ['KWEB', 'XBI', 'XOP']
         self.arOrder = {}
-        self.arOrder['KWEB'] = GetOrderArray([28.58, 30.63, 31, 31.03, 33.48, 38.25], 200, 3, 4)
+        self.arOrder['KWEB'] = GetOrderArray([28.63, 30.57, 30.93, 33.23, 38.25], 200, 0, 2)
+        self.arOrder['XBI'] = GetOrderArray([65.77, 110.82])
         self.arOrder['XOP'] = GetOrderArray([114.65, 160.3])
         self.arOrder['MES'] = GetOrderArray([3670.97, 6152.64])
         self.arOrder['SPX'] = GetOrderArray([3670.97, 6152.64])

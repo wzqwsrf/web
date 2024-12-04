@@ -6,7 +6,6 @@ require_once('ui/table.php');
 require_once('sql/sqlipaddress.php');
 require_once('sql/sqlstocksymbol.php');
 require_once('sql/sqlstockgroup.php');
-require_once('sql/sqlfundpurchase.php');
 
 define('DISP_ALL_US', 'All');
 define('DISP_EDIT_US', 'Edit');
