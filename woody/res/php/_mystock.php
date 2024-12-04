@@ -94,7 +94,7 @@ function _callbackCnhSma($ref, $strEst = false)
 {
 	if ($strEst)
 	{
-		$f = round(2000.0 * floatval($strEst) * GetFutureInterestPremium(-0.018, '2025-01-13'));
+		$f = round(2000.0 * floatval($strEst) * GetFutureInterestPremium(-0.0165, '2025-01-13'));
 		return strval_round($f / 2000.0, 4);
 	}
 	return $ref;

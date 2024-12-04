@@ -71,7 +71,7 @@ class _SubmitGroupAccount extends StockAccount
     	
 		$sql = $this->GetGroupSql();
     	$sql->InsertString($strLoginId, $strGroupName);
-    	if ($strGroupId = $sql->GetRecordId($strLoginId, $strGroupName))
+    	if ($strGroupId = $sql->GetGroupId($strLoginId, $strGroupName))
     	{
     		$item_sql = new StockGroupItemSql($strGroupId);
     		$arStockId = _getStockIdArray($strSymbols);

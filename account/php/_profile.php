@@ -266,8 +266,6 @@ class _ProfileAccount extends CommentAccount
 			$strIp = UrlGetIp();
 			SqlUpdateLoginField($strEmail, $strIp);
 			
-//			$sql = $this->GetIpSql();
-//			$sql->IncLogin($strIp);
 			$this->IncLogin($strIp);
 		}
 		return $strMemberId;

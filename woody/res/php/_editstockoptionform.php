@@ -66,9 +66,11 @@ function _getStockOptionName($ref, $strSymbol)
 
 function _getStockOptionAmount($strLoginId, $strStockId)
 {
-   	if ($str = SqlGetFundPurchaseAmount($strLoginId, $strStockId))
-   	{
-    	return $str;
+//   	if ($str = SqlGetFundPurchaseAmount($strLoginId, $strStockId))
+	if ($strGroupItemId = SqlGetMyStockGroupItemId($strLoginId, $strStockId))
+	{
+		$amount_sql = new GroupItemAmountSql();
+		if ($str =	 $amount_sql->ReadString($strGroupItemId))		return $str;
     }
     return FUND_PURCHASE_AMOUNT;
 }

@@ -37,35 +37,22 @@ function TestModifyTransactions($strGroupId, $strSymbol, $strNewSymbol, $iRatio)
 }
 */
 
-/*
-function TestIpTables()
+function TestConvertTables()
 {
-	$ip_sql = new IpSql();
-	$ip_crawler_sql = new IpCrawlerSql();
-	$ip_malicious_sql = new IpMaliciousSql();
-	$ip_visit_sql = new IpVisitSql();
-	$ip_login_sql = new IpLoginSql();
-	
-   	if ($result = $ip_sql->GetData())
+	$amount_sql = new GroupItemAmountSql();
+	$sql = new TableSql('fundpurchase');
+   	if ($result = $sql->GetData())
    	{
    		while ($record = mysqli_fetch_assoc($result)) 
    		{
-   			$strIp = GetIp($record['id']);
-   			
-   			$iVisit = intval($record['visit']);
-   			if ($iVisit > 0)	$ip_visit_sql->WriteInt($strIp, $iVisit);
-   			
-   			$iLogin = intval($record['login']);
-   			if ($iLogin > 0)	$ip_login_sql->WriteInt($strIp, $iLogin);
-
-			$strStatus = $record['status'];
-			if ($strStatus == IP_STATUS_MALICIOUS)		$ip_malicious_sql->InsertIp($strIp);
-			else if ($strStatus == IP_STATUS_CRAWLER)	$ip_crawler_sql->InsertIp($strIp);
+   			if ($strGroupItemId = SqlGetMyStockGroupItemId($record['member_id'], $record['stock_id']))
+   			{
+				$amount_sql->WriteString($strGroupItemId, $record['amount']);
+			}
     	}
    		mysqli_free_result($result);
     }
 }
-*/
 
 function DebugLogFile()
 {
@@ -129,7 +116,7 @@ function DebugClearPath($strSection)
 //	TestModifyTransactions('1831', 'CHU', '00762', 10);
 //	TestModifyTransactions('160', 'SNP', '00386', 100);
 
-//	TestIpTables();
+//	TestConvertTables();
 	
 	phpinfo();
 ?>

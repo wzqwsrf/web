@@ -55,7 +55,12 @@ function _updateFundPurchaseAmount($strEmail, $strSymbol, $strVal)
 	$strStockId = SqlGetStockId($strSymbol);
 	if ($strMemberId && $strStockId && is_numeric($strVal))
 	{
-    	if ($str = SqlGetFundPurchaseAmount($strMemberId, $strStockId))
+		if ($strGroupItemId = SqlGetMyStockGroupItemId($strMemberId, $strStockId))
+		{
+			$amount_sql = new GroupItemAmountSql();
+			$amount_sql->WriteString($strGroupItemId, $strVal);
+		}
+/*    	if ($str = SqlGetFundPurchaseAmount($strMemberId, $strStockId))
     	{
     		if ($str != $strVal)
     		{
@@ -65,7 +70,7 @@ function _updateFundPurchaseAmount($strEmail, $strSymbol, $strVal)
     	else
     	{
     		SqlInsertFundPurchase($strMemberId, $strStockId, $strVal);
-    	}
+    	}*/
 	}
 }
 

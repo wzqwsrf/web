@@ -164,14 +164,20 @@ END;
     		{
     			if ($ref->IsFundA())
     			{
-    				SqlCreateFundPurchaseTable();
-    				$strStockId = $ref->GetStockId();
+//    				SqlCreateFundPurchaseTable();
     				$strSymbol = $ref->GetSymbol();
-    				if (($strAmount = SqlGetFundPurchaseAmount($this->GetLoginId(), $strStockId)) === false)		$strAmount = FUND_PURCHASE_AMOUNT;
-    				$strQuery = sprintf('groupid=%s&fundid=%s&amount=%s&netvalue=%.3f', $strGroupId, $strStockId, $strAmount, floatval($ref->GetOfficialNav()));
-    				$str = GetOnClickLink(PATH_STOCK.'submittransaction.php?'.$strQuery, '确认添加对冲申购记录?', '申购').$strSymbol.'人民币'.$strAmount.'元';
-    				$str .= ' '.GetStockOptionLink(STOCK_OPTION_AMOUNT, $strSymbol);
-    				EchoHtmlElement($str);
+    				$strStockId = $ref->GetStockId();
+//    				if (($strAmount = SqlGetFundPurchaseAmount($this->GetLoginId(), $strStockId)) === false)		$strAmount = FUND_PURCHASE_AMOUNT;
+					$amount_sql = new GroupItemAmountSql();
+					if ($strGroupItemId = SqlGetStockGroupItemId($strGroupId, $strStockId))
+					{
+						$strAmount = $amount_sql->ReadString($strGroupItemId);
+						if ($strAmount === false)	$strAmount = FUND_PURCHASE_AMOUNT;
+						$strQuery = sprintf('groupid=%s&fundid=%s&amount=%s&netvalue=%.3f', $strGroupId, $strStockId, $strAmount, floatval($ref->GetOfficialNav()));
+						$str = GetOnClickLink(PATH_STOCK.'submittransaction.php?'.$strQuery, '确认添加对冲申购记录?', '申购').$strSymbol.'人民币'.$strAmount.'元';
+						$str .= ' '.GetStockOptionLink(STOCK_OPTION_AMOUNT, $strSymbol);
+						EchoHtmlElement($str);
+					}
     			}
     		}
     		StockEditTransactionForm($this, STOCK_TRANSACTION_NEW, $strGroupId);

@@ -87,17 +87,14 @@ class _AdminDeleteAccount extends Account
 {
 	function DeleteVisitorByIp($strIp)
 	{
-//   		$sql = $this->GetIpSql();
 		if ($strId = GetIpId($strIp))
 		{
 			$visitor_sql = $this->GetVisitorSql();
 			$iCount = $visitor_sql->CountBySrc($strId);
 			$visitor_sql->DeleteBySrc($strId);        
 
-//			$sql->AddVisit($strIp, $iCount);
 			$this->AddVisit($strIp, $iCount);
 		}
-//		$sql->SetStatus($strIp, IP_STATUS_NORMAL);
 		$this->SetNormal($strIp);
 	}
 

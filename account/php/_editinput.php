@@ -546,16 +546,8 @@ function _echoInputResult($acct, $strPage, $strInput, $bChinese)
     	break;
     		
     case 'ip':
-		if (filter_valid_ip($strInput))
-		{
-//			$sql = $acct->GetIpSql();
-//			$sql->InsertIp($strInput);
-			$str = $acct->IpLookupString($strInput, $bChinese);
-		}
-		else
-		{
-			$str = $bChinese ? '无效IP地址' : 'Invalid IP Address';
-		}
+		if (filter_valid_ip($strInput))		$str = $acct->IpLookupString($strInput, $bChinese);
+		else									$str = $bChinese ? '无效IP地址' : 'Invalid IP Address';
     	break;
     	
    	case 'linearregression':
