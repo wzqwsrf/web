@@ -141,30 +141,30 @@ function ImgAlwaysWin()
 	return ImgAutoQuote(PATH_BLOG_PHOTO.'linqingxia.jpg', '东方不败林青霞');
 }
 
-function ImgAccountTool($strPage)
+function ImgAccountTool($strPage, $bChinese = true)
 {
 	switch ($strPage)
 	{
 	case 'benfordslaw':
-		return GetWoodyImgQuote('benfordslaw.jpg', "Benford's Law equation");
+		return GetWoodyImgQuote('benfordslaw.jpg', '本福特定律方程', "Benford's Law equation", $bChinese);
 
 	case 'chisquaredtest':
-		return GetWoodyImgQuote('chi2PValue.gif', 'Pearson卡方检验方程和曲线');	// chisquaredtest.jpg
+		return GetWoodyImgQuote('chi2PValue.gif', 'Pearson卡方检验方程和曲线', "Pearson's chi-squared test equation and graph", $bChinese);	// chisquaredtest.jpg
 		
 	case 'cramersrule':
-		return GetWoodyImgQuote('20190815.jpg', '用Cramer法则计算步骤');
+		return GetWoodyImgQuote('20190815.jpg', '用Cramer法则计算步骤', "Cramer's rule calculation steps", $bChinese);
 
     case 'dicecaptcha':
-    	return GetWoodyImgQuote('robloxdice.jpg', '罗布乐思4个骰子加14验证码');
+    	return GetWoodyImgQuote('robloxdice.jpg', '罗布乐思4个骰子加14验证码', 'Roblox dice captcha adding up to 14', $bChinese);
     	
 	case 'linearregression':
-		return GetWoodyImgQuote('20190824.jpg', ACCOUNT_TOOL_LINEAR_CN.'计算步骤');
+		return GetWoodyImgQuote('20190824.jpg', ACCOUNT_TOOL_LINEAR_CN.'计算步骤', 'Linear regression calculation steps', $bChinese);
 
 	case 'primenumber':
-		return GetWoodyImgQuote('primenumber.jpg', '激励我写'.ACCOUNT_TOOL_PRIME_CN.'工具的图片');
+		return GetWoodyImgQuote('primenumber.jpg', '激励我写'.ACCOUNT_TOOL_PRIME_CN.'工具的图片', 'Prime factorization for 707829217', $bChinese);
 
 	case 'simpletest':
-		return GetWoodyImgQuote('easything.jpg', '成年人的生活中没有容易二字');
+		return GetWoodyImgQuote('easything.jpg', '成年人的生活中没有容易二字', "Easy doesn't enter into grown-up life", $bChinese);
 	}
 	return '';
 }

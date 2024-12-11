@@ -563,7 +563,7 @@ function _echoInputResult($acct, $strPage, $strInput, $bChinese)
     	break;
     }
     
-    $str .= ImgAccountTool($strPage);
+    $str .= ImgAccountTool($strPage, $bChinese);
     EchoHtmlElement($str);
 }
 

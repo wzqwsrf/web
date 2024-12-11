@@ -163,11 +163,6 @@ function GetPhotoParagraph($strPathName, $strText = '', $bChinese = true, $strEx
 	return GetHtmlElement($str);
 }
 
-function ImgPalmmicroWechat($bChinese = true)
-{
-	return GetImgQuote('/woody/image/wx.jpg', GetBlogTitle(20161014, $bChinese, false).($bChinese ? '小狐狸二维码' : ' small fox QR code'), $bChinese);
-}
-
 function ImgPortfolio20141016($bChinese = true)
 {
 	$strDate = '20141016';

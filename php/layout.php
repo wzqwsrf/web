@@ -42,27 +42,33 @@ function ResizeJpg($strPathName, $iNewWidth = 300, $iNewHeight = 420)
 }
 
 //	https://ibkr.com/referral/rongrong586
-function GetWechatPay($iType = 0)
+function GetWechatPay($iType = 0, $bChinese = true)
 {
-	if ($iType == 0)	$iType = rand(1, 3);
+	if ($iType == 0)	$iType = rand(1, 4);
 	switch ($iType)
 	{
 	case 1:
 		$strImage = GetImgElement('/woody/image/wxpay.jpg', '微信打赏一块钱给Woody的二维码');
 		$strText = GetRemarkElement('觉得这个网站有用？可以用微信打赏支持一下！');
 		break;
-        	
+		
 	case 2:
+		$strRemark = $bChinese ? 'Palmmicro微信公众号小狐狸二维码' : 'Palmmicro Wechat Public Account QR code';
+		$strImage = GetImgElement('/woody/image/wx.jpg', $strRemark);
+		$strText = GetRemarkElement($strRemark);
+		break;
+		
+	case 3:
 //		$strPathName = ResizeJpg('/debug/wechat/59692929fecbbe0d.jpg');
 //		$strRemark = '华宝拖拉机开户微信群二维码';
 		$strPathName = ResizeJpg('/debug/wechat/bec5dabc01d8c812.jpg');
-		$strRemark = '华宝拖拉机开户群已经超过200人，需要扫二维码后请求拉朋友进群。';
+		$strRemark = '华宝拖拉机开户群已经超过200人，可以扫上面二维码后请小瓶子拉进群。';
 		$strImage = GetImgElement($strPathName, $strRemark);
 		$strText = GetFontElement($strRemark, 'navy');
 		break;
         	
-	case 3:
-		$strPathName = ResizeJpg('/debug/wechat/4b3c530478f4ba00.jpg');
+	case 4:
+		$strPathName = ResizeJpg('/debug/wechat/7bcc4068a69f8cc6.jpg');
 		$strRemark = '香港保诚保险投保微信群二维码';
 		$strImage = GetImgElement($strPathName, $strRemark);
 		$strText = GetFontElement($strRemark, 'navy');
@@ -226,10 +232,10 @@ function LayoutEnd()
 END;
 }
 
-function _echoWechatPay($iType = 0)
+function _echoWechatPay($bChinese)
 {
 	LayoutBegin();
-	EchoHtmlElement(GetWechatPay($iType));
+	EchoHtmlElement(GetWechatPay(0, $bChinese));
 	LayoutEnd();
 }
 
@@ -239,7 +245,7 @@ function LayoutTail($bChinese = true, $bAdsense = false)
     if ($_SESSION['mobile'])
     {
 		if ($bAdsense)	AdsenseContent();
-   		else				_echoWechatPay();
+   		else				_echoWechatPay($bChinese);
     }
     else
     {
@@ -252,12 +258,12 @@ function LayoutTail($bChinese = true, $bAdsense = false)
 <td valign=top>
 END;
     		if ($bAdsense)	AdsenseLeft();
-    		else				_echoWechatPay();
+    		else				_echoWechatPay($bChinese);
     	}
     	else
     	{
     		if ($bAdsense)	AdsenseWoodyBlog();
-    		else				_echoWechatPay();
+    		else				_echoWechatPay($bChinese);
     	}
     	echo <<<END2
 

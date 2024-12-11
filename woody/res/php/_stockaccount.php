@@ -112,7 +112,7 @@ class StockAccount extends TitleAccount
     {
     	$strPage = $this->GetPage();
     	$strNewLine = GetBreakElement();
-    	$strWechatPay = GetHtmlElement(GetWechatPay(($strPage == 'autotractor') ? 2 : 0));
+    	$strWechatPay = GetHtmlElement(GetWechatPay(($strPage == 'autotractor') ? 3 : 0));
     	$bAdmin = $this->IsAdmin();
     	
     	$str = GetStockMenuLinks().$strNewLine.GetAllLofLink().' '.GetAhCompareLink().' '.GetAutoTractorLink().' '.GetAccountToolLink('simpletest').' '.GetDevLink('entertainment/20150818cn.php#'.($strVer ? $strVer : $strPage)).$strNewLine;

@@ -19,9 +19,12 @@ function SinaFundNeedFile($sym, $strFileName)
 	$strNavDate = UseSameDayNav($sym) ? $strDate : $his_sql->GetDatePrev($strStockId, $strDate);
 	if (SqlGetNavByDate($strStockId, $strNavDate))		return false;
 
-//    $sym->SetTimeZone();
+//	$sym->SetTimeZone();
     $now_ymd = GetNowYMD();
-   	if (($now_ymd->GetYMD() == $strDate) && $now_ymd->GetHourMinute() < 1600)	return false;		// Market not closed
+	if (file_exists($strFileName))
+	{
+    	if (($now_ymd->GetYMD() == $strDate) && $now_ymd->GetHourMinute() < 1600)	return false;		// Market not closed
+    }
 
 	return $now_ymd->NeedFile($strFileName, 30 * SECONDS_IN_MIN);
 }

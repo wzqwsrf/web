@@ -137,6 +137,19 @@ class GroupItemAmountSql extends IntSql
     }
 }
 
+class GroupItemExtraSql extends IntSql
+{
+    public function __construct()
+    {
+        parent::__construct('groupitemextra', 'record');
+    }
+
+    public function Create()
+    {
+    	return $this->CreateIntTable(', `quantity` INT NOT NULL , `cost` DOUBLE(10,3) NOT NULL');
+    }
+}
+
 // ****************************** Stock Group Item table *******************************************************
 /*
 function SqlCreateStockGroupItemTable()

@@ -28,6 +28,7 @@ def IsMarketOpen():
 
 def GetOrderArray(arPrice, iSize = 100, iBuyPos = -1, iSellPos = -1):
     iLen = len(arPrice)
+    #print(iLen)
     if iSellPos >= iLen or iSellPos < -1:
         iSellPos = -1
     if iBuyPos  >= iLen or iBuyPos < -1:
@@ -66,7 +67,7 @@ class MyEWrapper(EWrapper):
         self.arHedge = ['SZ161127', 'SZ162411', 'SZ164906']
         self.arSymbol = ['KWEB', 'XBI', 'XOP']
         self.arOrder = {}
-        self.arOrder['KWEB'] = GetOrderArray([28.63, 30.57, 30.93, 33.23, 38.25], 200, 0, 2)
+        self.arOrder['KWEB'] = GetOrderArray([28.64, 30.91, 31.47, 32.16, 33.18, 38.36], 200, 2, 4)
         self.arOrder['XBI'] = GetOrderArray([65.77, 110.82])
         self.arOrder['XOP'] = GetOrderArray([114.65, 160.3])
         self.arOrder['MES'] = GetOrderArray([3670.97, 6152.64])
@@ -112,25 +113,30 @@ class MyEWrapper(EWrapper):
 
     def orderStatus(self, orderId, status, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld, mktCapPrice):
         print('Order Status - OrderId:', orderId, 'Status:', status, 'Filled:', filled, 'Remaining:', remaining, 'AvgFillPrice:', avgFillPrice)
-        if remaining == 0:
-            for strSymbol in self.arSymbol:
-                arOrder = self.arOrder[strSymbol]
-                arPrice = arOrder['price']
-                iLen = len(arPrice)
-                if arOrder['BUY_id'] == orderId:
+        for strSymbol in self.arSymbol:
+            arOrder = self.arOrder[strSymbol]
+            arPrice = arOrder['price']
+            iLen = len(arPrice)
+            if arOrder['BUY_id'] == orderId:
+                if status == 'Filled' and remaining == 0:
                     arOrder['BUY_id'] = -1
                     iOldSellPos = arOrder['SELL_pos']
                     self.IncSellPos(arOrder, 'BUY_pos', iLen)
                     arOrder['BUY_pos'] -= 1
                     if arOrder['SELL_id'] != -1 and arOrder['SELL_pos'] > -1 and arOrder['SELL_pos'] != iOldSellPos:
                         self.client.CallPlaceOrder(strSymbol, arPrice[arOrder['SELL_pos']], arOrder['size'], 'SELL', arOrder['SELL_id'])
-                elif arOrder['SELL_id'] == orderId:
+                elif status != 'Submitted':
+                    print('Unexpected BUY status ' + status)
+            elif arOrder['SELL_id'] == orderId:
+                if status == 'Filled' and remaining == 0:
                     arOrder['SELL_id'] = -1
                     iOldBuyPos = arOrder['BUY_pos']
                     arOrder['BUY_pos'] = arOrder['SELL_pos'] - 1
                     self.IncSellPos(arOrder, 'SELL_pos', iLen)
                     if arOrder['BUY_id'] != -1 and arOrder['BUY_pos'] > -1 and arOrder['BUY_pos'] != iOldBuyPos:
                         self.client.CallPlaceOrder(strSymbol, arPrice[arOrder['BUY_pos']], arOrder['size'], 'BUY', arOrder['BUY_id'])
+                elif status != 'Submitted':
+                    print('Unexpected SELL status ' + status)
 
 
     def IncSellPos(self, arOrder, strFrom, iLen):
@@ -298,6 +304,7 @@ class MyEClient(EClient):
 
         # Place the order
         self.placeOrder(iOrderId, contract, order)
+        time.sleep(1)
         return iOrderId
 
 

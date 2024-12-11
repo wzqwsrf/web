@@ -30,7 +30,7 @@ class TableSql
     	$strTable = $this->Remove_id($str);
     	if ($strTable == 'ip')	
     	{
-    		DebugString(__FUNCTION__.' ip INDEX', true);
+//    		DebugString(__FUNCTION__.' ip INDEX', true);
     		return ' INDEX ( `ip_id` )';
     	}
 		return ' FOREIGN KEY (`'.$str.'`) REFERENCES `'.$strTable.'`(`id`) ON DELETE CASCADE ';

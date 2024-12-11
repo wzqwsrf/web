@@ -21,7 +21,7 @@ function _echo20161014()
 	$strPA3288 = GetInternalLink('/pa3288/indexcn.html', 'PA3288');
 	$strQuoteSz162411 = GetQuoteElement('sz162411');
 	$strQuotePalmmicro = GetQuoteElement('palmmicro');
-	$strImage = ImgPalmmicroWechat();
+	$strImage = GetWechatPay(2);
 	
 	EchoBlogDate();
     echo <<<END
@@ -35,7 +35,7 @@ function _echo20161014()
 只好挽起袖子搞优化，尽可能的多在本地存数据，减少每次查询中对外部网站的访问。最后勉强把最长的回应时间控制在4228毫秒，总算满足了要求。
 <br />回到公司的产品上来，这个微信公众号和本网站一起作为一个具体应用实例，为开发中的{$strPA3288}物联网IoT模块提供一个数据采集、存储和查询的总体解决方案。在这个基础上，我们可以提供全套的产品和软硬件技术，帮助客户建立自己的物联网数据管理分析应用系统。
 <br />虽然目前还没有多少功能，大家已经可以扫描下面的二维码添加Palmmicro微信公众订阅号。选用{$strQuoteSz162411}作为微信号既符合目前提供的数据，又是个没有办法的选择，因为我太喜欢用{$strQuotePalmmicro}这个名字，以至于它早早就被我自己的私人晒娃微信号占用了。 
-$strImage
+<br />$strImage
 </p>
 END;
 }
