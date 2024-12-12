@@ -2,7 +2,7 @@
 require_once('_stock.php');
 require_once('../../php/ui/imagedisp.php');
 
-define('YINHE_AU3_VER', '78');
+define('YINHE_AU3_VER', '79');
 
 function EchoAll()
 {
