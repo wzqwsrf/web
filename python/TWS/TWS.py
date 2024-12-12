@@ -28,7 +28,6 @@ def IsMarketOpen():
 
 def GetOrderArray(arPrice, iSize = 100, iBuyPos = -1, iSellPos = -1):
     iLen = len(arPrice)
-    #print(iLen)
     if iSellPos >= iLen or iSellPos < -1:
         iSellPos = -1
     if iBuyPos  >= iLen or iBuyPos < -1:
@@ -67,7 +66,7 @@ class MyEWrapper(EWrapper):
         self.arHedge = ['SZ161127', 'SZ162411', 'SZ164906']
         self.arSymbol = ['KWEB', 'XBI', 'XOP']
         self.arOrder = {}
-        self.arOrder['KWEB'] = GetOrderArray([28.64, 30.91, 31.47, 32.16, 33.18, 38.36], 200, 2, 4)
+        self.arOrder['KWEB'] = GetOrderArray([28.65, 30.99, 31.61, 32.5, 33.33, 38.36], 200, 2, 4)
         self.arOrder['XBI'] = GetOrderArray([65.77, 110.82])
         self.arOrder['XOP'] = GetOrderArray([114.65, 160.3])
         self.arOrder['MES'] = GetOrderArray([3670.97, 6152.64])
@@ -79,7 +78,7 @@ class MyEWrapper(EWrapper):
         for strSymbol in self.arSymbol:
             iRequestId = self.client.StockReqMktData(strSymbol)
             self.data[iRequestId] = GetMktDataArray(strSymbol)
-        #self.IndexStreaming()
+        self.IndexStreaming()
 
 
     def error(self, reqId, errorCode, errorString, contract):
