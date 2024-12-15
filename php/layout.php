@@ -22,9 +22,9 @@ function LayoutIsMobilePhone()
     return false;
 }
 
-function ResizeJpg($strPathName, $iNewWidth = 300, $iNewHeight = 420)
+function ResizeJpg($strPathName, $iNewWidth = 300, $iNewHeight = false)
 {
-	$strNewName = substr($strPathName, 0, strlen($strPathName) - 4).'x'.strval($iNewWidth).'y'.strval($iNewHeight).'__'.substr($strPathName, -4, 4);
+	$strNewName = substr($strPathName, 0, strlen($strPathName) - 4).'x'.strval($iNewWidth).'__'.substr($strPathName, -4, 4);
 	$strNewRootName = UrlModifyRootFileName($strNewName); 
 	if (!file_exists($strNewRootName))
 	{
@@ -32,6 +32,7 @@ function ResizeJpg($strPathName, $iNewWidth = 300, $iNewHeight = 420)
 		$iWidth = imagesx($imgOrg);
 		$iHeight = imagesy($imgOrg);
 		DebugString('Converting '.$strNewName);
+		if ($iNewHeight === false)		$iNewHeight = intval($iNewWidth * $iHeight / $iWidth);
 		$imgNew = imagecreatetruecolor($iNewWidth, $iNewHeight);
 		imagecopyresampled($imgNew, $imgOrg, 0, 0, 0, 0, $iNewWidth, $iNewHeight, $iWidth, $iHeight);
 		imagejpeg($imgNew, $strNewRootName);
@@ -48,34 +49,30 @@ function GetWechatPay($iType = 0, $bChinese = true)
 	switch ($iType)
 	{
 	case 1:
-		$strImage = GetImgElement('/woody/image/wxpay.jpg', '微信打赏一块钱给Woody的二维码');
-		$strText = GetRemarkElement('觉得这个网站有用？可以用微信打赏支持一下！');
+//		$strImage = GetImgElement('/woody/image/wxpay.jpg', '微信打赏一块钱给Woody的二维码');
+		$strRemark = '觉得这个网站有用？可以用微信打赏支持一下！';
+		$strImage = GetImgElement(ResizeJpg('/debug/wechat/29e0a407b577177b.jpg'), $strRemark);
 		break;
 		
 	case 2:
 		$strRemark = $bChinese ? 'Palmmicro微信公众号小狐狸二维码' : 'Palmmicro Wechat Public Account QR code';
 		$strImage = GetImgElement('/woody/image/wx.jpg', $strRemark);
-		$strText = GetRemarkElement($strRemark);
 		break;
 		
 	case 3:
 //		$strPathName = ResizeJpg('/debug/wechat/59692929fecbbe0d.jpg');
 //		$strRemark = '华宝拖拉机开户微信群二维码';
-		$strPathName = ResizeJpg('/debug/wechat/bec5dabc01d8c812.jpg');
 		$strRemark = '华宝拖拉机开户群已经超过200人，可以扫上面二维码后请小瓶子拉进群。';
-		$strImage = GetImgElement($strPathName, $strRemark);
-		$strText = GetFontElement($strRemark, 'navy');
+		$strImage = GetImgElement(ResizeJpg('/debug/wechat/bec5dabc01d8c812.jpg'), $strRemark);
 		break;
         	
 	case 4:
-		$strPathName = ResizeJpg('/debug/wechat/7bcc4068a69f8cc6.jpg');
 		$strRemark = '香港保诚保险投保微信群二维码';
-		$strImage = GetImgElement($strPathName, $strRemark);
-		$strText = GetFontElement($strRemark, 'navy');
+		$strImage = GetImgElement(ResizeJpg('/debug/wechat/7bcc4068a69f8cc6.jpg'), $strRemark);
 		break;
 	}
 	
-	return $strImage.GetBreakElement().$strText;
+	return $strImage.GetBreakElement().GetRemarkElement($strRemark);
 }
 
 function LayoutScreenWidthOk()

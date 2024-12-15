@@ -187,6 +187,22 @@ class DailyCloseSql extends KeySql
     }
 }
 
+class FuturePremiumSql extends DailyCloseSql
+{
+    public function __construct() 
+    {
+        parent::__construct('futurepremium');
+    }
+}
+
+class StockEmaSql extends DailyCloseSql
+{
+    public function __construct($iDays) 
+    {
+        parent::__construct('stockema'.strval($iDays));
+    }
+}
+
 class StockSplitSql extends DailyCloseSql
 {
     public function __construct() 

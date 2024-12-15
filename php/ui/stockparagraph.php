@@ -6,7 +6,7 @@ function _echoStockTableItem($strSymbol, $strName, $bAdmin)
 	$ar = array(GetMyStockLink($strSymbol), GetXueqiuLink(new StockSymbol($strSymbol), $strName));
 	if ($bAdmin)
 	{
-		$ar[] = GetStockEditDeleteLink($strSymbol);
+		$ar[] = GetStockEditDeleteLink($strSymbol, $bAdmin);
 	}
 
 	EchoTableColumn($ar);

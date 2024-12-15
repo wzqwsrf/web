@@ -196,17 +196,21 @@ define('STOCK_OPTION_CLOSE', '更新收盘价');
 define('STOCK_OPTION_DIVIDEND', '分红');
 define('STOCK_OPTION_EDIT', '修改股票说明');
 define('STOCK_OPTION_EMA', '修改200/50日EMA');
-define('STOCK_OPTION_FUND', '修改基金对应跟踪代码');
+define('STOCK_OPTION_FUND', '修改对应配对代码');
 define('STOCK_OPTION_HA', '修改H股对应A股代码');
 define('STOCK_OPTION_HOLDINGS', '修改基金持仓');
 define('STOCK_OPTION_NAV', '修改净值');
+define('STOCK_OPTION_PREMIUM', '期货升水');
 define('STOCK_OPTION_SHARE_DIFF', '场内新增(万)');
 define('STOCK_OPTION_SPLIT', '拆股或合股');
+
 function GetStockOptionArray()
 {
     $ar = array(
                   'editcalibration' => STOCK_OPTION_CALIBRATION,
+                  'editfund' => STOCK_OPTION_FUND,
                   'editnetvalue' => STOCK_OPTION_NAV,
+                  'editpremium' => STOCK_OPTION_PREMIUM,
                   'editsharesdiff' => STOCK_OPTION_SHARE_DIFF,
     			  'editstock' => STOCK_OPTION_EDIT,
                   'editstockadr' => STOCK_OPTION_ADR,
@@ -215,7 +219,6 @@ function GetStockOptionArray()
                   'editstockclose' => STOCK_OPTION_CLOSE,
                   'editstockdividend' => STOCK_OPTION_DIVIDEND,
                   'editstockema' => STOCK_OPTION_EMA,
-                  'editfund' => STOCK_OPTION_FUND,
                   'editstockha' => STOCK_OPTION_HA,
                   'editstockholdings' => STOCK_OPTION_HOLDINGS,
                   'editstocksplit' => STOCK_OPTION_SPLIT,
@@ -230,9 +233,11 @@ function GetStockOptionLink($strOption, $strSymbol)
     return GetStockSymbolLink($strPage, $strSymbol, $strOption);
 }
 
-function GetStockEditDeleteLink($strSymbol)
+function GetStockEditDeleteLink($strSymbol, $bAdmin)
 {
-	return GetStockOptionLink(STOCK_OPTION_EDIT, $strSymbol).' '.GetDeleteLink(PATH_STOCK.'deletesymbol.php?symbol='.$strSymbol, '股票'.$strSymbol);
+	$str = GetStockOptionLink(STOCK_OPTION_EDIT, $strSymbol);
+	if ($bAdmin)	$str .= ' '.GetDeleteLink(PATH_STOCK.'deletesymbol.php?symbol='.$strSymbol, '股票'.$strSymbol);
+	return $str;
 }
 
 define('AUTO_TRACTOR_DISPLAY', '拖拉机自动化');

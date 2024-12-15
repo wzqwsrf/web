@@ -5,22 +5,6 @@ require_once('sqldailyclose.php');
 require_once('sqldailytime.php');
 require_once('sqlholdings.php');
 
-class NavHistorySql extends DailyCloseSql
-{
-    public function __construct() 
-    {
-        parent::__construct('netvaluehistory');
-    }
-}
-
-class StockEmaSql extends DailyCloseSql
-{
-    public function __construct($iDays) 
-    {
-        parent::__construct('stockema'.strval($iDays));
-    }
-}
-
 class StockHistorySql extends DailyCloseSql
 {
     public function __construct() 
@@ -131,7 +115,7 @@ class StockSql extends KeyNameSql
        	$this->fund_est_sql = new FundEstSql();
        	$this->his_sql = new StockHistorySql();
         $this->holdings_sql = new HoldingsSql();
-       	$this->nav_sql = new NavHistorySql();
+       	$this->nav_sql = new DailyCloseSql('netvaluehistory');
     }
 
     public function Create()
@@ -184,8 +168,6 @@ class StockSql extends KeyNameSql
     	return $this->GetKey($strStockId);
 	}
 }
-
-// ****************************** Stock symbol functionse *******************************************************
 
 global $g_stock_sql;
 

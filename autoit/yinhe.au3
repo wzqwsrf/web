@@ -327,6 +327,8 @@ Func _getFundName($strSymbol)
 			$strName = '白银基金'
 		Case '162411'
 			$strName = '华宝油气'
+		Case '162415'
+			$strName = '美国消费'
 		Case '163208'
 			$strName = '诺安油气'
 		Case '164824'
@@ -525,7 +527,9 @@ Func _getFundAmount($strSymbol)
 		Case '161226'
 			$strAmount = '50000'
 		Case '162411'
-			$strAmount = '1000'
+			$strAmount = '100'
+		Case '162415'
+			$strAmount = '100'
 		Case '163208'
 			$strAmount = '100'
 		Case '164824'
@@ -581,10 +585,12 @@ Func YinheOrderFund($hWnd, $idDebug, $strSymbol)
 	ControlClick($hWnd, '', 'Button1')
 	Sleep(1000)
 	_DlgClickButton($idDebug, '基金风险揭示', '我已阅读并同意签署')
-	$hFileWnd = WinWait('基金概要文件', '本人已认真阅读并确认上述内容', 10)
+	AutoItSetOption('WinTitleMatchMode', 2)
+	$hFileWnd = WinWait('概要文件', '本人已认真阅读并确认上述内容', 10)
+	AutoItSetOption('WinTitleMatchMode', 1)
 	If $hFileWnd <> 0 Then
 		WinActivate($hFileWnd)
-		ControlClick($hFileWnd, '', 'Button11')	;本人已认真阅读并确认上述内容
+		_CtlCheckButton($hFileWnd, '', 'Button11')	;本人已认真阅读并确认上述内容
 		Sleep(1000)
 		ControlClick($hFileWnd, '', 'Button1')	;确认
 		Sleep(1000)
@@ -1095,7 +1101,7 @@ Func _loadListViewAccount($iSoftware, $idListViewAccount, ByRef $arCheckboxAccou
 EndFunc
 
 Func AppMain()
-	$idFormMain = GUICreate("通达信单独委托版全自动拖拉机0.79", 803, 506, 289, 0)
+	$idFormMain = GUICreate("通达信单独委托版全自动拖拉机0.80", 803, 506, 289, 0)
 
 	$idListViewAccount = GUICtrlCreateListView("客户号", 24, 24, 146, 454, BitOR($GUI_SS_DEFAULT_LISTVIEW,$WS_VSCROLL), BitOR($WS_EX_CLIENTEDGE,$LVS_EX_CHECKBOXES))
 	GUICtrlSendMsg(-1, $LVM_SETCOLUMNWIDTH, 0, 118)
@@ -1106,7 +1112,7 @@ Func AppMain()
 
 	$idLabelSymbol = GUICtrlCreateLabel("基金代码", 192, 24, 52, 17)
 	$idListSymbol = GUICtrlCreateList("", 192, 48, 121, 97)
-	GUICtrlSetData(-1, '160216|160416|160717|161116|161125|161126|161127|161128|161130|161226|162411|163208|164824|164906|501225|510300', _getProfileString('Symbol', '161128'))
+	GUICtrlSetData(-1, '160216|160416|160717|161116|161125|161126|161127|161128|161130|161226|162411|162415|163208|164824|164906|501225|510300', _getProfileString('Symbol', '161128'))
 
 	$idLabelSellPrice = GUICtrlCreateLabel("卖出价格", 192, 160, 52, 17)
 	$idInputSellPrice = GUICtrlCreateInput("", 192, 184, 121, 21)

@@ -4,6 +4,9 @@ require_once('../../php/stock/kraneshares.php');
 
 function _getStockOptionDate($strSubmit, $ref, $strSymbol)
 {
+    $now_ymd = GetNowYMD();
+	$strYMD = $now_ymd->GetYMD();
+    
     $strStockId = $ref->GetStockId();
 	$his_sql = GetStockHistorySql();
 	switch ($strSubmit)
@@ -12,32 +15,39 @@ function _getStockOptionDate($strSubmit, $ref, $strSymbol)
 	case STOCK_OPTION_EMA:
 	case STOCK_OPTION_SHARE_DIFF:
 	case STOCK_OPTION_SPLIT:
-		if ($strDate = $his_sql->GetDateNow($strStockId))							return $strDate;
-		break;
+		if ($strDate = $his_sql->GetDateNow($strStockId))		return $strDate;
+	 	return $strYMD;
 
 	case STOCK_OPTION_CLOSE:
 		if ($record = $his_sql->GetRecordPrev($strStockId, $ref->GetDate()))	return $record['date'];
-		break;
+	 	return $strYMD;
 
 	case STOCK_OPTION_CALIBRATION:
 	case STOCK_OPTION_NAV:
-		if ($strSymbol == 'KWEB')		return $his_sql->GetDatePrev($strStockId, $ref->GetDate());
+		if ($strSymbol == 'KWEB')
+		{
+			if ($strDate = $his_sql->GetDatePrev($strStockId, $ref->GetDate()))		return $strDate;
+		}
 		else
 		{
 			$nav_sql = GetNavHistorySql();
-			if ($strDate = $nav_sql->GetDateNow($strStockId))							return $strDate;
-			if ($strDate = $his_sql->GetDateNow($strStockId))							return $strDate;
+			if ($strDate = $nav_sql->GetDateNow($strStockId))		return $strDate;
+			if ($strDate = $his_sql->GetDateNow($strStockId))		return $strDate;
 		}
-		break;
+	 	return $strYMD;
 
 	case STOCK_OPTION_HOLDINGS:
 		$date_sql = new HoldingsDateSql();
-		if ($strDate = $date_sql->ReadDate($strStockId))							return $strDate;
-		break;
+		if ($strDate = $date_sql->ReadDate($strStockId))		return $strDate;
+	 	return $strYMD;
+
+	case STOCK_OPTION_PREMIUM:
+		$premium_sql = new FuturePremiumSql();
+		if ($strDate = $premium_sql->GetDateNow($strStockId))		return $strDate;
+	 	return $strYMD;
 	}
 
-    $now_ymd = GetNowYMD();
-	return $now_ymd->GetYMD();
+	return '';
 }
 
 function _getStockOptionNewName($ref, $strName)
