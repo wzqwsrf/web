@@ -323,12 +323,11 @@ class SymbolEditAccount extends SymbolAccount
 	function StockOptionEditForm($strSubmit)
 	{
 		$ref = $this->GetSymbolRef();
+		$strReadonly = HtmlElementReadonly();
 		$strEmail = $this->GetLoginEmail(); 
-	
-		$strEmailReadonly = HtmlElementReadonly();
+		$strEmailReadonly = $strReadonly;
 		$strSymbol = $ref->GetSymbol();
-//		$strSymbolReadonly = ($strSubmit == STOCK_OPTION_EDIT) ? '' : HtmlElementReadonly();
-		$strSymbolReadonly = HtmlElementReadonly();
+		$strSymbolReadonly = $strReadonly;
 	
 		$strDateDisabled = '';
 		if (($strDate = _getStockOptionDate($strSubmit, $ref, $strSymbol)) == '')
@@ -338,6 +337,18 @@ class SymbolEditAccount extends SymbolAccount
     
 		$strVal = _getStockOptionVal($strSubmit, $this->GetLoginId(), $ref, $strSymbol, $strDate);
 		$strMemo = GetInfoElement(_getStockOptionMemo($strSubmit));
+		
+		$strDateReadonly = '';
+		$strValReadonly = '';
+		if ($strSubmit != STOCK_OPTION_AMOUNT)
+		{
+			if ($this->IsAdmin() === false)
+			{
+				$strValReadonly = $strReadonly;
+				if ($strDateDisabled == '')		$strDateReadonly = $strReadonly;
+				$strSubmit = '返回';
+			}
+		}
 	
 		echo <<< END
 	<script>
@@ -351,8 +362,8 @@ class SymbolEditAccount extends SymbolAccount
 		<p>$strMemo
 		<br /><input name="login" value="$strEmail" type="text" size="40" maxlength="128" class="textfield" id="login" $strEmailReadonly />
 		<br /><input name="symbol" value="$strSymbol" type="text" size="20" maxlength="32" class="textfield" id="symbol" $strSymbolReadonly />
-		<br /><input name="date" value="$strDate" type="text" size="10" maxlength="32" class="textfield" id="date" $strDateDisabled />
-		<br /><textarea name="val" rows="8" cols="75" id="val">$strVal</textarea>
+		<br /><input name="date" value="$strDate" type="text" size="10" maxlength="32" class="textfield" id="date" {$strDateReadonly}{$strDateDisabled} />
+		<br /><textarea name="val" rows="8" cols="75" id="val" $strValReadonly>$strVal</textarea>
 	    <br /><input type="submit" name="submit" value="$strSubmit" />
 	    </p>
 	    </div>
