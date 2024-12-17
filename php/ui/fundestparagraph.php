@@ -84,6 +84,11 @@ function _getFundEstTableColumn($arRef, &$bFair, $bWide = false)
     return $ar;
 }
 
+function _getOrderByDisplay($strOrder)
+{
+	return '按'.$strOrder.'排序';
+}
+
 function _echoFundEstParagraph($arColumn, $bFair, $arRef, $str, $bWide = false)
 {
 	if ($str === false)
@@ -92,8 +97,21 @@ function _echoFundEstParagraph($arColumn, $bFair, $arRef, $str, $bWide = false)
 		$iCount = count($arRef);
 		if ($iCount > 2)
 		{
-			$arRef = RefSortByNumeric($arRef, '_callbackSortFundEst');
 			$str .= '共'.strval($iCount).'项';
+			if ($strSort = UrlGetQueryValue('sort'))
+			{
+				if ($strSort == 'symbol')				
+				{
+					$arRef = RefSortBySymbol($arRef);
+					$str .= _getOrderByDisplay(GetTableColumnSymbol());
+				}
+				else if ($strSort == 'premium')
+				{
+					$arRef = RefSortByNumeric($arRef, '_callbackSortFundEst');
+					$str .= _getOrderByDisplay(STOCK_DISP_OFFICIAL.GetTableColumnPremium());
+				}
+			}
+			else	$str .= ' '.CopyPhpLink(UrlAddQuery('sort=symbol'), _getOrderByDisplay(STOCK_DISP_SYMBOL)).' '.CopyPhpLink(UrlAddQuery('sort=premium'), _getOrderByDisplay(STOCK_DISP_OFFICIAL.STOCK_DISP_PREMIUM));
 		}
 	}
 	

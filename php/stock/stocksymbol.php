@@ -140,7 +140,7 @@ function QdiiGetSymbolArray()
     				   , QdiiGetCommoditySymbolArray()
     				   , QdiiGetQqqSymbolArray()
     				   , QdiiGetSpySymbolArray());
-    sort($ar);
+//    sort($ar);
     return $ar;
 }
 
@@ -190,7 +190,7 @@ function QdiiHkGetSymbolArray()
     				   , QdiiHkGetTechSymbolArray()
     				   , QdiiHkGetHSharesSymbolArray()
     				   , QdiiHkGetHangSengSymbolArray());
-    sort($ar);
+//    sort($ar);
     return $ar;
 }
 
@@ -213,7 +213,7 @@ function QdiiJpGetSymbolArray()
 {
     $ar = array_merge(array('SH513800') 
     				   , QdiiJpGetNkySymbolArray());
-    sort($ar);
+//    sort($ar);
     return $ar;
 }
 
@@ -222,9 +222,22 @@ function in_arrayQdiiJp($strSymbol)
     return in_array($strSymbol, QdiiJpGetSymbolArray());
 }
 
+function QdiiEuGetDaxSymbolArray()
+{
+    return array('SH513030', 'SZ159561');
+}
+
+function in_arrayDaxQdiiEu($strSymbol)
+{
+    return in_array($strSymbol, QdiiEuGetDaxSymbolArray());
+}
+
 function QdiiEuGetSymbolArray()
 {
-    return array('SH513030', 'SH513080', 'SZ159561');
+    $ar = array_merge(array('SH513080') 
+    				   , QdiiEuGetDaxSymbolArray());
+//    sort($ar);
+    return $ar;
 }
 
 function in_arrayQdiiEu($strSymbol)
@@ -258,7 +271,7 @@ function QdiiMixGetSymbolArray()
     				   , GetChinaInternetSymbolArray()
     				   , GetHkMixSymbolArray()
     				   , GetMsciUs50SymbolArray());
-    sort($ar);
+//    sort($ar);
     return $ar;
 }
 

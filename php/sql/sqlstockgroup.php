@@ -229,7 +229,7 @@ function SqlGetStocksArray($strGroupId, $bCheckTransaction = false)
     		if ($strSymbol = $sql->GetStockSymbol($strStockId))	$ar[] = $strSymbol;
     	}
     }
-	sort($ar);
+//	sort($ar);
     return $ar;
 }
 

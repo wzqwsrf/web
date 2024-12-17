@@ -88,16 +88,10 @@ function QdiiJpGetEstSymbol($strSymbol)
 
 function QdiiEuGetEstSymbol($strSymbol)
 {
-	switch ($strSymbol)
-	{
-	case 'SH513030':
-	case 'SZ159561':
-		return 'znb_DAX';
-		
-	case 'SH513080':
-		return 'znb_CAC';
-	}
-	return false;
+    if ($strSymbol == 'SH513080')   		 		return 'znb_CAC';
+	else if (in_arrayDaxQdiiEu($strSymbol))		return 'znb_DAX';
+    else 
+        return false;
 }
 
 class _QdiiReference extends FundReference

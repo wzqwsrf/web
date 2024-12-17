@@ -58,16 +58,15 @@ def GetMktDataArray(strSymbol, strYearMonth = None):
 class MyEWrapper(EWrapper):
     def __init__(self, client):
         self.client = client
-        self.strNextFuture = '202503'
+        self.strNextFuture = '202506'
         self.arDebug = {}
 
 
     def nextValidId(self, orderId: int):
         self.arHedge = ['SZ161127', 'SZ162411', 'SZ164906']
-        self.arSymbol = ['KWEB', 'SPXU', 'XBI', 'XOP']
+        self.arSymbol = ['KWEB', 'XBI', 'XOP']
         self.arOrder = {}
-        self.arOrder['KWEB'] = GetOrderArray([28.85, 31.18, 31.82, 32.14, 33.51, 38.41], 200, 1, 3)
-        self.arOrder['SPXU'] = GetOrderArray([21.07, 21.16, 21.57], 200, -1, 1)
+        self.arOrder['KWEB'] = GetOrderArray([27.89, 30.2, 30.54, 30.87, 32.52, 37.38], 200, 1, 4)
         self.arOrder['XBI'] = GetOrderArray([65.77, 110.82])
         self.arOrder['XOP'] = GetOrderArray([114.65, 160.3])
         self.arOrder['MES'] = GetOrderArray([3670.97, 6152.64])
@@ -79,7 +78,7 @@ class MyEWrapper(EWrapper):
         for strSymbol in self.arSymbol:
             iRequestId = self.client.StockReqMktData(strSymbol)
             self.data[iRequestId] = GetMktDataArray(strSymbol)
-        self.IndexStreaming()
+        #self.IndexStreaming()
 
 
     def error(self, reqId, errorCode, errorString, contract):
@@ -265,7 +264,7 @@ class MyEClient(EClient):
         return self.iRequestId
 
 
-    def FutureReqMktData(self, strSymbol, strYearMonth = '202412'):
+    def FutureReqMktData(self, strSymbol, strYearMonth = '202503'):
         contract = Contract()
         contract.secType = 'FUT'
         contract.exchange = 'CME'

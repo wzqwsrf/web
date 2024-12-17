@@ -39,6 +39,24 @@ function RefSortByNumeric($arRef, $callback)
     return $arSort;
 }
 
+function RefSortBySymbol($arRef)
+{
+    $ar = array();
+    foreach ($arRef as $ref)
+    {
+        $strSymbol = $ref->GetSymbol();
+		if (isset($ar[$strSymbol]) == false)		 $ar[$strSymbol] = $ref; 
+    }
+    ksort($ar);
+    
+    $arSort = array();
+    foreach ($ar as $str => $ref)
+    {
+        $arSort[] = $ref;
+    }
+    return $arSort;
+}
+
 function RefEchoTableColumn($ref, $ar, $bWide = false)
 {
     EchoTableColumn($ar, false, $bWide ? false : SqlGetStockName($ref->GetSymbol()));

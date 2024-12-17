@@ -7,6 +7,7 @@ function _stockGroupGetStockLinks($strGroupId)
 	
     $strStocks = '';
 	$arStock = SqlGetStocksArray($strGroupId);
+//	sort($arStock);
 	foreach ($arStock as $strSymbol)
 	{
 		$sym = new StockSymbol($strSymbol);

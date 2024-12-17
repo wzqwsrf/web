@@ -255,6 +255,17 @@ function _updateStockOptionSplit($ref, $strSymbol, $strStockId, $his_sql, $strDa
 	}
 }
 
+function _adjustQdiiCalibration($calibration_sql, $strQdii, $strDate, $fNewNav, $fNav)
+{
+	$strQdiiId = SqlGetStockId($strQdii);
+	if ($strClose = $calibration_sql->GetClose($strQdiiId, $strDate))
+	{
+		DebugString(__FUNCTION__.' '.$strQdii.' Change calibaration on '.$strDate);
+		$fFactor = floatval($strClose) * $fNewNav / $fNav;
+		$calibration_sql->WriteDaily($strQdiiId, $strDate, strval($fFactor));
+	}
+}
+
 function _updateStockOptionDividend($ref, $strSymbol, $strStockId, $his_sql, $strDate, $strVal)
 {
 	$sql = new StockDividendSql();
@@ -272,22 +283,20 @@ function _updateStockOptionDividend($ref, $strSymbol, $strStockId, $his_sql, $st
   			DebugString($strSymbol.' Change calibaration on '.$strDate);
   			$fFactor = floatval($strClose) * $fNav / $fNewNav;
   			$calibration_sql->WriteDaily($strStockId, $strDate, strval($fFactor));
-  			$nav_sql->WriteDaily($strStockId, $strDate, strval($fNewNav));
   		}
   		else if ($strSymbol == 'XOP')
   		{
 			foreach (QdiiGetXopSymbolArray() as $strQdii)
 			{
-				$strQdiiId = SqlGetStockId($strQdii);
-				if ($strClose = $calibration_sql->GetClose($strQdiiId, $strDate))
-				{
-					DebugString($strQdii.' Change calibaration on '.$strDate);
-					$fFactor = floatval($strClose) * $fNewNav / $fNav;
-					$calibration_sql->WriteDaily($strQdiiId, $strDate, strval($fFactor));
-				}
+				_adjustQdiiCalibration($calibration_sql, $strQdii, $strDate, $fNewNav, $fNav);
   			}
   		}
+  		else if ($strSymbol == 'KWEB')
+  		{
+			_adjustQdiiCalibration($calibration_sql, 'SZ164906', $strDate, $fNewNav, $fNav);
+  		}
   		
+		$nav_sql->WriteDaily($strStockId, $strDate, strval($fNewNav));
 		_updateStockHistoryAdjCloseByDividend($ref, $strSymbol, $strStockId, $his_sql, $strDate, $strVal);
 	}
 }
