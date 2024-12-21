@@ -112,6 +112,13 @@ function _getStockOptionNav($ref, $strSymbol, $strStockId, $strDate)
 	return SqlGetNavByDate($strStockId, $strDate);
 }
 
+function _getStockOptionPremium($strStockId, $strDate)
+{
+	$premium_sql = new FuturePremiumSql();
+	if ($strClose = $premium_sql->GetClose($strStockId, $strDate))		return $strClose;
+	return '4.5';
+}
+
 function _getStockOptionAdr($strSymbol)
 {
 	$pair_sql = new AdrPairSql();
@@ -269,6 +276,9 @@ function _getStockOptionVal($strSubmit, $strLoginId, $ref, $strSymbol, $strDate)
 	case STOCK_OPTION_NAV:
 		return _getStockOptionNav($ref, $strSymbol, $strStockId, $strDate);
 
+	case STOCK_OPTION_PREMIUM:
+		return _getStockOptionPremium($strStockId, $strDate);
+		
 	case STOCK_OPTION_SHARE_DIFF:
 		return _getStockOptionSharesDiff($strStockId, $strDate);
 
@@ -309,6 +319,9 @@ function _getStockOptionMemo($strSubmit)
 	case STOCK_OPTION_NAV:
 		return '清空输入删除对应日期净值。';
 
+	case STOCK_OPTION_PREMIUM:
+		return '期货升水年化百分比';
+		
 	case STOCK_OPTION_SHARE_DIFF:
 		return '清空输入删除对应日期新增。';
 		

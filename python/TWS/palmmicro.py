@@ -127,20 +127,24 @@ class Calibration:
     def __init__(self, strSymbol):
         self.strSymbol = strSymbol
         self.fPrice = None
+        self.Reset()
+
+    def Reset(self):
         self.fTotal = 0.0
         self.iCount = 0
 
-
     def SetPrice(self, fPrice):
         self.fPrice = fPrice
-
 
     def Calc(self, fPeerPrice):
         if self.fPrice != None:
             fRatio = fPeerPrice/self.fPrice
             self.fTotal += fRatio
             self.iCount += 1
-            if self.iCount <= 10 or (self.iCount%10) == 0:
-                print(self.strSymbol, round(fRatio, 4), 'avg', round(self.fTotal/self.iCount, 4))
-
+            if self.iCount > 100:
+                fAvg = round(self.fTotal/self.iCount, 4)
+                print(self.strSymbol, round(fRatio, 4), 'avg', fAvg)
+                self.Reset()
+                return fAvg
+        return 0.0
 

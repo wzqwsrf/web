@@ -446,6 +446,10 @@ class _SubmitOptionsAccount extends Account
 			}
 			break;
 			
+		case STOCK_OPTION_PREMIUM:
+			if ($bAdmin)	_updateOptionDailySql(new FuturePremiumSql(), $strStockId, $strDate, $strVal);
+			break;
+			
 		case STOCK_OPTION_SHARE_DIFF:
 			if ($bAdmin)	_updateOptionDailySql(new SharesDiffSql(), $strStockId, $strDate, $strVal);
 			break;

@@ -236,7 +236,7 @@ function EchoAhPairSmaParagraph($ref, $str = false, $callback2 = false)
 	EchoSmaParagraph($ref, $str, $ref, '_callbackAhPairSma', $callback2);
 }
 
-function GetFutureInterestPremium($fRate = 0.10000, $strEndDate = '2024-12-20')
+function GetFutureInterestPremium($fRate = 0.0500625, $strEndDate = '2025-03-21')
 {
 	$end_ymd = new StringYMD($strEndDate);
 	date_default_timezone_set('America/New_York');
@@ -246,12 +246,23 @@ function GetFutureInterestPremium($fRate = 0.10000, $strEndDate = '2024-12-20')
 	return 1.0 + $fRate * $iDay / 365.0;
 }
 
+function RefGetFuturePremium($ref)
+{
+	$strStockId = $ref->GetStockId();
+	$premium_sql = new FuturePremiumSql();
+	if ($strClose = $premium_sql->GetCloseNow($strStockId))
+	{
+		return GetFutureInterestPremium(floatval($strClose) / 100.0, $premium_sql->GetDateNow($strStockId));
+	}
+	return false;
+}
+
 function _callbackFutureSma($ref, $strEst = false)
 {
 	if ($strEst)
 	{
-		$f = floatval($strEst) * GetFutureInterestPremium();
-		if (DebugIsAdmin())	$f *= 1.0123;
+		$f = floatval($strEst) * RefGetFuturePremium($ref);
+//		if (DebugIsAdmin())	$f *= 1.0123;
 		return strval_round(round(4.0 * $f) / 4.0, 2);
 	}
 	return $ref;
@@ -261,13 +272,12 @@ function EchoFutureSmaParagraph($ref, $callback2 = false)
 {
 	if ($realtime_ref = $ref->GetRealtimeRef())
 	{
-		$strSymbol = $realtime_ref->GetSymbol();
-		if ($strSymbol != 'hf_ES' && $strSymbol != 'hf_NQ')		return;
-
-    	EchoCalibrationHistoryParagraph($ref->GetRtEtfRef(), 0, 1);
-		
-		$str = '理论溢价：'.strval_round(GetFutureInterestPremium(), 4).'。';
-		EchoSmaParagraph($ref->GetEstRef(), $str, $realtime_ref, '_callbackFutureSma', $callback2);
+		if ($fPremium = RefGetFuturePremium($realtime_ref))
+		{
+			EchoCalibrationHistoryParagraph($ref->GetRtEtfRef(), 0, 1);
+			$str = '理论溢价：'.strval_round($fPremium, 4).' '.GetStockOptionLink(STOCK_OPTION_PREMIUM, $realtime_ref->GetSymbol());
+			EchoSmaParagraph($ref->GetEstRef(), $str, $realtime_ref, '_callbackFutureSma', $callback2);
+		}
 	}
 }
 
