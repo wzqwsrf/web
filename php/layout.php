@@ -68,7 +68,7 @@ function GetWechatPay($iType = 0, $bChinese = true)
         	
 	case 4:
 		$strRemark = '香港保诚保险投保微信群二维码';
-		$strImage = GetImgElement(ResizeJpg('/debug/wechat/cba45ebe81551e69.jpg'), $strRemark);
+		$strImage = GetImgElement(ResizeJpg('/debug/wechat/56ca48073c28e777.jpg'), $strRemark);
 		break;
 	}
 	

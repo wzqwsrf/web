@@ -151,9 +151,9 @@ function StockEditTransactionForm($acct, $strSubmit, $strGroupId = false, $strGr
         }
     
         $strPrice = rtrim0($record['price']);
-        //$strCost = rtrim0($record['fees']);
-        $strCost = '';
         $strRemark = $record['remark'];
+		if (strpos($strRemark, STOCK_DISP_ORDER) !== false)		$strCost = rtrim0($record['fees']);
+		else											        $strCost = '';
         $strGroupItemId = $record['groupitem_id'];
     }
 	$item_sql = new StockGroupItemSql($strGroupId);
