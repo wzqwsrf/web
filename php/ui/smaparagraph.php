@@ -97,6 +97,7 @@ class MaxMin
 
 function _echoSmaTableData($his, $cb_ref, $callback, $callback2, $bAfterHour)
 {
+	$arVal = array();
     $mm = new MaxMin();
     $mmB = new MaxMin();
     $mmW = new MaxMin();
@@ -109,17 +110,20 @@ function _echoSmaTableData($his, $cb_ref, $callback, $callback2, $bAfterHour)
         {
             $mm->Init(0.0, 10000000.0);
             $mm->Set($fVal);
+            $arVal[] = $fVal;
         }
         else if ($strFirst == 'W')
         {
             $mmW->Init($mm->fMax, $mm->fMin);
             $mmW->Set($fVal);
             if ($mm->Fit($fVal))         $strColor = 'silver';
+            else							$arVal[] = $fVal;
         }
         else if ($strFirst == 'M')
         {
             if ($mm->Fit($fVal))         $strColor = 'silver';
             else if ($mmW->Fit($fVal))  $strColor = 'gray';
+            else							$arVal[] = $fVal;
         }
         else	// if ($strFirst == 'E')
         {
@@ -128,19 +132,23 @@ function _echoSmaTableData($his, $cb_ref, $callback, $callback2, $bAfterHour)
         }
         _echoSmaTableItem($his, $strKey, $strVal, $cb_ref, $callback, $callback2, $strColor, $bAfterHour);
     }
+    
+    if (DebugIsAdmin())
+    {
+		sort($arVal, SORT_NUMERIC);
+    	return strval_round_implode($arVal, ', ');
+    }
+    return '';
 }
 
 function _getSmaParagraphMemo($his)
 {
 	$sym = $his->GetRef();
-
-	$str = GetYahooStockLink($sym);
-	if ($sym->IsSinaFutureUs() || $sym->IsNewSinaForex() || $sym->IsSinaGlobalIndex())		{}
-	else if ($sym->IsSymbolUS())																$str = GetStockChartsLink($sym->GetSymbol());
-	
+	$strSymbol = $sym->GetSymbol();
+	$str = DebugIsAdmin() ? GetStockChartsLink($strSymbol) : GetYahooStockLink($sym);
 	$str .= ' '.$his->GetStartDate().'数据';
 	if ($strBullBear = $his->GetBullBear())		$str .= ' '.GetBoldElement($strBullBear);
-    $str .= ' '.GetStockHistoryLink($his->GetSymbol());
+    $str .= ' '.GetStockHistoryLink($strSymbol);
     return $str;
 }
 
@@ -194,8 +202,8 @@ function EchoSmaParagraph($ref, $str = false, $cb_ref = false, $callback = false
     if ($callback2)	$ar[] = new TableColumn(call_user_func($callback2), 90);
 
 	EchoTableParagraphBegin($ar, 'smatable', $str);
-    _echoSmaTableData($his, $cb_ref, $callback, $callback2, $bAfterHour);
-    EchoTableParagraphEnd();
+    $str = _echoSmaTableData($his, $cb_ref, $callback, $callback2, $bAfterHour);
+    EchoTableParagraphEnd($str);
 }
 
 function _callbackQdiiSma($qdii_ref, $strEst = false)

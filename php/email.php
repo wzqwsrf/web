@@ -1,5 +1,5 @@
 <?php
-define('ADMIN_EMAIL', 'support@palmmicro.com');
+define('ADMIN_EMAIL', 'woody@palmmicro.com');
 
 function EmailHtml($strWho, $strSubject, $strContents) 
 {

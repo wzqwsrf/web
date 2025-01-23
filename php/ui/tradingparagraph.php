@@ -42,7 +42,7 @@ function _getTradingIndex($i)
 
 function _echoTradingTableData($ref, $strEstPrice, $strEstPrice2, $strEstPrice3, $callback)
 {
-   	$strPrice = $ref->IsStockMarketTrading(GetNowYMD()) ? $ref->GetPrevPrice() : $ref->GetPrice();
+   	$strPrice = $ref->IsStockMarketTrading(GetNowYMD(), false) ? $ref->GetPrevPrice() : $ref->GetPrice();
    	$iPrecision = $ref->IsFundA() ? 3 : 2;
    	$strColor = 'orange';
 	_echoTradingTableItem($strColor, '涨停', strval_round(floatval($strPrice) * 1.1, $iPrecision), '', $ref, $strEstPrice, $strEstPrice2, $strEstPrice3, $callback);

@@ -410,12 +410,12 @@ class StockHistory
     {
         return $this->stock_ref;
     }
-    
+/*    
     function GetSymbol()
     {
         return $this->stock_ref->GetSymbol();
     }
-
+*/
     function GetStockId()
     {
         return $this->stock_ref->GetStockId();

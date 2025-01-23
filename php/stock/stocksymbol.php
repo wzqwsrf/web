@@ -984,14 +984,14 @@ class StockSymbol
     	return false;
     }
     
-    function IsStockMarketTrading($ymd)
+    function IsStockMarketTrading($ymd, $bNoonBreak = true)
     {
     	if ($ymd->IsWeekDay())
     	{
     		$iHourMinute = $ymd->GetHourMinute();
    			if ($this->IsBeforeStockMarket($iHourMinute))					return false;
    			else if ($this->IsAfterStockMarket($iHourMinute))				return false;
-   			else
+   			else if ($bNoonBreak)
    			{
    				if ($this->IsSymbolA())
    				{

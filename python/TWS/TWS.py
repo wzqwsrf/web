@@ -75,11 +75,11 @@ class MyEWrapper(EWrapper):
         self.arHedge = ['SZ161127', 'SZ162411', 'SZ164906']
         self.arSymbol = ['KWEB', 'MES', 'XBI', 'XOP']
         self.arOrder = {}
-        self.arOrder['KWEB'] = GetOrderArray([28.43, 30.05, 30.08, 30.38, 32.32, 37.37], 200, 0, 2)
+        self.arOrder['KWEB'] = GetOrderArray([21.2, 23.96, 27.06, 28.51, 28.92, 29.2, 30.77, 36.33], 200, 2, 5)
         self.arOrder['XBI'] = GetOrderArray([65.77, 110.82])
         self.arOrder['XOP'] = GetOrderArray([114.65, 160.3])
-        self.arOrder['SPX'] = GetOrderArray([5387.3, 5801.06, 5875.98, 5988.62, 5995.64, 6026.42, 6176.87, 6214.82], 1)
-        self.arOrder['MES'] = AdjustOrderArray(self.arOrder['SPX'], 1.0088, 3, 5)
+        self.arOrder['SPX'] = GetOrderArray([3809.72, 5099.42, 5582.44, 5774.61, 5938.22, 5944.76, 6017.4, 6114.91, 6176.67, 6389.13], 1)
+        self.arOrder['MES'] = AdjustOrderArray(self.arOrder['SPX'], 1.0058, 5, 7)
 
         self.palmmicro = Palmmicro()
         self.client.StartStreaming(orderId)
@@ -234,8 +234,8 @@ class MyEWrapper(EWrapper):
             if strHedge not in self.arDebug or self.arDebug[strHedge] != strDebug:
                 print(strDebug)
                 self.arDebug[strHedge] = strDebug
-                #if iSize >= 100 and ((fRatio > 1.01 and strType == 'ask') or (fRatio < 0.995 and strType == 'bid')):
-                    #self.palmmicro.SendTelegramMsg(strDebug)
+                if iSize >= 100 and ((fRatio > 1.01 and strType == 'ask') or (fRatio < 0.995 and strType == 'bid')):
+                    self.palmmicro.SendTelegramMsg(strDebug)
 
 
     def ProcessPriceAndSize(self, data):
