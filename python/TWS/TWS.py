@@ -75,11 +75,11 @@ class MyEWrapper(EWrapper):
         self.arHedge = ['SZ161127', 'SZ162411', 'SZ164906']
         self.arSymbol = ['KWEB', 'MES', 'XBI', 'XOP']
         self.arOrder = {}
-        self.arOrder['KWEB'] = GetOrderArray([21.2, 23.96, 27.11, 28.65, 28.88, 29.44, 30.66, 36.33], 200, 4, 6)
+        self.arOrder['KWEB'] = GetOrderArray([21.17, 25.98, 26.98, 30.35, 31.65, 31.85, 33.72, 35.46], 200, 3, 6)
         self.arOrder['XBI'] = GetOrderArray([65.77, 110.82])
         self.arOrder['XOP'] = GetOrderArray([114.65, 160.3])
-        self.arOrder['SPX'] = GetOrderArray([3809.72, 5099.42, 5582.44, 5760.3, 5952.37, 5960.49, 6062.75, 6144.45, 6176.67, 6389.13], 1)
-        self.arOrder['MES'] = AdjustOrderArray(self.arOrder['SPX'], 1.0058, 5, 7)
+        self.arOrder['SPX'] = GetOrderArray([3857.84, 5183.12, 5682.54, 5841.67, 6018.58, 6046.91, 6052.23, 6195.5, 6508.39], 1)
+        self.arOrder['MES'] = AdjustOrderArray(self.arOrder['SPX'], 1.0034, 4, 6)
 
         self.palmmicro = Palmmicro()
         self.client.StartStreaming(orderId)

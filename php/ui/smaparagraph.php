@@ -136,7 +136,13 @@ function _echoSmaTableData($his, $cb_ref, $callback, $callback2, $bAfterHour)
     if (DebugIsAdmin())
     {
 		sort($arVal, SORT_NUMERIC);
-    	return strval_round_implode($arVal, ', ');
+		$ar = array();
+		foreach ($arVal as $fVal)
+		{
+			$ar[] = strval_round($fVal);
+		}
+		$ar = array_unique($ar);
+    	return implode(', ', $ar);
     }
     return '';
 }
