@@ -17,7 +17,7 @@ class KeyStringSql extends KeySql
     public function Create()
     {
     	$str = $this->ComposeKeyStr().','
-    		  . ' `'.$this->strStringName.'` VARCHAR( '.strval($this->iMaxStringLen).' ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL ,'
+    		  . $this->ComposeVarcharStr($this->strStringName, $this->iMaxStringLen).','
          	  . $this->ComposeForeignKeyStr().','
          	  . ' UNIQUE ( `'.$this->strStringName.'`, `'.$this->GetKeyIndex().'` )';
     	return $this->CreateIdTable($str);

@@ -2,27 +2,27 @@
 
 function SinaFundNeedFile($sym, $strFileName)
 {
-	if ($strDigit = $sym->IsSinaFund())
-	{
-   		if ($strSymbol = BuildChinaFundSymbol($strDigit))		$sym = new StockSymbol($strSymbol);
-   		else
-   		{
-   			DebugString(__FUNCTION__.' unknown symbol:'.$sym->GetSymbol());
-   			return false;
-   		}
-	}
-	else	$strSymbol = $sym->GetSymbol();
-
-	$strStockId = SqlGetStockId($strSymbol);
-	$his_sql = GetStockHistorySql();
-	$strDate = $his_sql->GetDateNow($strStockId);
-	$strNavDate = UseSameDayNav($sym) ? $strDate : $his_sql->GetDatePrev($strStockId, $strDate);
-	if (SqlGetNavByDate($strStockId, $strNavDate))		return false;
-
 //	$sym->SetTimeZone();
     $now_ymd = GetNowYMD();
 	if (file_exists($strFileName))
 	{
+		if ($strDigit = $sym->IsSinaFund())
+		{
+			if ($strSymbol = BuildChinaFundSymbol($strDigit))		$sym = new StockSymbol($strSymbol);
+			else
+			{
+				DebugString(__FUNCTION__.' unknown symbol:'.$sym->GetSymbol());
+				return false;
+			}
+		}
+		else	$strSymbol = $sym->GetSymbol();
+
+		$strStockId = SqlGetStockId($strSymbol);
+		$his_sql = GetStockHistorySql();
+		$strDate = $his_sql->GetDateNow($strStockId);
+		$strNavDate = UseSameDayNav($sym) ? $strDate : $his_sql->GetDatePrev($strStockId, $strDate);
+		if (SqlGetNavByDate($strStockId, $strNavDate))		return false;
+
     	if (($now_ymd->GetYMD() == $strDate) && $now_ymd->GetHourMinute() < 1600)	return false;		// Market not closed
     }
 
@@ -101,20 +101,23 @@ function FutureNeedNewFile($strFileName, $iInterval = SECONDS_IN_MIN)
     return _checkBetweenMarketClose($now_ymd, $iFileTime, 23, 7);
 }
 
-function _writePrefetchFiles($arFileName, $arLine, $iCount)
+function PrefetchSaveSinaData($strFileName, $strData)
 {
-    if (count($arLine) < $iCount)  return;
+//	DebugString(__FUNCTION__.$strFileName.' '.$strData, true);
+	file_put_contents($strFileName, $strData);
+}
 
-    for ($i = 0; $i < $iCount; $i ++)
-    {
-        file_put_contents($arFileName[$i], $arLine[$i]);
-    }
+function PrefetchLoadSinaData($strFileName)
+{
+    clearstatcache();
+	if (file_exists($strFileName))	return file_get_contents($strFileName);
+	return false;
 }
 
 function _prefetchSinaData($arSym)
 {
-    $strSymbols = '';
     $arFileName = array();
+    $arSymbol = array();
     
     foreach ($arSym as $str => $sym)
     {
@@ -133,14 +136,21 @@ function _prefetchSinaData($arSym)
             if (StockNeedNewQuotes($sym, $strFileName) == false)  continue;
         }
         $arFileName[] = $strFileName; 
-        $strSymbols .= $str.',';
+		$arSymbol[] = $str;
     }
-    if (($iCount = count($arFileName)) < 2)    return;
-    $strSymbols = rtrim($strSymbols, ',');
+    if (($iCount = count($arFileName)) < 1)    return;
+//	DebugPrint($arSymbol, __FUNCTION__, true);
+//	DebugString(implode(',', $arSymbol), true);
     
-    if (($str = GetSinaQuotes($strSymbols)) == false)   return;
+    if (($str = GetSinaQuotes($arSymbol)) == false)   return;
     $arLine = explode("\n", $str);
-    _writePrefetchFiles($arFileName, $arLine, $iCount);
+//    if (count($arLine) == $iCount)
+//    {
+    	for ($i = 0; $i < $iCount; $i ++)
+    	{
+    		PrefetchSaveSinaData($arFileName[$i], $arLine[$i]);
+    	}
+//    }
 }
 
 function PrefetchSinaStockData($arSymbol)
@@ -180,6 +190,8 @@ function PrefetchSinaStockData($arSymbol)
             }
         }
     }
+//    ksort($arPrefetch);
+//    DebugPrint($arPrefetch, __FUNCTION__, true);
     _prefetchSinaData($arPrefetch);
     return $arUnknown;
 }

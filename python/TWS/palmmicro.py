@@ -1,10 +1,9 @@
 import time
 import json
-import urllib.request
-import urllib.parse
-import urllib.error
+import requests
 
 from _tgprivate import TG_TOKEN
+from _tgprivate import WECHAT_KEY
 
 class Palmmicro:
     def __init__(self):
@@ -31,6 +30,12 @@ class Palmmicro:
                 'text': ''
                        }
                     }
+        self.arWechatMsg = {
+            'msgtype': 'text',
+            'text': {
+                'content': ''
+                    }
+                           }
         self.arData = {}
         self.iTimer = 0
         self.iTelegramTimer = 0
@@ -49,34 +54,23 @@ class Palmmicro:
         iCur = int(time.time())
         if iCur - self.iTimer < self.GetTimerInterval():
             return self.arData
-    
         self.iTimer = iCur
         arMessage = self.arMsg['message']
-        # Get the current time in seconds since the Unix epoch
         arMessage['date'] = int(time.time())
         strSymbols = ','.join(arSymbol)
         arMessage['text'] = f"@{strSymbols}"
-
-        # Encode the array into a JSON formatted string
-        strMsgJson = json.dumps(self.arMsg).encode('utf-8')
-
-        # Send the array as JSON in the HTTP POST request
-        req = urllib.request.Request(self.strUrl, data=strMsgJson, headers={'Content-Type': 'application/json'})
         try:
-            response = urllib.request.urlopen(req)
-        except urllib.error.URLError as e:
-            print(f"FetchData error occurred: {e}")
-            return self.arData
-
-        # Read and print the response content
-        response_content = response.read().decode('utf-8')
-
-        # Parse the JSON response and display the chat_id field
-        response_data = json.loads(response_content)
-        response.close()
-
-        self.arData.clear()
-        self.arData = response_data['text']
+            response = requests.post(self.strUrl, json=self.arMsg, headers={'Content-Type': 'application/json'})
+            response.raise_for_status()  # Raise an exception for HTTP errors
+            if response.status_code == 200:
+                response_data = response.json()  # Parse the JSON response data
+                #print('Response data:', response_data)
+                self.arData.clear()
+                self.arData = response_data['text']
+            else:
+                print('Failed to send POST request. Status code:', response.status_code)
+        except requests.exceptions.RequestException as e:
+            print('FetchData Error occurred:', e)
         return self.arData
 
     
@@ -103,24 +97,42 @@ class Palmmicro:
         return arResult
 
     
-    def SendTelegramMsg(self, strMsg):
+    def IsFree(self):
         iCur = int(time.time())
         if iCur - self.iTelegramTimer < self.GetTimerInterval()/2:
-            return
-    
+            return False
         self.iTelegramTimer = iCur
-        url = 'https://api.telegram.org/bot' + TG_TOKEN + '/sendMessage?text=' + urllib.parse.quote_plus(strMsg) + '&chat_id=-1001346320717'
-        try:
-            response = urllib.request.urlopen(url)  # Send a GET request to the URL
-        except urllib.error.URLError as e:
-            print(f"SendTelegramMsg error occurred: {e}")
-            # Handle the error gracefully, e.g., retrying, logging, etc.
-            return
+        return True
 
-        data = response.read()                  # Read the response data
-        decoded_data = data.decode('utf-8') # Decode the response data
-        #print(decoded_data)  # Print the decoded response data
-        response.close()  # Close the response object
+
+    def SendTelegramMsg(self, strMsg):
+        url = 'https://api.telegram.org/bot' + TG_TOKEN + '/sendMessage?text=' + strMsg + '&chat_id=-1001346320717'
+        try:
+            response = requests.get(url)
+            response.raise_for_status()  # Raise an exception for HTTP errors
+            if response.status_code == 200:
+                data = response.json()  # Assuming the response is in JSON format
+                #print(data)
+            else:
+                print('Failed to retrieve data. Status code:', response.status_code)
+        except requests.exceptions.RequestException as e:
+            print('SendTelegramMsg Error occurred:', e)
+
+
+    def SendWechatMsg(self, strMsg):
+        url = 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=' + WECHAT_KEY
+        arText = self.arWechatMsg['text']
+        arText['content'] = strMsg
+        try:
+            response = requests.post(url, json=self.arWechatMsg, headers={'Content-Type': 'application/json'})
+            response.raise_for_status()  # Raise an exception for HTTP errors
+            if response.status_code == 200:
+                response_data = response.json()  # Parse the JSON response data
+                #print('Response data:', response_data)
+            else:
+                print('Failed to send POST request. Status code:', response.status_code)
+        except requests.exceptions.RequestException as e:
+            print('SendWechatMsg Error occurred:', e)
 
 
 class Calibration:

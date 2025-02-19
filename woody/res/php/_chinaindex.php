@@ -23,7 +23,7 @@ class _ChinaIndexAccount extends FundGroupAccount
    		$this->us_ref->DailyCalibration();
    		$this->ref->DailyCalibration();
    		
-   		$this->arPair = array($this->ref, $this->us_ref, $this->a50_ref);
+		// $this->arPair = array($this->ref, $this->us_ref, $this->a50_ref);
         $this->CreateGroup(array($this->ref->GetPairRef(), $this->ref, $this->us_ref, $this->a50_ref));
     }
 

@@ -14,13 +14,13 @@ class MemberSql extends KeyNameSql
 
     public function Create()
     {
-    	$str = ' `email` VARCHAR( 128 ) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL ,'
+    	$str = $this->ComposeVarcharStr('email', 128, false).','
          	  . ' `password` CHAR( 32 ) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL ,'
     		  . $this->ComposeDateStr().','
     		  . $this->ComposeTimeStr().','
          	  . ' `status` TINYINT UNSIGNED NOT NULL ,'
          	  . ' `activity` INT UNSIGNED NOT NULL ,'
-         	  . ' `name` VARCHAR( 64 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL ,'
+         	  . $this->ComposeVarcharStr('name', 64).','
          	  . ' `signature` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL ,'
     		  . $this->ComposeIntStr($this->strIpKey).','
     		  . $this->ComposeForeignStr($this->strIpKey).','

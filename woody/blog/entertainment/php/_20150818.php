@@ -572,7 +572,7 @@ END;
 function Echo20180404($strHead)
 {
 	$strHead = GetHeadElement($strHead);
-	$strXueQiu = GetXueqiuIdLink('1955602780', '不明真相的群众');
+	$strXueqiu = GetXueqiuIdLink('1955602780', '不明真相的群众');
 	$strAhCompare= GetNameLink('ahcompare', AH_COMPARE_DISPLAY);
 	$strWeixin = _getWeixinLink();
 	$str00700 = GetRemarkElement('00700');
@@ -592,7 +592,7 @@ function Echo20180404($strHead)
     echo <<<END
 	$strHead
 <p>2018年4月4日
-<br />雪球创始人方三文，自称{$strXueQiu}。平时总是苦口婆心的把盈亏同源放在嘴边，鼓动大家通过雪球资管做资产配置。但是他却认为自己对互联网企业有深刻理解，在推销自己私募的时候总是鼓吹腾讯和FB，又把盈亏同源抛在脑后了。
+<br />雪球创始人方三文，自称{$strXueqiu}。平时总是苦口婆心的把盈亏同源放在嘴边，鼓动大家通过雪球资管做资产配置。但是他却认为自己对互联网企业有深刻理解，在推销自己私募的时候总是鼓吹腾讯和FB，又把盈亏同源抛在脑后了。
 <br />最近2个月腾讯结束了屡创新高的行情，开始跟FB一起下跌，引发了大家抄底雪球方丈的热情。不仅港股腾讯00700每天巨量交易，就连它在美股粉单市场的ADR在雪球上都热闹非凡。
 这吸引了我的注意力，然后发现港股还有其它不少股票也有美股市场的American Depositary Receipt(ADR)。于是我按照原来{$strAhCompare}的套路增加了个页面蹭一下热度。同时也加入到了{$strWeixin}的查询中：输入{$strTencent}或者{$str00700}试试看。
 <br />数据来源：{$strSource}	{$strUpdate}

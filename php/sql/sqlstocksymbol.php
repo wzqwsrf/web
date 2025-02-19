@@ -1,4 +1,5 @@
 <?php
+//require_once('sqlint.php');
 require_once('sqlkeyname.php');
 require_once('sqlkeytable.php');
 require_once('sqldailyclose.php');
@@ -104,6 +105,8 @@ class StockSql extends KeyNameSql
     var $his_sql;
 	var $holdings_sql;
     var $nav_sql;
+//    var $quote_sql;
+//    var $nav_quote_sql;
     
     public function __construct()
     {
@@ -116,12 +119,14 @@ class StockSql extends KeyNameSql
        	$this->his_sql = new StockHistorySql();
         $this->holdings_sql = new HoldingsSql();
        	$this->nav_sql = new DailyCloseSql('netvaluehistory');
+//       	$this->quote_sql = new StockQuoteSql();
+//       	$this->nav_quote_sql = new StockQuoteSql('navquote');
     }
 
     public function Create()
     {
-    	$str = ' `symbol` VARCHAR( 32 ) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL ,'
-         	. ' `name` VARCHAR( 128 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL ,'
+    	$str = $this->ComposeVarcharStr('symbol', 32, false).','
+         	. $this->ComposeVarcharStr('name', 128).','
          	. ' UNIQUE ( `symbol` )';
     	return $this->CreateIdTable($str);
     }
@@ -347,5 +352,18 @@ function SqlCountHoldings($strSymbol)
 	$holdings_sql = GetHoldingsSql();
 	return $holdings_sql->Count(SqlGetStockId($strSymbol));
 }
+/*
+function GetStockQuoteSql()
+{
+	global $g_stock_sql;
+   	return $g_stock_sql->quote_sql;
+}
+
+function GetNavQuoteSql()
+{
+	global $g_stock_sql;
+   	return $g_stock_sql->nav_quote_sql;
+}
+*/
 
 ?>

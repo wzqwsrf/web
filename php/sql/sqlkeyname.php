@@ -28,9 +28,8 @@ class KeyNameSql extends TableSql
     
     public function Create()
     {
-    	$strCharSet = $this->bUnicode ? 'utf8 COLLATE utf8_unicode_ci' : 'latin1 COLLATE latin1_general_ci';
-    	$str = ' `'.$this->strKeyName.'` VARCHAR( '.strval($this->iLen).' ) CHARACTER SET '.$strCharSet.' NOT NULL ,'
-         	  . ' UNIQUE ( `'.$this->strKeyName.'` )';
+    	$str = $this->ComposeVarcharStr($this->strKeyName, $this->iLen, $this->bUnicode)
+         	  . ', UNIQUE ( `'.$this->strKeyName.'` )';
         return $this->CreateIdTable($str);
     }
     

@@ -1,52 +1,6 @@
 <?php
 require_once('stocksymbol.php');
 
-function _getFutureArray($strSymbol, $strFileName, $callback)
-{
-    if (FutureNeedNewFile($strFileName))
-    {
-        $str = call_user_func($callback, $strSymbol);
-        if ($str)   file_put_contents($strFileName, $str);
-        else
-        {
-        	clearstatcache();
-        	$str = file_exists($strFileName) ? file_get_contents($strFileName) : '';
-        }
-    }
-    else
-    {
-        $str = file_get_contents($strFileName);
-    }
-    return explodeQuote($str);
-}
-
-function _getSinaQuotesStr($strSinaSymbol, $strFileName)
-{
-    if ($str = GetSinaQuotes($strSinaSymbol))
-    {
-      	file_put_contents($strFileName, $str);
-      	return $str;
-    }
-
-    clearstatcache();
-	return file_exists($strFileName) ? file_get_contents($strFileName) : '';
-}
-
-function _getSinaArray($sym, $strSinaSymbol, $strFileName)
-{
-    if (StockNeedNewQuotes($sym, $strFileName))
-    {
-    	$str = _getSinaQuotesStr($strSinaSymbol, $strFileName);
-    }
-    else
-    {
-        $str = file_get_contents($strFileName);
-    }
-    return explodeQuote($str);
-}
-
-// ****************************** StockReference Class *******************************************************
-
 class StockReference extends StockSymbol
 {
     var $strFileName;                       // File to store original data
@@ -322,32 +276,35 @@ class StockReference extends StockSymbol
         if ($strSinaSymbol = $this->GetSinaSymbol())
         {
         	$this->strFileName = DebugGetSinaFileName($strSinaSymbol);
-        	$ar = _getSinaArray($this, $strSinaSymbol, $this->strFileName);
-        	$iCount = count($ar); 
-        	if ($iCount >= 6)
+        	if ($str = PrefetchLoadSinaData($this->strFileName))
         	{
-        		if ($this->IsSinaGlobalIndex())
+        		$ar = explodeQuote($str);
+        		$iCount = count($ar); 
+        		if ($iCount >= 6)
         		{
-        			$this->_onSinaGlobalIndex($ar, $iCount);
-        			return;
-        		}
-        		else if ($this->IsSymbolA())
-        		{
-        			$this->_onSinaDataCN($ar);
-        			return;
-        		}
-        		else if ($this->IsSymbolH())
-        		{
-        			$this->_onSinaDataHK($ar);
-        			return;
-        		}
-        		else
-        		{
-					if ($iCount >= 29)	
-					{
-						$this->_onSinaDataUS($ar);
-						return;
-					}
+        			if ($this->IsSinaGlobalIndex())
+        			{
+        				$this->_onSinaGlobalIndex($ar, $iCount);
+        				return;
+        			}
+        			else if ($this->IsSymbolA())
+        			{
+        				$this->_onSinaDataCN($ar);
+        				return;
+        			}	
+        			else if ($this->IsSymbolH())
+        			{
+        				$this->_onSinaDataHK($ar);
+        				return;
+        			}
+        			else
+        			{
+        				if ($iCount >= 29)	
+        				{
+        					$this->_onSinaDataUS($ar);
+        					return;
+        				}
+        			}
 				}
         	}
         }
@@ -404,21 +361,23 @@ class StockReference extends StockSymbol
         $this->strExternalLink = GetSinaFutureLink($this);
         $strSymbol = $this->GetSymbol();
         $this->strFileName = DebugGetSinaFileName($strSymbol);
-        $ar = _getFutureArray($strSymbol, $this->strFileName, 'GetSinaQuotes');
-        if (count($ar) < 13)
-        {
-            $this->bHasData = false;
-            return;
+		if ($str = PrefetchLoadSinaData($this->strFileName))
+		{
+			$ar = explodeQuote($str);
+			if (count($ar) >= 13)
+			{
+				if ($this->IsSinaFutureUs())
+				{
+					$this->_onSinaFuture($ar);
+				}
+				else
+				{
+					$this->_onSinaFutureCN($ar);
+				}
+				return;
+			}
         }
-        
-        if ($this->IsSinaFutureUs())
-        {
-            $this->_onSinaFuture($ar);
-        }
-        else
-        {
-            $this->_onSinaFutureCN($ar);
-        }
+        $this->bHasData = false;
     }
     
     function LoadSinaFundData()
@@ -428,19 +387,19 @@ class StockReference extends StockSymbol
         else						$strFundSymbol = $this->GetSinaFundSymbol();
         
         $this->strFileName = DebugGetSinaFileName($strFundSymbol);
-		$str = SinaFundNeedFile($this, $this->strFileName) ? _getSinaQuotesStr($strFundSymbol, $this->strFileName) : file_get_contents($this->strFileName);
-        $ar = explodeQuote($str);
-        if (count($ar) < 4)
-        {
-            $this->bHasData = false;
-            return;
+		if ($str = PrefetchLoadSinaData($this->strFileName))
+		{
+			$ar = explodeQuote($str);
+			if (count($ar) >= 4)
+			{
+				$this->strPrice = $ar[1];   // net value
+				$this->strPrevPrice = $ar[3];
+        		$this->strDate = $ar[4];
+				$this->strName = $ar[0];
+				return;
+			}
         }
-        
-        $this->strPrice = $ar[1];   // net value
-        $this->strPrevPrice = $ar[3];
-        
-        $this->strDate = $ar[4];
-        $this->strName = $ar[0];
+        $this->bHasData = false;
     }
     
     function LoadSinaForexData()
@@ -448,28 +407,28 @@ class StockReference extends StockSymbol
         $this->strExternalLink = GetSinaForexLink($this);
     	$strSymbol = $this->GetSymbol();
         $this->strFileName = DebugGetSinaFileName($strSymbol);
-        $ar = _getFutureArray($strSymbol, $this->strFileName, 'GetSinaQuotes');
-        if (count($ar) < 10)
-        {
-            $this->bHasData = false;
-            return;
+		if ($str = PrefetchLoadSinaData($this->strFileName))
+		{
+			$ar = explodeQuote($str);
+			if (count($ar) >= 10)
+			{
+//        		$this->strTime = $ar[0];
+        		$this->strPrevPrice = $ar[3];
+        		$this->strPrice = $ar[8];
+        		$this->strName = $ar[9];
+//        		$this->strDate = $ar[10];
+//				$this->strDate = end($ar);
+				$this->_convertDateTimeToUS(end($ar), $ar[0]);
+				$this->strOpen = $ar[5];
+				$this->strHigh = $ar[6];
+				$this->strLow = $ar[7];
+				return;
+			}
         }
-        
-//        $this->strTime = $ar[0];
-        $this->strPrevPrice = $ar[3];
-        $this->strPrice = $ar[8];
-    	$this->strName = $ar[9];
-//        $this->strDate = $ar[10];
-//		$this->strDate = end($ar);
-		$this->_convertDateTimeToUS(end($ar), $ar[0]);
-
-        $this->strOpen = $ar[5];
-        $this->strHigh = $ar[6];
-        $this->strLow = $ar[7];
+        $this->bHasData = false;
     }       
 }
 
-// ****************************** ExtendedTrading Class *******************************************************
 
 class ExtendedTradingReference extends StockReference
 {

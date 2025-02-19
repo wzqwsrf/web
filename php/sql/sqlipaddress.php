@@ -49,21 +49,4 @@ class IpIntSql extends IntSql
     }
 }
 
-class IpVisitSql extends IpIntSql
-{
-    public function __construct()
-    {
-        parent::__construct('ipvisit');
-    }
-}
-
-
-class IpLoginSql extends IpIntSql
-{
-    public function __construct()
-    {
-        parent::__construct('iplogin');
-    }
-}
-
 ?>

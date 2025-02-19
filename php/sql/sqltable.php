@@ -60,7 +60,13 @@ class TableSql
     {
 		return ' `time` TIME NOT NULL ';
 	}
-	
+
+    function ComposeVarcharStr($str = 'close', $iLen = 8192, $bUnicode = true)
+    {
+    	$strCharSet = $bUnicode ? 'utf8 COLLATE utf8_unicode_ci' : 'latin1 COLLATE latin1_general_ci';
+    	return ' `'.$str.'` VARCHAR( '.strval($iLen).' ) CHARACTER SET '.$strCharSet.' NOT NULL ';
+    }
+
     public function Create()
     {
     	return $this->CreateTable($this->ComposePrimaryIdStr());

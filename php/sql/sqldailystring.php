@@ -10,7 +10,7 @@ class DailyStringSql extends DailyCloseSql
 
     public function Create()
     {
-        return $this->CreateDailyCloseTable(' `close` VARCHAR( 8192 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL ');
+        return $this->CreateDailyCloseTable($this->ComposeVarcharStr());
     }
 
     public function WriteDaily($strKeyId, $strDate, $strClose)

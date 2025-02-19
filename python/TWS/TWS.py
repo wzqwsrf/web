@@ -32,7 +32,6 @@ def GetOrderArray(arPrice, iSize = 100, iBuyPos = -1, iSellPos = -1):
         iSellPos = -1
     if iBuyPos  >= iLen or iBuyPos < -1:
         iBuyPos = -1
-
     ar = {'price': arPrice,
           'BUY_id': -1,
           'SELL_id': -1,
@@ -42,11 +41,13 @@ def GetOrderArray(arPrice, iSize = 100, iBuyPos = -1, iSellPos = -1):
          }
     return ar
 
+
 def AdjustPriceArray(arPrice, fAdjust):
     arNew = []
     for fPrice in arPrice:
         arNew.append(round(round(4.0*fPrice*fAdjust)/4.0, 2))
     return arNew
+
 
 def AdjustOrderArray(arOrder, fAdjust, iBuyPos = -1, iSellPos = -1):
     return GetOrderArray(AdjustPriceArray(arOrder['price'], fAdjust), arOrder['size'], iBuyPos, iSellPos)
@@ -69,18 +70,18 @@ class MyEWrapper(EWrapper):
         self.client = client
         #self.strNextFuture = '202506'
         self.arDebug = {}
-
+        self.strMsg = ''
+        
 
     def nextValidId(self, orderId: int):
         self.arHedge = ['SZ161127', 'SZ162411', 'SZ164906']
         self.arSymbol = ['KWEB', 'MES', 'XBI', 'XOP']
         self.arOrder = {}
-        self.arOrder['KWEB'] = GetOrderArray([21.17, 25.98, 26.98, 30.35, 31.65, 31.85, 33.72, 35.46], 200, 3, 6)
+        self.arOrder['KWEB'] = GetOrderArray([21.17, 26.43, 28.44, 32.43, 33.87, 35.15, 36.42], 200, 4, 5)
         self.arOrder['XBI'] = GetOrderArray([65.77, 110.82])
         self.arOrder['XOP'] = GetOrderArray([114.65, 160.3])
-        self.arOrder['SPX'] = GetOrderArray([3857.84, 5183.12, 5682.54, 5841.67, 6018.58, 6046.91, 6052.23, 6195.5, 6508.39], 1)
-        self.arOrder['MES'] = AdjustOrderArray(self.arOrder['SPX'], 1.0034, 4, 6)
-
+        self.arOrder['SPX'] = GetOrderArray([3857.84, 5183.12, 5703.46, 5707.43, 5956.64, 5977.78, 6070.78, 6088.88, 6125.86, 6163.78, 6205.85, 6508.39], 1)
+        self.arOrder['MES'] = AdjustOrderArray(self.arOrder['SPX'], 1.003, 5, 9)
         self.palmmicro = Palmmicro()
         self.client.StartStreaming(orderId)
         self.data = {}
@@ -160,7 +161,6 @@ class MyEWrapper(EWrapper):
         #strSymbol = 'MES'
         #iRequestId = self.client.FutureReqMktData(strSymbol, self.strNextFuture)
         #self.data[iRequestId] = GetMktDataArray(strSymbol, self.strNextFuture)
-
         strSymbol = 'SPX'
         self.spx_cal = Calibration(strSymbol)
         iRequestId = self.client.IndexReqMktData(strSymbol)
@@ -234,8 +234,12 @@ class MyEWrapper(EWrapper):
             if strHedge not in self.arDebug or self.arDebug[strHedge] != strDebug:
                 print(strDebug)
                 self.arDebug[strHedge] = strDebug
+                #if iSize >= 1 and ((fRatio > 1.001 and strType == 'ask') or (fRatio < 0.999 and strType == 'bid')):
                 if iSize >= 100 and ((fRatio > 1.01 and strType == 'ask') or (fRatio < 0.995 and strType == 'bid')):
-                    self.palmmicro.SendTelegramMsg(strDebug)
+                    if self.palmmicro.IsFree() and self.strMsg != strDebug:
+                        self.palmmicro.SendWechatMsg(strDebug)
+                        self.palmmicro.SendTelegramMsg(strDebug)
+                        self.strMsg = strDebug
 
 
     def ProcessPriceAndSize(self, data):
@@ -301,7 +305,6 @@ class MyEClient(EClient):
 
     def CallPlaceOrder(self, strSymbol, price, iSize, strAction, iOrderId = -1):
         contract = self.arContract[strSymbol]
-
         order = Order()
         order.action = strAction
         order.totalQuantity = iSize
@@ -313,12 +316,9 @@ class MyEClient(EClient):
         else:
             if contract.exchange != 'OVERNIGHT':
                 order.outsideRth = True
-
         if iOrderId == -1:
             iOrderId = self.iOrderId
             self.iOrderId += 1
-
-        # Place the order
         self.placeOrder(iOrderId, contract, order)
         time.sleep(1)
         return iOrderId
@@ -327,7 +327,5 @@ class MyEClient(EClient):
 app = MyEClient(MyEWrapper(None))
 app.wrapper = MyEWrapper(app)
 app.connect('127.0.0.1', 7497, clientId=0)
-
 time.sleep(1)
-
 app.run()

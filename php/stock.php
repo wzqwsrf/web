@@ -88,11 +88,11 @@ function StockNeedFile($strFileName, $iInterval = SECONDS_IN_MIN)
 	return $now_ymd->NeedFile($strFileName, $iInterval);
 }
 
-define('SINA_QUOTES_SEPARATOR', ',');
-function GetSinaQuotes($strSinaSymbols)
+function GetSinaQuotes($arSymbol)
 {
+	$strSinaSymbols = implode(',', $arSymbol);
 	$strFileName = DebugGetPathName('debugsina.txt');
-	$iCount = count(explode(SINA_QUOTES_SEPARATOR, $strSinaSymbols));
+	$iCount = count($arSymbol);
 	if (DebugIsAdmin() && $iCount > 1)
 	{
 //		DebugVal($iCount, 'total prefetch - '.$strSinaSymbols);
@@ -108,8 +108,8 @@ function GetSinaQuotes($strSinaSymbols)
     
     if ($str = url_get_contents(GetSinaDataUrl($strSinaSymbols), UrlGetRefererHeader(GetSinaFinanceUrl()), $strFileName))
     {
-    	if ($iCount >= count(explode('=', $str)))		DebugVal($iCount, 'GetSinaQuotes failed: '.$str);		// Sina returns error in an empty file
-    	else												return $str;
+    	if ($iCount >= count(explode('=', $str)))		DebugVal($iCount, __FUNCTION__.' failed: '.$str);		// Sina returns error in an empty file
+    	else											return $str;
     }
     return false;
 }

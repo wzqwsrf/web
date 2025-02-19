@@ -132,7 +132,7 @@ class GroupItemAmountSql extends IntSql
     
     function ReadAmount($strGroupItemId)
     {
-		if ($str =	 $this->ReadString($strGroupItemId))	return $str;
+		if ($str = $this->ReadString($strGroupItemId))	return $str;
 		return '100000';
     }
 }

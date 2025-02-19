@@ -92,7 +92,24 @@ function Echo20211222($strHead)
 </p>
 END;
 }
+
+function Echo20250121($strHead)
+{
+	$strHead = GetHeadElement($strHead);
+	$strTurbify = GetExternalLink('https://www.turbify.com/', 'Turbify');
+	$strYahoo = GetInternalLink('/res/translationcn.html#webhosting', 'Yahoo网站服务');
+
+    echo <<<END
+	$strHead
+<p>2025年1月21日 周二
+<br />在三年外加一个月后，终于收到了第五笔100.14美元的收入。其实网站的访问量一直在稳步增长，广告收入下降的主要原因是传统网页实在是落伍了，大家都在用手机APP，广告商的投放也都集中在手机APP上，网页的浏览和点击都是越来越不值钱了。 
+<br />雪上加霜的是，疫情后美元疯狂贬值，现在叫{$strTurbify}的{$strYahoo}从2024年开始每个月收费从原来的12美元跳涨到了18美元，指望广告费能覆盖网站费用成了不可能的事情。
+</p>
+END;
+}
+
 	Echo20211222(GetNameTag('forth', '第四笔').'Adsense收入');
+	Echo20250121(GetNameTag('fifth', '第五笔').'Adsense收入');
 ?>
 
 </div>
