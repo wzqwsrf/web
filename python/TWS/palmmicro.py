@@ -39,7 +39,9 @@ class Palmmicro:
         self.arData = {}
         self.iTimer = 0
         self.iTelegramTimer = 0
-    
+        self.strTelegramMsg = ''
+        self.arTelegramMsg = []
+   
 
     def GetTimerInterval(self):
         return 30 # to fetch data every 30 seconds, palmmicro.com only update once a minute. 
@@ -133,6 +135,19 @@ class Palmmicro:
                 print('Failed to send POST request. Status code:', response.status_code)
         except requests.exceptions.RequestException as e:
             print('SendWechatMsg Error occurred:', e)
+
+
+    def SendMsg(self, strMsg):
+        if self.strTelegramMsg != strMsg:
+            self.strTelegramMsg = strMsg
+            self.arTelegramMsg.append(strMsg)
+            if self.IsFree():
+                unique = set(self.arTelegramMsg)
+                str = '\n\n'.join(unique)
+                self.SendWechatMsg(str)
+                self.SendTelegramMsg(str)
+                self.arTelegramMsg.clear()
+
 
 
 class Calibration:
