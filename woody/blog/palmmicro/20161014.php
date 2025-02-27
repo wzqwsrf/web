@@ -18,7 +18,7 @@ function _echo20161014($bChinese)
 	$strPA3288 = GetInternalLink('/pa3288/index.html', 'PA3288');
 	$strQuoteSz162411 = GetQuoteElement('sz162411');
 	$strQuotePalmmicro = GetQuoteElement('palmmicro');
-	$strImage = GetWechatPay(2, $bChinese);
+	$strImage = GetWechatPay(3, $bChinese);
 	
 	EchoBlogDate($bChinese);
     echo <<<END

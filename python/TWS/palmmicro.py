@@ -59,7 +59,7 @@ class Palmmicro:
         self.iTimer = iCur
         arMessage = self.arMsg['message']
         arMessage['date'] = int(time.time())
-        strSymbols = ','.join(arSymbol)
+        strSymbols = ','.join(arSymbol.keys())
         arMessage['text'] = f"@{strSymbols}"
         try:
             response = requests.post(self.strUrl, json=self.arMsg, headers={'Content-Type': 'application/json'})
