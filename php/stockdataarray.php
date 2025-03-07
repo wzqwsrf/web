@@ -2,7 +2,7 @@
 require_once('stock.php');
 
 // 'SH513350', 'SZ159518', 'SZ161127', 'SZ162411', 'SZ164906'
-
+/*
 function _refGetPeerVal($ref, $strQdii)
 {
 	$cny_ref = $ref->GetCnyRef();
@@ -22,7 +22,7 @@ function _getHedgeQuantity($iHedge, $iQuantity)
 	$fFloor = floor($fQuantity / $iHedge);
 	return intval($fFloor);
 }
-
+*/
 function GetStockDataArray($strSymbols)
 {
 	InitGlobalStockSql();
@@ -36,7 +36,7 @@ function GetStockDataArray($strSymbols)
 		$ref = StockGetReference($strSymbol);
 		if ($ref->IsSymbolA())
 		{
-			$iAskQuantity = false;
+/*			$iAskQuantity = false;
 			if (isset($ref->arAskQuantity[0]))
 			{
 				$strAskPrice = $ref->arAskPrice[0];
@@ -53,7 +53,7 @@ function GetStockDataArray($strSymbols)
 				$iBidQuantity = intval($ref->arBidQuantity[0]);
 				$arData['bid_size'] = $iBidQuantity;
 			}
-    	
+*/    	
 			if ($ref->IsFundA())
 			{
 				$fund_ref = StockGetFundReference($strSymbol);
@@ -63,10 +63,11 @@ function GetStockDataArray($strSymbols)
 				}
 				else if ($strSymbol == 'SZ164906')			$strIndex = 'KWEB';
 
-				$iHedge = GetArbitrageRatio($ref->GetStockId());
+				$strStockId = $ref->GetStockId();
+				$iHedge = GetArbitrageRatio($strStockId);
 				$arData['hedge'] = $iHedge;
 				$arData['symbol_hedge'] = $strIndex;
-				if ($iAskQuantity)
+/*				if ($iAskQuantity)
 				{
 					$arData['ask_price_hedge'] = _refGetPeerVal($fund_ref, $strAskPrice);
 					$arData['ask_size_hedge'] = _getHedgeQuantity($iHedge, $iAskQuantity);
@@ -76,6 +77,16 @@ function GetStockDataArray($strSymbols)
 					$arData['bid_price_hedge'] = _refGetPeerVal($fund_ref, $strBidPrice);
 					$arData['bid_size_hedge'] = _getHedgeQuantity($iHedge, $iBidQuantity);
 				}
+*/				
+				$arData['position'] = strval(RefGetPosition($fund_ref));
+
+				$calibration_sql = GetCalibrationSql();
+				$arData['calibration'] = $calibration_sql->GetCloseNow($strStockId);
+				$strDate = $calibration_sql->GetDateNow($strStockId);
+				$arData['nav'] = SqlGetNavByDate($strStockId, $strDate);
+				
+				$cny_ref = $fund_ref->GetCnyRef();
+				$arData['CNY'] = $cny_ref->GetPrice();
 			}
 		}
 		$ar[$strSymbol] = $arData;
