@@ -48,7 +48,8 @@ function GetKraneNav($ref)
         	DebugPrint(localtime($iTick, true));
         	return false;
         }
-		return strval_round(floatval($his_sql->GetClose($strStockId, $strPrevDate)) * (1.0 - floatval($ar0[1])), 4);
+//		return strval_round(floatval($his_sql->GetClose($strStockId, $strPrevDate)) * (1.0 - floatval($ar0[1])), 4);
+		return strval_round(floatval($his_sql->GetClose($strStockId, $strPrevDate)) / (1.0 + floatval($ar0[1])), 4);
    	}
     return false;
 }

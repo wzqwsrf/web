@@ -7,10 +7,14 @@ from _tgprivate import TG_TOKEN
 from _tgprivate import WECHAT_KEY
 from _tgprivate import WECHAT_REV_KEY
 
+def _get_hedge(arData):
+    return float(arData['calibration'])/float(arData['position'])
+
 def _get_hedge_quantity(strType, arData):
     f_quantity = float(arData[strType + '_size']) / 100.0
     f_quantity = math.floor(f_quantity) * 100.0
-    f_floor = math.floor(f_quantity / arData['hedge'])
+    #f_floor = math.floor(f_quantity / arData['hedge'])
+    f_floor = math.floor(f_quantity / _get_hedge(arData))
     return int(f_floor)
 
 def fund_reverse_adjust_position(f_position, f_val, f_old_val):
@@ -133,7 +137,8 @@ class Palmmicro:
                 arResult['ratio'] = round(price / float(arReply[strType + '_price_hedge']), 4)
                 iSize = min(size, arReply[strType + '_size_hedge'])
                 arResult['size'] = iSize;
-                arResult['size_hedge'] = int((iSize * arReply['hedge'] + 50) / 100) * 100
+                #arResult['size_hedge'] = int((iSize * arReply['hedge'] + 50) / 100) * 100
+                arResult['size_hedge'] = int((float(iSize) * _get_hedge(arReply) + 50.0) / 100.0) * 100
         return arResult
     
     def IsFree(self, group):
@@ -209,8 +214,8 @@ class Palmmicro:
 
 
 class Calibration:
-    def __init__(self, strSymbol):
-        self.strSymbol = strSymbol
+    def __init__(self, strDisplay):
+        self.strDisplay = strDisplay
         self.fPrice = None
         self.Reset()
 
@@ -228,8 +233,7 @@ class Calibration:
             self.iCount += 1
             if self.iCount > 100:
                 fAvg = round(self.fTotal/self.iCount, 4)
-                print(self.strSymbol, round(fRatio, 4), 'avg', fAvg)
+                print(self.strDisplay, 'last', round(fRatio, 4), 'avg', fAvg)
                 self.Reset()
                 return fAvg
         return 0.0
-
