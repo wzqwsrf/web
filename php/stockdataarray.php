@@ -57,15 +57,29 @@ function GetStockDataArray($strSymbols)
 			if ($ref->IsFundA())
 			{
 				$fund_ref = StockGetFundReference($strSymbol);
+				$strOrgIndex = false;
 				if (method_exists($fund_ref, 'GetEstRef'))
 				{	
-					if ($est_ref = $fund_ref->GetEstRef())	$strIndex = $est_ref->GetSymbol();
+					if ($est_ref = $fund_ref->GetEstRef())
+					{
+						$strIndex = $est_ref->GetSymbol();
+						if ($strIndex == '^GSPC')
+						{
+							$strOrgIndex = $strIndex;
+							$strIndex = 'SPY';
+						}
+						else if ($strIndex == '^NDX')
+						{
+							$strOrgIndex = $strIndex;
+							$strIndex = 'QQQ';
+						}
+					}
 				}
 				else if ($strSymbol == 'SZ164906')			$strIndex = 'KWEB';
 
 				$strStockId = $ref->GetStockId();
-				$iHedge = GetArbitrageRatio($strStockId);
-				$arData['hedge'] = $iHedge;
+//				$iHedge = GetArbitrageRatio($strStockId);
+//				$arData['hedge'] = $iHedge;
 				$arData['symbol_hedge'] = $strIndex;
 /*				if ($iAskQuantity)
 				{
@@ -81,9 +95,13 @@ function GetStockDataArray($strSymbols)
 				$arData['position'] = strval(RefGetPosition($fund_ref));
 
 				$calibration_sql = GetCalibrationSql();
-				$arData['calibration'] = $calibration_sql->GetCloseNow($strStockId);
 				$strDate = $calibration_sql->GetDateNow($strStockId);
 				$arData['nav'] = SqlGetNavByDate($strStockId, $strDate);
+				$arData['calibration'] = $calibration_sql->GetCloseNow($strStockId);
+				if ($strOrgIndex)
+				{
+					$arData['calibration'] = strval(floatval($arData['calibration']) / floatval($calibration_sql->GetCloseNow(SqlGetStockId($strIndex))));
+				}
 				
 				$cny_ref = $fund_ref->GetCnyRef();
 				$arData['CNY'] = $cny_ref->GetPrice();
