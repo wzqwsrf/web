@@ -60,14 +60,14 @@ function QdiiGetEstSymbol($strSymbol)
     else 
         return false;
 }
-
+/*
 function QdiiGetRtEtfSymbol($strSymbol)
 {
     if (in_arrayOilEtfQdii($strSymbol) || in_arrayXopQdii($strSymbol))     return 'USO';
     else
     	return false;
 }
-
+*/
 function QdiiHkGetEstSymbol($strSymbol)
 {
     if ($strSymbol == 'SH501025')   		 			return 'SH000869';	// '03143'
@@ -181,7 +181,7 @@ class _QdiiReference extends FundReference
         
 		if ($realtime_ref = $this->GetRealtimeRef())
         {
-            if ($this->rt_etf_ref == false)
+/*            if ($this->rt_etf_ref == false)
             {
                 $this->rt_etf_ref = $est_ref;
             }
@@ -190,22 +190,9 @@ class _QdiiReference extends FundReference
             {
             	$fRealtime /= $this->rt_etf_ref->GetVal();
             	$fRealtime *= floatval($this->_getEstVal($strDate));
-            }
-           	$this->fRealtimeNetValue = $this->GetQdiiValue(strval($fRealtime));
-            
-/*            $realtime_ref->LoadEtfFactor($this->rt_etf_ref);
-            
-            $fRtEtfPrice = floatval($this->rt_etf_ref->GetPrice());
-            if ($fRtEtfPrice != 0.0)
-            {
-            	$fRealtime = floatval($this->_getEstVal($strDate));
-            	$fVal = $realtime_ref->EstByEtf(($this->rt_etf_ref == $est_ref) ? $fRealtime : $fRtEtfPrice);
-            	if ($fVal != 0.0)
-            	{
-            		$fRealtime *= floatval($realtime_ref->GetPrice()) / $fVal;
-            	}
-            	$this->fRealtimeNetValue = $this->GetQdiiValue(strval($fRealtime));
             }*/
+            $fRealtime = $est_ref->EstFromPair();
+           	$this->fRealtimeNetValue = $this->GetQdiiValue(strval($fRealtime));
         }
     }
 
@@ -280,10 +267,10 @@ class QdiiReference extends _QdiiReference
         {
         	$this->est_ref = new FundPairReference($strEstSymbol);
         }
-        if ($strRtEtfSymbol = QdiiGetRtEtfSymbol($strSymbol))
+/*        if ($strRtEtfSymbol = QdiiGetRtEtfSymbol($strSymbol))
         {
             $this->rt_etf_ref = new FundPairReference($strRtEtfSymbol);
-        }
+        }*/
        
         $this->EstNetValue();
     }

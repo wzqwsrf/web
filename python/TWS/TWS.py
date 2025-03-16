@@ -15,6 +15,7 @@ def IsChinaMarketOpen():
         return True
     elif iTime >= 1300 and iTime <= 1500:
         return True
+    #return True
     return False
 
 def IsMarketOpen():
@@ -23,7 +24,7 @@ def IsMarketOpen():
         return True
     return False
 
-def GetOrderArray(arPrice, iSize = 100, iBuyPos = -1, iSellPos = -1):
+def GetOrderArray(arPrice = [], iSize = 1, iBuyPos = -1, iSellPos = -1):
     iLen = len(arPrice)
     if iSellPos >= iLen or iSellPos < -1:
         iSellPos = -1
@@ -68,15 +69,21 @@ class MyEWrapper(EWrapper):
         self.arDebug = {}
 
     def nextValidId(self, orderId: int):
-        self.arHedge = {'SZ161127':True, 'SZ162411':False, 'SZ162415':True, 'SZ164906':True}
+        self.arTQQQ = {'SH513100', 'SH513110', 'SH513390', 'SH513870', 'SZ159501', 'SZ159513', 'SZ159632', 'SZ159659', 'SZ159660', 'SZ159696', 'SZ159941'}
+        self.arHedge = {'SZ161125', 'SZ161127', 'SZ161130', 'SZ162411', 'SZ162415', 'SZ164906'} | self.arTQQQ
         self.arOrder = {}
-        self.arOrder['KWEB'] = GetOrderArray([20.64, 25.13, 31.23, 32.3, 35.03, 35.28, 36.5, 37.77], 200, 3, 5)
-        self.arOrder['XBI'] = GetOrderArray([65.77, 110.82])
-        self.arOrder['XLY'] = GetOrderArray([137.0, 233.0])
-        self.arOrder['XOP'] = GetOrderArray([114.65, 160.3])
-        self.arOrder['SPX'] = GetOrderArray([3914.56, 5254.99, 5674.39, 5782.38, 5856.29, 5974.25, 6274.12, 6595.41], 1)
-        self.arOrder['MES' + self.strCurFuture] = AdjustOrderArray(self.arOrder['SPX'], 1.0014, -1, 3)
-        self.arOrder['MES' + self.strNextFuture] = AdjustOrderArray(self.arOrder['SPX'], 1.0105, -1, -1)
+        self.arOrder['KWEB'] = GetOrderArray([20.64, 25.13, 31.23, 32.68, 33.05, 35.39, 35.69, 35.77, 37.73], 200, 6, 8)
+        if IsChinaMarketOpen():
+            self.arOrder['SPY'] = GetOrderArray()
+            self.arOrder['TQQQ'] = GetOrderArray()
+            self.arOrder['XBI'] = GetOrderArray()
+            self.arOrder['XLY'] = GetOrderArray()
+            self.arOrder['XOP'] = GetOrderArray()
+        else:
+        #if IsMarketOpen():
+            self.arOrder['SPX'] = GetOrderArray([3914.56, 5254.99, 5424.61, 5576.86, 5698.52, 5869.28, 6313.95, 6595.41])
+            self.arOrder['MES' + self.strCurFuture] = AdjustOrderArray(self.arOrder['SPX'], 1.0007, 3, -1)
+            self.arOrder['MES' + self.strNextFuture] = AdjustOrderArray(self.arOrder['SPX'], 1.0099, -1, 4)
         self.palmmicro = Palmmicro()
         self.client.StartStreaming(orderId)
         self.data = {}
@@ -90,6 +97,19 @@ class MyEWrapper(EWrapper):
             else:
                 iRequestId = self.client.StockReqMktData(strSymbol)
             self.data[iRequestId] = GetMktDataArray(strSymbol)
+
+    def __get_buy_symbol(self, strSymbol):
+        if strSymbol.startswith('MES'):
+            return 'MES' + self.strCurFuture
+        else:
+            return strSymbol
+
+    def __get_sell_symbol(self, strSymbol):
+        if strSymbol.startswith('MES'):
+            return 'MES' + self.strNextFuture
+            #return 'MES' + self.strCurFuture
+        else:
+            return strSymbol
 
     def error(self, reqId, errorCode, errorString, contract):
         print('Error:', reqId, errorCode, errorString)
@@ -121,18 +141,19 @@ class MyEWrapper(EWrapper):
         print('Order Status - OrderId:', orderId, 'Status:', status, 'Filled:', filled, 'Remaining:', remaining, 'AvgFillPrice:', avgFillPrice)
         for strSymbol in self.arOrder.keys():
             arOrder = self.arOrder[strSymbol]
-            arPrice = arOrder['price']
-            iLen = len(arPrice)
+            iLen = len(arOrder['price'])
             if arOrder['BUY_id'] == orderId:
                 if status == 'Filled' and remaining == 0:
                     arOrder['BUY_id'] = -1
-                    iOldSellPos = arOrder['SELL_pos']
-                    self.IncSellPos(arOrder, 'BUY_pos', iLen)
-                    arOrder['SELL_org_pos'] = arOrder['SELL_pos']
+                    strSellSymbol = self.__get_sell_symbol(strSymbol)
+                    arSellOrder = self.arOrder[strSellSymbol]
+                    iOldSellPos = arSellOrder['SELL_pos']
+                    self.IncSellPos(arSellOrder, arOrder['BUY_pos'], iLen)
+                    arSellOrder['SELL_org_pos'] = arSellOrder['SELL_pos']
                     arOrder['BUY_pos'] -= 1
                     arOrder['BUY_org_pos'] = arOrder['BUY_pos']
-                    if arOrder['SELL_id'] != -1 and arOrder['SELL_pos'] > -1 and arOrder['SELL_pos'] != iOldSellPos:
-                        self.client.CallPlaceOrder(strSymbol, arPrice[arOrder['SELL_pos']], arOrder['size'], 'SELL', arOrder['SELL_id'])
+                    if arSellOrder['SELL_id'] != -1 and arSellOrder['SELL_pos'] > -1 and arSellOrder['SELL_pos'] != iOldSellPos:
+                        self.client.CallPlaceOrder(strSellSymbol, arSellOrder['price'][arSellOrder['SELL_pos']], arSellOrder['size'], 'SELL', arSellOrder['SELL_id'])
                 elif status == 'Cancelled':
                     arOrder['BUY_id'] = -1
                     arOrder['BUY_pos'] = -1
@@ -143,13 +164,15 @@ class MyEWrapper(EWrapper):
             elif arOrder['SELL_id'] == orderId:
                 if status == 'Filled' and remaining == 0:
                     arOrder['SELL_id'] = -1
-                    iOldBuyPos = arOrder['BUY_pos']
-                    arOrder['BUY_pos'] = arOrder['SELL_pos'] - 1
-                    arOrder['BUY_org_pos'] = arOrder['BUY_pos']
-                    self.IncSellPos(arOrder, 'SELL_pos', iLen)
+                    strBuySymbol = self.__get_buy_symbol(strSymbol)
+                    arBuyOrder = self.arOrder[strBuySymbol]
+                    iOldBuyPos = arBuyOrder['BUY_pos']
+                    arBuyOrder['BUY_pos'] = arOrder['SELL_pos'] - 1
+                    arBuyOrder['BUY_org_pos'] = arBuyOrder['BUY_pos']
+                    self.IncSellPos(arOrder, arOrder['SELL_pos'], iLen)
                     arOrder['SELL_org_pos'] = arOrder['SELL_pos']
-                    if arOrder['BUY_id'] != -1 and arOrder['BUY_pos'] > -1 and arOrder['BUY_pos'] != iOldBuyPos:
-                        self.client.CallPlaceOrder(strSymbol, arPrice[arOrder['BUY_pos']], arOrder['size'], 'BUY', arOrder['BUY_id'])
+                    if arBuyOrder['BUY_id'] != -1 and arBuyOrder['BUY_pos'] > -1 and arBuyOrder['BUY_pos'] != iOldBuyPos:
+                        self.client.CallPlaceOrder(strBuySymbol, arBuyOrder['price'][arBuyOrder['BUY_pos']], arBuyOrder['size'], 'BUY', arBuyOrder['BUY_id'])
                 elif status == 'Cancelled':
                     arOrder['SELL_id'] = -1
                     arOrder['SELL_pos'] = -1
@@ -157,35 +180,32 @@ class MyEWrapper(EWrapper):
                 elif status != 'Submitted':
                     print('Unexpected SELL status ' + status)
 
-    def IncSellPos(self, arOrder, strFrom, iLen):
-        arOrder['SELL_pos'] = arOrder[strFrom] + 1
+    def IncSellPos(self, arOrder, iFrom, iLen):
+        arOrder['SELL_pos'] = iFrom + 1
         if arOrder['SELL_pos'] >= iLen:
             arOrder['SELL_pos'] = -1
 
     def LastPriceTrade(self, data):
-        fPrice = data['last_price']
         strSymbol = data['symbol']
-        if strSymbol == 'MES' + self.strCurFuture:
-            fAdjust = self.spx_cal[strSymbol].Calc(fPrice)
+        if strSymbol.startswith('MES'):
+            fAdjust = self.spx_cal[strSymbol].Calc(data['last_price'])
             if fAdjust > 1.0:
                 arOrder = self.arOrder[strSymbol]
-                arOld = arOrder['price']
                 arNew = AdjustPriceArray(self.arOrder['SPX']['price'], fAdjust)
                 for iIndex in range(len(arNew)):
                     fNew = arNew[iIndex]
-                    if abs(fNew - arOld[iIndex]) > 0.01:
-                        arOld[iIndex] = fNew
-                        if arOrder['SELL_id'] != -1 and arOrder['SELL_pos'] == iIndex:
-                            self.client.CallPlaceOrder(strSymbol, fNew, arOrder['size'], 'SELL', arOrder['SELL_id'])
-                        if arOrder['BUY_id'] != -1 and arOrder['BUY_pos'] == iIndex:
-                            self.client.CallPlaceOrder(strSymbol, fNew, arOrder['size'], 'BUY', arOrder['BUY_id'])
-                arOld = arNew
-                print(self.arOrder[strSymbol])
-        elif strSymbol == 'MES' + self.strNextFuture:
-            fAdjust = self.spx_cal[strSymbol].Calc(fPrice)
+                    if abs(fNew - arOrder['price'][iIndex]) > 0.01:
+                        arOrder['price'][iIndex] = fNew
+                        if strSymbol == self.__get_buy_symbol(strSymbol):
+                            if arOrder['BUY_id'] != -1 and arOrder['BUY_pos'] == iIndex:
+                                self.client.CallPlaceOrder(strSymbol, fNew, arOrder['size'], 'BUY', arOrder['BUY_id'])
+                        if strSymbol == self.__get_sell_symbol(strSymbol):
+                            if arOrder['SELL_id'] != -1 and arOrder['SELL_pos'] == iIndex:
+                                self.client.CallPlaceOrder(strSymbol, fNew, arOrder['size'], 'SELL', arOrder['SELL_id'])
+                print(arOrder)
         elif strSymbol == 'SPX':
             for key in self.spx_cal:
-                self.spx_cal[key].SetPrice(fPrice)
+                self.spx_cal[key].SetPrice(data['last_price'])
     
     def AskPriceTrade(self, data):
         strSymbol = data['symbol']
@@ -245,19 +265,23 @@ class MyEWrapper(EWrapper):
         if iSize > 0:
             strPeerType = self.palmmicro.GetPeerStr(strType)
             fRatio = arResult['ratio']
-            strDebug = str(round((fRatio - 1.0)*100.0, 2)) + '% '
+            strDebug = str(round(fRatio * 100.0, 2)) + '% '
             strDebug += self.GetSellBuyStr(strType) + ' ' + str(iSize) + ' ' + strSymbol + ' at ' + str(data[strPeerType + '_price']) + ' and '
             strDebug += self.GetSellBuyStr(strPeerType) + ' ' + str(arResult['size_hedge']) + ' ' + strHedge + ' at ' + arReply[strType + '_price']
             strHedgeType = strHedge + strType
             if strHedgeType not in self.arDebug or self.arDebug[strHedgeType] != strDebug:
                 self.arDebug[strHedgeType] = strDebug
-                if iSize >= 1 and ((fRatio > 1.001 and strType == 'ask') or (fRatio < 0.999 and strType == 'bid' and self.arHedge[strHedge])):
+                if iSize >= 1 and strHedge not in self.arTQQQ and ((fRatio > 0.001 and strType == 'ask') or (fRatio < -0.001 and strType == 'bid')):
                     print(strDebug)
-                if iSize >= 100 and ((fRatio > 1.01 and strType == 'ask') or (fRatio < 0.995 and strType == 'bid' and self.arHedge[strHedge])):
-                    self.palmmicro.SendMsg(strDebug)
-                    return
+                if iSize >= 100 and ((fRatio > 0.01 and strType == 'ask') or (fRatio < -0.005 and strType == 'bid')):
+                    if strHedge in self.arTQQQ:
+                        self.palmmicro.SendMsg(strDebug, 'tqqq')
+                        return
+                    else:
+                        self.palmmicro.SendMsg(strDebug)
+                        return
                 elif strSymbol == 'KWEB' and strType == 'bid':
-                    self.palmmicro.SendMsg(strDebug, 'rev')
+                    self.palmmicro.SendMsg(strDebug, 'kweb')
                     return
         self.palmmicro.SendOldMsg()
 

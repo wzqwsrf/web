@@ -1,3 +1,4 @@
+import array
 import json
 import math
 import requests
@@ -5,17 +6,23 @@ import time
 
 from _tgprivate import TG_TOKEN
 from _tgprivate import WECHAT_KEY
-from _tgprivate import WECHAT_REV_KEY
+from _tgprivate import WECHAT_KWEB_KEY
+from _tgprivate import WECHAT_TQQQ_KEY
 
 def _get_hedge(arData):
     return float(arData['calibration'])/float(arData['position'])
 
+def _get_hedge2(arData, arHedge):
+    return _get_hedge(arData) / _get_hedge(arHedge)
+
 def _get_hedge_quantity(strType, arData):
     f_quantity = float(arData[strType + '_size']) / 100.0
     f_quantity = math.floor(f_quantity) * 100.0
-    #f_floor = math.floor(f_quantity / arData['hedge'])
-    f_floor = math.floor(f_quantity / _get_hedge(arData))
+    f_floor = math.floor(f_quantity / arData['hedge'])
     return int(f_floor)
+
+def fund_adjust_position(f_position, f_val, f_old_val):
+    return f_position * f_val + (1.0 - f_position) * f_old_val;
 
 def fund_reverse_adjust_position(f_position, f_val, f_old_val):
     return f_val / f_position - f_old_val * (1.0 / f_position - 1.0)
@@ -25,15 +32,20 @@ def qdii_get_peer_val(f_qdii, f_cny, f_calibration):
 
 def _ref_get_peer_val(strType, arData):
     f_qdii = fund_reverse_adjust_position(float(arData['position']), float(arData[strType + '_price']), float(arData['nav']))
-    return str(qdii_get_peer_val(f_qdii, float(arData['CNY']), float(arData['calibration'])))
+    return qdii_get_peer_val(f_qdii, float(arData['CNY']), float(arData['calibration']))
 
+def _ref_get_peer_val2(strType, arData, arHedge):
+    f_index = _ref_get_peer_val(strType, arData)
+    f_index /= float(arHedge['calibration'])
+    return fund_adjust_position(float(arHedge['position']), f_index, float(arHedge['nav']))
 
 class Palmmicro:
     def __init__(self):
         self.arData = {}
         self.iTimer = 0
         self.arSendMsg = {'telegram':{'timer':0, 'count':13, 'msg':'', 'array_msg':[]},
-                          'rev':{'timer':0, 'count':17, 'msg':'', 'array_msg':[]}
+                          'kweb':{'timer':0, 'count':17, 'msg':'', 'array_msg':[]},
+                          'tqqq':{'timer':0, 'count':19, 'msg':'', 'array_msg':[]}
                          }
 
     def GetTelegramChatId(self):
@@ -58,10 +70,18 @@ class Palmmicro:
                             arData['ask_price'] = arItem[7]
                             arData['bid_size'] = int(arItem[10])
                             arData['ask_size'] =  int(arItem[20])
-                            arData['bid_size_hedge'] = _get_hedge_quantity('bid', arData);
-                            arData['ask_size_hedge'] = _get_hedge_quantity('ask', arData);
-                            arData['bid_price_hedge'] = _ref_get_peer_val('bid', arData)
-                            arData['ask_price_hedge'] = _ref_get_peer_val('ask', arData)
+                            if arData['symbol_hedge'] in self.arData:
+                                arHedge = self.arData[arData['symbol_hedge']]
+                                arData['hedge'] = _get_hedge2(arData, arHedge)
+                                arData['position_hedge'] = float(arHedge['position'])
+                                arData['bid_price_hedge'] = _ref_get_peer_val2('bid', arData, arHedge)
+                                arData['ask_price_hedge'] = _ref_get_peer_val2('ask', arData, arHedge)
+                            else:
+                                arData['hedge'] = _get_hedge(arData)
+                                arData['bid_price_hedge'] = _ref_get_peer_val('bid', arData)
+                                arData['ask_price_hedge'] = _ref_get_peer_val('ask', arData)
+                            arData['bid_size_hedge'] = _get_hedge_quantity('bid', arData)
+                            arData['ask_size_hedge'] = _get_hedge_quantity('ask', arData)
             else:
                 print('Failed to send request. Status code:', response.status_code)
         except requests.exceptions.RequestException as e:
@@ -112,7 +132,7 @@ class Palmmicro:
         if iCur - self.iTimer < 19:
             return self.arData
         self.iTimer = iCur
-        strSymbols = ','.join(arSymbol.keys())
+        strSymbols = ','.join(arSymbol)
         if not self.arData:
             self.FetchPalmmicroData(strSymbols)
         self.FetchSinaData(strSymbols)
@@ -126,7 +146,7 @@ class Palmmicro:
             return 'ask'
     
     def GetArbitrageResult(self, symbol, arPeerData, strType):
-        arResult = {'ratio': 1.0, 'size': 0}
+        arResult = {'ratio': 0.0, 'size': 0}
         strPeerType = self.GetPeerStr(strType) 
         price = arPeerData[strPeerType + '_price']
         size = arPeerData[strPeerType + '_size'] 
@@ -134,11 +154,13 @@ class Palmmicro:
         strSizeIndex = strType + '_size'
         if strSizeIndex in arReply:
             if arReply[strSizeIndex] > 0 and price > 0:
-                arResult['ratio'] = round(price / float(arReply[strType + '_price_hedge']), 4)
+                fRatio = price / arReply[strType + '_price_hedge'] - 1.0
+                if 'position_hedge' in arReply:
+                    fRatio /= arReply['position_hedge']
+                arResult['ratio'] = round(fRatio, 4)
                 iSize = min(size, arReply[strType + '_size_hedge'])
                 arResult['size'] = iSize;
-                #arResult['size_hedge'] = int((iSize * arReply['hedge'] + 50) / 100) * 100
-                arResult['size_hedge'] = int((float(iSize) * _get_hedge(arReply) + 50.0) / 100.0) * 100
+                arResult['size_hedge'] = int((float(iSize) * arReply['hedge'] + 50.0) / 100.0) * 100
         return arResult
     
     def IsFree(self, group):
@@ -185,16 +207,18 @@ class Palmmicro:
     def SendWechatMsg(self, strMsg, group):
         if group == 'telegram':
             strKey = WECHAT_KEY
-        elif group == 'rev':
-            strKey = WECHAT_REV_KEY
+        elif group == 'kweb':
+            strKey = WECHAT_KWEB_KEY
+        elif group == 'tqqq':
+            strKey = WECHAT_TQQQ_KEY
         self.__send_wechat_msg(strMsg, strKey)
 
     def __send_msg(self, group):
         unique = set(self.arSendMsg[group]['array_msg'])
         str = '\n\n'.join(unique)
         self.SendWechatMsg(str, group)
-        if group == 'telegram':
-            self.SendTelegramMsg(str)
+        #if group == 'telegram':
+            #self.SendTelegramMsg(str)
         self.arSendMsg[group]['array_msg'].clear()
 
     def SendMsg(self, strMsg, group='telegram'):
@@ -205,12 +229,10 @@ class Palmmicro:
                 self.__send_msg(group)
 
     def SendOldMsg(self):
-        for key, value in self.arSendMsg.items():
-            #print('group', key, value)
-            if self.IsFree(key):
+        for group, value in self.arSendMsg.items():
+            if self.IsFree(group):
                 if len(value['array_msg']) > 0:
-                    self.__send_msg(key)
-
+                    self.__send_msg(group)
 
 
 class Calibration:

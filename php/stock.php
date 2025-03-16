@@ -245,7 +245,7 @@ function _getAllSymbolArray($strSymbol)
         else if (in_arrayQdii($strSymbol))
         {
         	if ($strEstSymbol = QdiiGetEstSymbol($strSymbol))		_addFundPairSymbol($ar, $strEstSymbol);
-        	if ($strRtEtfSymbol = QdiiGetRtEtfSymbol($strSymbol))	_addFundPairSymbol($ar, $strRtEtfSymbol);
+//        	if ($strRtEtfSymbol = QdiiGetRtEtfSymbol($strSymbol))	_addFundPairSymbol($ar, $strRtEtfSymbol);
         }
         else if (in_arrayQdiiHk($strSymbol))
         {

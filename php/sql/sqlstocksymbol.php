@@ -259,7 +259,6 @@ function SqlDeleteStockHistory($strStockId)
 		}
 	}
 }
-
 /*
 function SqlGetHisByDate($strStockId, $strDate)
 {
@@ -267,7 +266,6 @@ function SqlGetHisByDate($strStockId, $strDate)
 	return $his_sql->GetClose($strStockId, $strDate);
 }
 */
-
 function GetStockEmaSql($iDays)
 {
 	global $g_stock_sql;

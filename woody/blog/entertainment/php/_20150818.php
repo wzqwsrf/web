@@ -310,11 +310,6 @@ function Echo20160615($strHead)
 END;
 }
 
-function _getQdiiLink()
-{
-	return GetNameLink('qdii');
-}
-
 function EchoPage20160818($strPage)
 {
 	$strHead = GetHeadElement(_getStockMenuTag($strPage).'中考虑当日CL交易情况后的T+1估值');
@@ -585,7 +580,7 @@ function Echo20180404($strHead)
 	$strIntSql = GetCodeElement('IntSql');
 	$strPairSql = GetCodeElement('PairSql');
 	$strStockPairSql = GetCodeElement('StockPairSql');
-	$strQDII = _getQdiiLink();
+	$strQDII = _getStockMenuLink('qdii');
 	$strCalibrationHistory = GetNameLink('calibrationhistory', CALIBRATION_HISTORY_DISPLAY);
 	$strQuote = GetBlockquoteElement('Life is like a snowball. The important thing is finding wet snow and a really long hill. — Warren Buffett');
 	
@@ -685,7 +680,7 @@ function Echo20191025($strHead)
 	$strNavHistory = GetNameLink('netvaluehistory', NETVALUE_HISTORY_DISPLAY);
 	$strNavHistoryLink = GetNetValueHistoryLink(FUND_DEMO_SYMBOL, 'num=0', '统计');
 	$strFundPositionLink = GetFundPositionLink(FUND_DEMO_SYMBOL);
-	$strQDII = _getQdiiLink();
+	$strQDII = _getStockMenuLink('qdii');
 	$strSZ160216 = GetFundPositionLink('SZ160216', true);
 	$strLof = _getLofLink();
 	$strSH501018Tag = _getStockTag('SH501018');
@@ -869,7 +864,7 @@ END;
 function Echo20230525($strPage)
 {
 	$strHead = GetHeadElement('增加'._getStockMenuTag($strPage).'的估值');
-	$strQDII = _getQdiiLink();
+	$strQDII = _getStockMenuLink('qdii');
 	$strQdiiJp = _getStockMenuLink('qdiijp');
 	$strSH513030 = GetGroupStockLink('SH513030', true);
 	$strSH513080 = GetGroupStockLink('SH513080', true);

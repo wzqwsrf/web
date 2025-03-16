@@ -136,6 +136,11 @@ function ImgBelieveMe($bChinese = true)
 	return ImgAutoQuote(PATH_BLOG_PHOTO.'believe.jpg', ($bChinese ? '至于你信不信，我反正信了。' : 'You believe it or not, I believe it anyway.'), $bChinese);
 }
 
+function ImgFreeFood($bChinese = true)
+{
+	return ImgAutoQuote(PATH_BLOG_PHOTO.'freefood.jpg', ($bChinese ? '又要到饭了兄弟们' : 'I got free food again!'), $bChinese);
+}
+
 function ImgAlwaysWin()
 {
 	return ImgAutoQuote(PATH_BLOG_PHOTO.'linqingxia.jpg', '东方不败林青霞');
@@ -190,7 +195,7 @@ function ImgStockGroup($strPage)
 
     case 'lof':
 //    	return GetWoodyImgQuote('nvda.png', '老黄路边KTV');
-		return ImgAutoQuote(PATH_BLOG_PHOTO.'freefood.jpg', '又要到饭了兄弟们');
+		return ImgFreeFood();
     	
     case 'mscius50':
     	return ImgBelieveMe();

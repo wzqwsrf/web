@@ -26,6 +26,10 @@ function GetBlogLink($iDate, $bChinese = true, $bLink = true)
 	
 	switch ($iDate)
 	{
+	case 20250223:
+		$strDisplay = $bChinese ? '美股夜盘' : 'Overnight Trading';
+		break;
+		
 	case 20230614:
 		$strDisplay = $bChinese ? '美元利息' : 'USD Interest';
 		break;
@@ -81,6 +85,10 @@ function GetBlogTitle($iDate, $bChinese = true, $bLink = true)
 	$strDisplay = GetBlogLink($iDate, $bChinese, $bLink); 
 	switch ($iDate)
 	{
+	case 20250223:
+		$strTitle = $bChinese ? '一个新的'.$strDisplay.'跨市场套利软件工具' : 'A New Arbitrage Software Tool for '.$strDisplay;
+		break;
+		
 	case 20230614:
 		$strTitle = $bChinese ? '纳斯达克100期货升水和'.$strDisplay.'的关系' : 'Nasdaq 100 Futures Premium and '.$strDisplay;
 		break;

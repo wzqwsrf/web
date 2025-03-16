@@ -8,6 +8,7 @@ function GetMetaDescription()
 
 function EchoAll()
 {
+	$strOvernightTrading = GetBlogTitle(20250223);
 	$strUsdInterest = GetBlogTitle(20230614);
 	$strSnowball = GetBlogTitle(20201205);
 	$strNasdaq100 = GetBlogTitle(20200915);
@@ -19,7 +20,9 @@ function EchoAll()
 	$strPHP = GetBlogTitle(20100905);
 	
     echo <<<END
-<p>$strUsdInterest
+<p>
+$strOvernightTrading
+<br />$strUsdInterest
 <br />$strSnowball
 <br />$strNasdaq100
 <br />$strFuturesPremium

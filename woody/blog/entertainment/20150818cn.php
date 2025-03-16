@@ -193,7 +193,7 @@ function Echo20210624($strHead)
 {
 	$strHead = GetHeadElement($strHead);
 	$strKWEB = GetHoldingsLink('KWEB', false);
-	$strQDII = _getQdiiLink();
+	$strQDII = _getStockMenuLink('qdii');
 	$strSZ164906 = GetGroupStockLink('SZ164906');
 	$strFundHistory = GetNameLink('fundhistory', FUND_HISTORY_DISPLAY);
 	$strLof = _getLofLink();
@@ -227,6 +227,23 @@ END;
 	Echo20230530('增加全球芯片LOF和海外科技LOF的估值');
 	EchoPage20240419('qqqfund');
 	Echo20240606('印度基金LOF的实时估值');
+	
+function Echo20250316($strHead)
+{
+	$strHead = GetHeadElement($strHead);
+	$strQdii = _getStockMenuLink('qdii');
+	$strOvernightTrading = GetBlogLink(20250223);
+	
+    echo <<<END
+	$strHead
+<p>2025年3月16日
+<br />在{$strQdii}中写过，实时估值用于做美油期货CL和SZ162411的对冲交易。这本身其实是一个很模糊的对冲，SZ162411和XOP一样同时受美股大盘的影响，不光是跟油价，而且天然气价格对它们的一些成分股价格也有很大的影响。
+随着从去年开始的美股OVERNIGHT夜盘交易的流动性越来越好，用夜盘XOP实时对冲SZ162411显然是更好更正确的选择，因此我新写了{$strOvernightTrading}工具，然后今天减掉了华宝油气等四个原油股票基金在老的网页和公众号上的实时估值部分。
+</p>
+END;
+}
+
+	Echo20250316('华宝油气不再需要实时估值');
 ?>
 
 </div>

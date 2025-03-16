@@ -146,10 +146,11 @@ function EchoFundEstParagraph($ref)
     	$col = $bFair ? $arColumn[6] : $arColumn[4]; 
     	$est_ref = $ref->GetEstRef();
     	$realtime_ref = $ref->GetRealtimeRef();
-    	$rt_etf_ref = $ref->GetRtEtfRef();
+//    	$rt_etf_ref = $ref->GetRtEtfRef();
     
-    	$str .= $col->GetDisplay().$realtime_ref->GetMyStockLink().'和'.SymCalibrationHistoryLink($rt_etf_ref);
-    	if ($rt_etf_ref != $est_ref)	$str .= '、'.$est_ref->GetMyStockLink().'和'.$rt_etf_ref->GetMyStockLink();
+//    	$str .= $col->GetDisplay().$realtime_ref->GetMyStockLink().'和'.SymCalibrationHistoryLink($rt_etf_ref);
+    	$str .= $col->GetDisplay().$realtime_ref->GetMyStockLink().'和'.SymCalibrationHistoryLink($est_ref);
+//    	if ($rt_etf_ref != $est_ref)	$str .= '、'.$est_ref->GetMyStockLink().'和'.$rt_etf_ref->GetMyStockLink();
     	$str .= '关联程度按照100%估算。';
     }
     

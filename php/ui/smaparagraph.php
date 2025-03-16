@@ -288,7 +288,8 @@ function EchoFutureSmaParagraph($ref, $callback2 = false)
 	{
 		if ($fPremium = RefGetFuturePremium($realtime_ref))
 		{
-			EchoCalibrationHistoryParagraph($ref->GetRtEtfRef(), 0, 1);
+//			EchoCalibrationHistoryParagraph($ref->GetRtEtfRef(), 0, 1);
+			EchoCalibrationHistoryParagraph($ref->GetEstRef(), 0, 1);
 			$str = '理论溢价：'.strval_round($fPremium, 4).' '.GetStockOptionLink(STOCK_OPTION_PREMIUM, $realtime_ref->GetSymbol());
 			EchoSmaParagraph($ref->GetEstRef(), $str, $realtime_ref, '_callbackFutureSma', $callback2);
 		}
