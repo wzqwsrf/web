@@ -189,7 +189,7 @@ class FundPairReference extends MyPairReference
 		$strDate = $this->GetDate();
 		$strPrice = $this->GetPrice();
 		
-		$fFactor = $this->GetFactor($this->pair_ref->GetPrice(), $strPrice, $strDate);
+		$fFactor = $this->CalcFactor($this->pair_ref->GetPrice(), $strPrice, $strDate);
 		$calibration_sql = GetCalibrationSql();
         $calibration_sql->WriteDailyAverage($strStockId, $strDate, strval($fFactor));
         			
@@ -210,7 +210,7 @@ class FundPairReference extends MyPairReference
 		{
 			if ($strPairNav = PairNavGetClose($this->pair_ref, $strDate))	
 			{
-				$fFactor = $this->GetFactor($strPairNav, $strNav, $strDate);
+				$fFactor = $this->CalcFactor($strPairNav, $strNav, $strDate);
 				$calibration_sql->WriteDaily($strStockId, $strDate, strval($fFactor));
         	
 				$this->LoadCalibration();
@@ -223,7 +223,7 @@ class FundPairReference extends MyPairReference
     	return $this->nav_ref ? $this->nav_ref : $this;
     }
     
- 	function GetFactor($strPairNav, $strNav, $strDate)
+ 	function CalcFactor($strPairNav, $strNav, $strDate)
  	{
  		$fPairNav = floatval($strPairNav); 
  		$fNav = floatval($strNav); 
@@ -231,7 +231,7 @@ class FundPairReference extends MyPairReference
  		{
  			$fCny = $this->cny_ref->GetVal($strDate);
  			if ($this->IsSymbolA())	$fNav /= $fCny;
- 			else						$fNav *= $fCny;
+ 			else					$fNav *= $fCny;
  		}
 		return $fPairNav / $fNav;
  	}

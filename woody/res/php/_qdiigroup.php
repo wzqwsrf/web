@@ -1,7 +1,7 @@
 <?php
 require_once('_fundgroup.php');
 
-function TradingUserDefined($strVal = false)
+function _tradingUserDefined($strVal = false)
 {
 	global $acct;
     
@@ -19,6 +19,17 @@ function TradingUserDefined($strVal = false)
     }
     
    	return GetTableColumnStock($est_ref).GetTableColumnPrice();
+}
+
+function _convertCallback($fRatio, $fFactor)
+{
+	global $acct;
+   	$calibration_sql = GetCalibrationSql();
+    
+	$ref = $acct->GetRef();
+   	$fPosition = RefGetPosition($ref);
+   	$fCalibration = floatval($calibration_sql->GetCloseNow($ref->GetStockId()));
+   	return strval(round(($fCalibration / $fPosition) * ($fRatio / $fFactor)));
 }
 
 class QdiiGroupAccount extends FundGroupAccount 
@@ -76,11 +87,11 @@ class QdiiGroupAccount extends FundGroupAccount
     {
     	$ref = $this->GetRef();
     	
-    	EchoFundTradingParagraph($ref, 'TradingUserDefined');    
+    	EchoFundTradingParagraph($ref, '_tradingUserDefined');    
     	EchoQdiiSmaParagraph($ref);
     	if (count($this->ar_leverage_ref) > 0)	
     	{
-    		EchoFundListParagraph($this->ar_leverage_ref);
+    		EchoFundListParagraph($this->ar_leverage_ref, '_convertCallback');
     		EchoFundPairSmaParagraphs($ref->GetEstRef(), $this->ar_leverage_ref);
     	}
     	EchoFutureSmaParagraph($ref);

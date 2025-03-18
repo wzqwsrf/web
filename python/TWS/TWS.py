@@ -70,9 +70,9 @@ class MyEWrapper(EWrapper):
 
     def nextValidId(self, orderId: int):
         self.arTQQQ = {'SH513100', 'SH513110', 'SH513390', 'SH513870', 'SZ159501', 'SZ159513', 'SZ159632', 'SZ159659', 'SZ159660', 'SZ159696', 'SZ159941'}
-        self.arHedge = {'SZ161125', 'SZ161127', 'SZ161130', 'SZ162411', 'SZ162415', 'SZ164906'} | self.arTQQQ
+        self.arHedge = {'SZ161125', 'SZ161127', 'SZ161130', 'SZ162411', 'SZ162415', 'SZ164906'}
         self.arOrder = {}
-        self.arOrder['KWEB'] = GetOrderArray([20.64, 25.13, 31.23, 32.68, 33.05, 35.39, 35.69, 35.77, 37.73], 200, 6, 8)
+        self.arOrder['KWEB'] = GetOrderArray([20.64, 24.79, 31.53, 33, 35.45, 36.08, 36.11, 37.9, 38.27], 200, 5, 7)
         if IsChinaMarketOpen():
             self.arOrder['SPY'] = GetOrderArray()
             self.arOrder['TQQQ'] = GetOrderArray()
@@ -81,9 +81,9 @@ class MyEWrapper(EWrapper):
             self.arOrder['XOP'] = GetOrderArray()
         else:
         #if IsMarketOpen():
-            self.arOrder['SPX'] = GetOrderArray([3914.56, 5254.99, 5424.61, 5576.86, 5698.52, 5869.28, 6313.95, 6595.41])
-            self.arOrder['MES' + self.strCurFuture] = AdjustOrderArray(self.arOrder['SPX'], 1.0007, 3, -1)
-            self.arOrder['MES' + self.strNextFuture] = AdjustOrderArray(self.arOrder['SPX'], 1.0099, -1, 4)
+            self.arOrder['SPX'] = GetOrderArray([3914.56, 5254.99, 5405.63, 5582.96, 5675.1, 5844.24, 6282.86, 6595.41])
+            self.arOrder['MES' + self.strCurFuture] = AdjustOrderArray(self.arOrder['SPX'], 1.0006, 2, -1)
+            self.arOrder['MES' + self.strNextFuture] = AdjustOrderArray(self.arOrder['SPX'], 1.0098, -1, 3)
         self.palmmicro = Palmmicro()
         self.client.StartStreaming(orderId)
         self.data = {}
@@ -271,30 +271,28 @@ class MyEWrapper(EWrapper):
             strHedgeType = strHedge + strType
             if strHedgeType not in self.arDebug or self.arDebug[strHedgeType] != strDebug:
                 self.arDebug[strHedgeType] = strDebug
-                if iSize >= 1 and strHedge not in self.arTQQQ and ((fRatio > 0.001 and strType == 'ask') or (fRatio < -0.001 and strType == 'bid')):
+                if iSize >= 1 and ((fRatio > 0.001 and strType == 'ask') or (fRatio < -0.001 and strType == 'bid')):
                     print(strDebug)
+                    self.palmmicro.SendMsg(strDebug, 'tqqq')
                 if iSize >= 100 and ((fRatio > 0.01 and strType == 'ask') or (fRatio < -0.005 and strType == 'bid')):
-                    if strHedge in self.arTQQQ:
-                        self.palmmicro.SendMsg(strDebug, 'tqqq')
-                        return
-                    else:
-                        self.palmmicro.SendMsg(strDebug)
-                        return
-                elif strSymbol == 'KWEB' and strType == 'bid':
+                    self.palmmicro.SendMsg(strDebug)
+                    return
+                if strSymbol == 'KWEB' and strType == 'bid':
                     self.palmmicro.SendMsg(strDebug, 'kweb')
                     return
         self.palmmicro.SendOldMsg()
 
     def ProcessPriceAndSize(self, data):
         strSymbol = data['symbol']
-        arPalmmicro = self.palmmicro.FetchData(self.arHedge)
-        for key in self.arHedge:
-            arReply = arPalmmicro[key]
+        arPalmmicro = self.palmmicro.FetchData(self.arHedge | self.arTQQQ)
+        for strHedge in self.arHedge:
+            arReply = arPalmmicro[strHedge]
             if 'symbol_hedge' in arReply and arReply['symbol_hedge'] == strSymbol:
                 for strType in ['ask', 'bid']:
-                    arResult = self.palmmicro.GetArbitrageResult(key, data, strType)
-                    self.DebugPriceAndSize(data, strSymbol, key, arReply, arResult, strType)
-
+                    arResult = self.palmmicro.GetArbitrageResult(strHedge, data, strType)
+                    self.DebugPriceAndSize(data, strSymbol, strHedge, arReply, arResult, strType)
+        #for strHedge in self.arTQQQ:
+            #self.palmmicro.SendMsg(strDebug, 'tqqq')
 
 def GetContractExchange():
     iTime = GetExchangeTime()

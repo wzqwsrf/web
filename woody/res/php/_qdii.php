@@ -54,7 +54,7 @@ function GetQdiiLinks($sym)
    	
    	$ref = $acct->GetRef();
    	if ($realtime_ref = $ref->GetRealtimeRef())		$strRealtimeSymbol = $realtime_ref->GetSymbol();
-   	else												$strRealtimeSymbol = false;
+   	else											$strRealtimeSymbol = false;
 
 	$str = GetJisiluQdiiLink();
 	
@@ -97,7 +97,7 @@ function GetQdiiLinks($sym)
 		$str .= GetQqqSoftwareLinks();
 		$str .= GetXbiSoftwareLinks();
 	}
-	else if ($strRealtimeSymbol == 'hf_CL')
+	else if ($strRealtimeSymbol == 'hf_CL' || in_arrayOilEtfQdii($strSymbol) || in_arrayXopQdii($strSymbol))
 	{
 		$str .= GetOilSoftwareLinks();
 		$str .= GetChinaInternetSoftwareLinks();

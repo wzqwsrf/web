@@ -135,9 +135,14 @@ function _callbackQdiiMixTrading($strVal = false)
     if ($strVal)
     {
     	if ($strVal == '0')	return '';
-    	else		    		return $us_ref->GetPriceDisplay(strval($ref->EstToPair(floatval($strVal))));
+    	else		    	return $us_ref->GetPriceDisplay(strval($ref->EstToPair(floatval($strVal))));
     }
    	return GetTableColumnStock($us_ref).GetTableColumnPrice();
+}
+
+function _callbackFundList($fRatio, $fFactor)
+{
+   	return strval(round($fFactor / $fRatio));
 }
 
 function EchoAll()
@@ -159,7 +164,7 @@ function EchoAll()
 		EchoFundTradingParagraph($ref, '_callbackQdiiMixTrading');
 		EchoHoldingsEstParagraph($us_ref);
 		$pair_ref = $acct->GetPairRef();
-		EchoFundListParagraph(array($pair_ref));
+		EchoFundListParagraph(array($pair_ref), '_callbackFundList');
 		EchoSmaParagraph($us_ref, false, $pair_ref, '_callbackQdiiMixSma');
 	}
 	else	

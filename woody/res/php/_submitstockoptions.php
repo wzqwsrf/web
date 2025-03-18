@@ -313,12 +313,12 @@ function _updateStockOptionCalibration($strSymbol, $strStockId, $strDate, $strVa
 		{
 			$ref = new FundPairReference($strSymbol);
 			YahooGetNetValue($ref);
-			$strVal = strval($ref->GetFactor($strVal, SqlGetNavByDate($strStockId, $strDate), $strDate));
+			$strVal = strval($ref->CalcFactor($strVal, SqlGetNavByDate($strStockId, $strDate), $strDate));
 		}
 		else if ($strSymbol == 'hf_CHA50CFD')
 		{
 			$ref = new FundPairReference($strSymbol);
-			$strVal = strval($ref->GetFactor($strVal, $ref->GetPrice(), $strDate));
+			$strVal = strval($ref->CalcFactor($strVal, $ref->GetPrice(), $strDate));
 		}
 		else
 		{

@@ -73,6 +73,11 @@ class MysqlReference extends StockReference
         return $this->strSqlId;
     }
     
+    function GetFactor()
+    {
+    	return $this->fFactor;
+    }
+    
     function LoadSqlNavData()
     {
     	$nav_sql = GetNavHistorySql();
@@ -118,34 +123,6 @@ class MysqlReference extends StockReference
     	}
     	return $this->strChineseName;
     }
-/*
-    // ETF Factor functions
-    function EstEtf($fVal)
-    {
-        return $fVal / $this->fFactor;
-    }
-    
-    function EstByEtf($fEtf)
-    {
-        return $fEtf * $this->fFactor;
-    }
-    
-    function LoadEtfFactor($etf_ref)
-    {
-    	$strEtfSymbol = $etf_ref->GetSymbol();
-   		$strEtfId = $etf_ref->GetStockId();
-       	$calibration_sql = GetCalibrationSql();
-   		if ($this->IsSinaFuture() && $this->CheckAdjustFactorTime($etf_ref))
-   		{
-   			$this->fFactor = EtfGetCalibration($this->GetPrice(), $etf_ref->GetPrice());
-   			$calibration_sql->WriteDailyAverage($strEtfId, $etf_ref->GetDate(), strval($this->fFactor));
-    	}
-   		else
-   		{
-   			if ($strClose = $calibration_sql->GetCloseNow($strEtfId))	$this->fFactor = floatval($strClose);
-   		}
-        return $this->fFactor;
-    }*/
 }
 
 ?>

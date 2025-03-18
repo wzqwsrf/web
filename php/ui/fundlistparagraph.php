@@ -11,21 +11,30 @@ function _getFundPairLink($ref)
 	return $ref->GetMyStockLink();
 }
 
-function _echoFundListItem($ref, $sql, $last_sql)
+function _echoFundListItem($ref, $sql, $last_sql, $callback)
 {
     $strStockId = $ref->GetStockId();
+    $fRatio = $ref->GetRatio();
+    $fFactor = $ref->GetFactor();
 	$ar = array();
 	
 	$ar[] = SymCalibrationHistoryLink($ref);
     $ar[] = _getFundPairLink($ref->GetPairRef());
-    $ar[] = GetNumberDisplay($ref->fRatio);
-    $ar[] = GetNumberDisplay($ref->fFactor);
+    $ar[] = GetNumberDisplay($fRatio);
+    $ar[] = GetNumberDisplay($fFactor);
     $ar[] = $sql->GetDateNow($strStockId);
-    if ($strVal = $last_sql->ReadVal($strStockId, true))	$ar[] = $ref->GetPriceDisplay($strVal);
+    if ($callback)
+    {
+    	$ar[] = call_user_func($callback, $fRatio, $fFactor);
+    }
+    else
+    {
+    	if ($strVal = $last_sql->ReadVal($strStockId, true))	$ar[] = $ref->GetPriceDisplay($strVal);
+    }
     RefEchoTableColumn($ref, $ar);
 }
 
-function EchoFundListParagraph($arRef)
+function EchoFundListParagraph($arRef, $callback = false)
 {
 	$str = GetFundListLink();
 	EchoTableParagraphBegin(array(new TableColumnSymbol(),
@@ -33,12 +42,12 @@ function EchoFundListParagraph($arRef)
 								   new TableColumnPosition(),
 								   new TableColumnCalibration(),
 								   new TableColumnDate(),
-								   new TableColumn('参考值')
+								   ($callback ? new TableColumnConvert() : new TableColumn('参考值'))
 								   ), 'fundlist', $str);
 	
 	$sql = GetCalibrationSql();
 	$last_sql = new LastCalibrationSql();
-	foreach ($arRef as $ref)		_echoFundListItem($ref, $sql, $last_sql);
+	foreach ($arRef as $ref)		_echoFundListItem($ref, $sql, $last_sql, $callback);
     EchoTableParagraphEnd();
 }
 

@@ -245,23 +245,22 @@ function _getAllSymbolArray($strSymbol)
         else if (in_arrayQdii($strSymbol))
         {
         	if ($strEstSymbol = QdiiGetEstSymbol($strSymbol))		_addFundPairSymbol($ar, $strEstSymbol);
-//        	if ($strRtEtfSymbol = QdiiGetRtEtfSymbol($strSymbol))	_addFundPairSymbol($ar, $strRtEtfSymbol);
         }
         else if (in_arrayQdiiHk($strSymbol))
         {
-        	if ($strEstSymbol = QdiiHkGetEstSymbol($strSymbol))	_addFundPairSymbol($ar, $strEstSymbol);
+        	if ($strEstSymbol = QdiiHkGetEstSymbol($strSymbol))		_addFundPairSymbol($ar, $strEstSymbol);
         }
         else if (in_arrayQdiiJp($strSymbol))
         {
-        	if ($strEstSymbol = QdiiJpGetEstSymbol($strSymbol))	_addFundPairSymbol($ar, $strEstSymbol); 
+        	if ($strEstSymbol = QdiiJpGetEstSymbol($strSymbol))		_addFundPairSymbol($ar, $strEstSymbol); 
         }
         else if (in_arrayQdiiEu($strSymbol))
         {
-        	if ($strEstSymbol = QdiiEuGetEstSymbol($strSymbol))	_addFundPairSymbol($ar, $strEstSymbol); 
+        	if ($strEstSymbol = QdiiEuGetEstSymbol($strSymbol))		_addFundPairSymbol($ar, $strEstSymbol); 
         }
         else
         {
-        	if ($strPairSymbol = SqlGetFundPair($strSymbol))			   		$ar[] = $strPairSymbol;
+        	if ($strPairSymbol = SqlGetFundPair($strSymbol))		$ar[] = $strPairSymbol;
         }
     }
 	else if ($sym->IsSymbolA())

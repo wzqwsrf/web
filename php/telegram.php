@@ -75,7 +75,8 @@ class TelegramCallback
 			if (str_starts_with($text, '@'))
 			{
 				$text = ltrim($text, '@');
-				if ($strChatId == TG_ADMIN_CHAT_ID && UrlGetQueryValue('token') == TG_TOKEN)	
+				$strToken = UrlGetQueryValue('token');
+				if ($strChatId == TG_ADMIN_CHAT_ID && ($strToken == TG_TOKEN || $strToken == TG_TOKEN_ZHU))
 				{
 					$this->ReplyText(GetStockDataArray($text), $strMessageId, $strChatId);
 					return;

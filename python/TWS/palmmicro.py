@@ -45,7 +45,7 @@ class Palmmicro:
         self.iTimer = 0
         self.arSendMsg = {'telegram':{'timer':0, 'count':13, 'msg':'', 'array_msg':[]},
                           'kweb':{'timer':0, 'count':17, 'msg':'', 'array_msg':[]},
-                          'tqqq':{'timer':0, 'count':19, 'msg':'', 'array_msg':[]}
+                          'tqqq':{'timer':0, 'count':7, 'msg':'', 'array_msg':[]}
                          }
 
     def GetTelegramChatId(self):
@@ -145,12 +145,12 @@ class Palmmicro:
         elif strType == 'bid':
             return 'ask'
     
-    def GetArbitrageResult(self, symbol, arPeerData, strType):
+    def GetArbitrageResult(self, strSymbol, arPeerData, strType):
         arResult = {'ratio': 0.0, 'size': 0}
         strPeerType = self.GetPeerStr(strType) 
         price = arPeerData[strPeerType + '_price']
         size = arPeerData[strPeerType + '_size'] 
-        arReply = self.arData[symbol]
+        arReply = self.arData[strSymbol]
         strSizeIndex = strType + '_size'
         if strSizeIndex in arReply:
             if arReply[strSizeIndex] > 0 and price > 0:

@@ -311,6 +311,8 @@ Func _getFundName($strSymbol)
 			$strName = '国泰商品'
 		Case '160416'
 			$strName = '华安量化'
+		Case '160723'
+			$strName = '嘉实原油'
 		Case '161116'
 			$strName = '易基黄金'
 		Case '161125'
@@ -341,11 +343,14 @@ Func _getFundName($strSymbol)
 	return $strName
 EndFunc
 
-Func _addSymbolSpecialKey($idDebug, $strSymbol)
-	If $strSymbol == '160216' Or $strSymbol == '160416' Or $strSymbol == '160717' Or $strSymbol == '161116'  Or $strSymbol == '161125' Or $strSymbol == '161126' Or $strSymbol == '161127' Or $strSymbol == '161128' Or $strSymbol == '161130' Or $strSymbol == '161226' Or $strSymbol == '163208' Or $strSymbol == '164824' Or $strSymbol == '164906' Then
-		;_DlgClickButton($idDebug, '请选择', '深圳股票')
-		$strName = _getFundName($strSymbol)
-		_DlgClickButton($idDebug, '提示', '深圳(' & $strName & ')')
+Func _addSymbolSpecialKey($iSoftware, $idDebug, $strSymbol)
+	If $strSymbol == '160216' Or $strSymbol == '160416' Or $strSymbol == '160717' Or $strSymbol == '160723' Or $strSymbol == '161116'  Or $strSymbol == '161125' Or $strSymbol == '161126' Or $strSymbol == '161127' Or $strSymbol == '161128' Or $strSymbol == '161130' Or $strSymbol == '161226' Or $strSymbol == '163208' Or $strSymbol == '164824' Or $strSymbol == '164906' Then
+		If ($iSoftware == $YINHE)	Then
+			$strName = _getFundName($strSymbol)
+			_DlgClickButton($idDebug, '提示', '深圳(' & $strName & ')')
+		Else
+			_DlgClickButton($idDebug, '请选择', '深圳股票')
+		EndIf
 	EndIf
 EndFunc
 
@@ -442,42 +447,8 @@ Func _clickTreeItem($hWnd, $idDebug, $strLevel1, $strLevel2 = False)
 	_closeNewDlg($idDebug)
 EndFunc
 
-#cs
-Func _yinheAddShenzhenOrderEntry($hWnd, $idDebug, $strControlID, $strAccount, $strSymbol, $strAmount)
-	If _CtlSendString($hWnd, $idDebug, 'Edit1', $strSymbol) Then _addSymbolSpecialKey($idDebug, $strSymbol)
-	ControlCommand($hWnd, '', $strControlID, 'SelectString', $strAccount)
-
-	$strCash = _CtlGetText($hWnd, $idDebug, 'Static6')
-	If Number($strCash, 3) < Number($strAmount, 3) Then
-		_CtlDebug($idDebug, $strSymbol & '申购资金不足')
-		Return False
-	EndIf
-
-	_CtlSetText($hWnd, $idDebug, 'Edit2', $strAmount)
-	ControlClick($hWnd, '', 'Button1')
-	Sleep(1000)
-	_DlgClickButton($idDebug, '基金风险揭示', '我已阅读并同意签署')
-
-	$hFileWnd = WinWait('基金概要文件', '本人已认真阅读并确认上述内容', 10)
-	If $hFileWnd <> 0 Then
-		WinActivate($hFileWnd)
-		ControlClick($hFileWnd, '', 'Button11')	;本人已认真阅读并确认上述内容
-		Sleep(1000)
-		ControlClick($hFileWnd, '', 'Button1')	;确认
-		Sleep(1000)
-	EndIf
-
-	_DlgClickButton($idDebug, '提示信息', '确认')
-	_DlgClickButton($idDebug, '提示', '确认')
-	_DlgClickButton($idDebug, '提示', '确认')
-
-	If _isSingleAccountSymbol($strSymbol) Then	Return False
-	Return True
-EndFunc
-#ce
-
 Func _huabaoAddOrderEntry($hWnd, $idDebug, $strControlID, $strAccount, $strSymbol, $strAmount)
-	If _CtlSendString($hWnd, $idDebug, 'Edit1', $strSymbol) Then _addSymbolSpecialKey($idDebug, $strSymbol)
+	If _CtlSendString($hWnd, $idDebug, 'Edit1', $strSymbol) Then _addSymbolSpecialKey($HUABAO, $idDebug, $strSymbol)
 	ControlCommand($hWnd, '', $strControlID, 'SelectString', $strAccount)
 
 	$strCash = _CtlGetText($hWnd, $idDebug, 'Static24')
@@ -512,6 +483,8 @@ Func _getFundAmount($strSymbol)
 			$strAmount = '10000'
 		Case '160416'
 			$strAmount = '2000'
+		Case '160723'
+			$strAmount = '100'
 		Case '161116'
 			$strAmount = '100'
 		Case '161125'
@@ -546,7 +519,7 @@ Func YinheOrderFund($hWnd, $idDebug, $strSymbol)
 	$strAmount = _getFundAmount($strSymbol)
 	_clickTreeItem($hWnd, $idDebug, '场内开放式基金', '多股东基金申购')
 	_CtlWaitText($hWnd, $idDebug, 'Static1', '基金代码:')
-	If _CtlSendString($hWnd, $idDebug, 'Edit1', $strSymbol) Then _addSymbolSpecialKey($idDebug, $strSymbol)
+	If _CtlSendString($hWnd, $idDebug, 'Edit1', $strSymbol) Then _addSymbolSpecialKey($YINHE, $idDebug, $strSymbol)
 	$strCash = _CtlGetText($hWnd, $idDebug, 'Static5')
 
 	$strControlID = 'SysListView321'
@@ -658,7 +631,7 @@ Func _sendSellQuantity($hWnd, $idDebug, $iTotal = 0, $strCtlAvailable = 'Static8
 EndFunc
 
 Func _yinheAddShenzhenRedeemEntry($hWnd, $idDebug, $strSymbol, $strSellQuantity, ByRef $iRemainQuantity)
-	If _CtlSendString($hWnd, $idDebug, 'Edit1', $strSymbol) Then _addSymbolSpecialKey($idDebug, $strSymbol)
+	If _CtlSendString($hWnd, $idDebug, 'Edit1', $strSymbol) Then _addSymbolSpecialKey($YINHE, $idDebug, $strSymbol)
 
 	$iSell = _sendSellQuantity($hWnd, $idDebug, $iRemainQuantity, 'Static9', 'Edit2')
 	If $iSell > 0 Then
@@ -689,8 +662,8 @@ Func YinheRedeemFund($hWnd, $idDebug, $strSymbol, $strSellQuantity, ByRef $iRema
 	Return True
 EndFunc
 
-Func _sendSellSymbol($hWnd, $idDebug, $strSymbol)
-	If _CtlSendString($hWnd, $idDebug, 'AfxWnd423', $strSymbol) Then _addSymbolSpecialKey($idDebug, $strSymbol)
+Func _sendSellSymbol($hWnd, $iSoftware, $idDebug, $strSymbol)
+	If _CtlSendString($hWnd, $idDebug, 'AfxWnd423', $strSymbol) Then _addSymbolSpecialKey($iSoftware, $idDebug, $strSymbol)
 EndFunc
 
 Func _getSellStaticIndex($iSoftware, $iIndex)
@@ -718,10 +691,9 @@ Func _clickTreeSell($hWnd, $iSoftware, $idDebug)
 EndFunc
 
 Func _addSellEntry($hWnd, $iSoftware, $idDebug, $strSymbol, $strPrice, $strSellQuantity, ByRef $iRemainQuantity)
-	_sendSellSymbol($hWnd, $idDebug, $strSymbol)
+	_sendSellSymbol($hWnd, $iSoftware, $idDebug, $strSymbol)
 	$strPriceControl = 'Edit2'
 	$strSuggestedPrice = _CtlGetText($hWnd, $idDebug, $strPriceControl)
-;	_DlgCloseButton($idDebug, '请选择', '深圳股票')
 	If $strPrice <> '' Then
 		If $strSuggestedPrice <> $strPrice Then	_CtlSetText($hWnd, $idDebug, $strPriceControl, $strPrice)
 	EndIf
@@ -771,8 +743,7 @@ Func RunSell($hWnd, $iSoftware, $idDebug, $strSymbol, $strPrice, $strSellQuantit
 EndFunc
 
 Func _addMoneyMangeEntry($hWnd, $iSoftware, $idDebug)
-;	_sendSellSymbol($hWnd, $idDebug, '131810')
-	_sendSellSymbol($hWnd, $idDebug, '204001')
+	_sendSellSymbol($hWnd, $iSoftware, $idDebug, '204001')
 	$strPriceControl = 'Edit2'
 	$strSuggestedPrice = _CtlGetText($hWnd, $idDebug, $strPriceControl)
 	$fPrice = Number($strSuggestedPrice, 3)
@@ -1101,7 +1072,7 @@ Func _loadListViewAccount($iSoftware, $idListViewAccount, ByRef $arCheckboxAccou
 EndFunc
 
 Func AppMain()
-	$idFormMain = GUICreate("通达信单独委托版全自动拖拉机0.80", 803, 506, 289, 0)
+	$idFormMain = GUICreate("通达信单独委托版全自动拖拉机0.81", 803, 506, 289, 0)
 
 	$idListViewAccount = GUICtrlCreateListView("客户号", 24, 24, 146, 454, BitOR($GUI_SS_DEFAULT_LISTVIEW,$WS_VSCROLL), BitOR($WS_EX_CLIENTEDGE,$LVS_EX_CHECKBOXES))
 	GUICtrlSendMsg(-1, $LVM_SETCOLUMNWIDTH, 0, 118)
@@ -1112,7 +1083,7 @@ Func AppMain()
 
 	$idLabelSymbol = GUICtrlCreateLabel("基金代码", 192, 24, 52, 17)
 	$idListSymbol = GUICtrlCreateList("", 192, 48, 121, 97)
-	GUICtrlSetData(-1, '160216|160416|160717|161116|161125|161126|161127|161128|161130|161226|162411|162415|163208|164824|164906|501225|510300', _getProfileString('Symbol', '161128'))
+	GUICtrlSetData(-1, '160216|160416|160717|160723|161116|161125|161126|161127|161128|161130|161226|162411|162415|163208|164824|164906|501225|510300', _getProfileString('Symbol', '161128'))
 
 	$idLabelSellPrice = GUICtrlCreateLabel("卖出价格", 192, 160, 52, 17)
 	$idInputSellPrice = GUICtrlCreateInput("", 192, 184, 121, 21)

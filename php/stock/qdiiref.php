@@ -39,14 +39,14 @@ function QdiiGetStockPosition($strEstPrev, $strEst, $strPrev, $strNetValue, $str
 // https://markets.ft.com/data/indices/tearsheet/charts?s=SPGOGUP:REU
 function QdiiGetEstSymbol($strSymbol)
 {
-    if (in_arrayXopQdii($strSymbol))					return 'XOP';	// '^SPSIOP'
+    if (in_arrayXopQdii($strSymbol))				return 'XOP';	// '^SPSIOP'
     else if ($strSymbol == 'SZ162719')   			return 'IEO'; // '^DJSOEP'
     else if ($strSymbol == 'SZ162415')   			return 'XLY';	// '^IXY'
     else if (in_arrayOilQdii($strSymbol)) 			return 'USO';
     else if ($strSymbol == 'SZ160140')   			return 'SCHH';
     else if ($strSymbol == 'SZ160416')   			return 'IXC';	// '^SPGOGUP'
     else if ($strSymbol == 'SZ161126')   			return 'XLV';
-    else if (in_arrayXbiQdii($strSymbol))   			return 'XBI';
+    else if (in_arrayXbiQdii($strSymbol))   		return 'XBI';
     else if ($strSymbol == 'SZ161128')   			return 'XLK';
     else if ($strSymbol == 'SZ163208')   			return 'XLE';
     else if ($strSymbol == 'SZ164824')   			return 'INDA';
@@ -60,19 +60,12 @@ function QdiiGetEstSymbol($strSymbol)
     else 
         return false;
 }
-/*
-function QdiiGetRtEtfSymbol($strSymbol)
-{
-    if (in_arrayOilEtfQdii($strSymbol) || in_arrayXopQdii($strSymbol))     return 'USO';
-    else
-    	return false;
-}
-*/
+
 function QdiiHkGetEstSymbol($strSymbol)
 {
-    if ($strSymbol == 'SH501025')   		 			return 'SH000869';	// '03143'
-    else if (in_arrayTechQdiiHk($strSymbol))			return '^HSTECH';
-    else if (in_arrayHangSengQdiiHk($strSymbol))		return '^HSI';		// '02800'
+    if ($strSymbol == 'SH501025')   		 		return 'SH000869';	// '03143'
+    else if (in_arrayTechQdiiHk($strSymbol))		return '^HSTECH';
+    else if (in_arrayHangSengQdiiHk($strSymbol))	return '^HSI';		// '02800'
     else if (in_arrayHSharesQdiiHk($strSymbol))		return '^HSCE';	// '02828'
     else 
         return false;
@@ -81,7 +74,7 @@ function QdiiHkGetEstSymbol($strSymbol)
 function QdiiJpGetEstSymbol($strSymbol)
 {
     if ($strSymbol == 'SH513800')   		 		return 'znb_TPX';
-	else if (in_arrayNkyQdiiJp($strSymbol))		return 'znb_NKY';
+	else if (in_arrayNkyQdiiJp($strSymbol))			return 'znb_NKY';
     else 
         return false;
 }
@@ -89,7 +82,7 @@ function QdiiJpGetEstSymbol($strSymbol)
 function QdiiEuGetEstSymbol($strSymbol)
 {
     if ($strSymbol == 'SH513080')   		 		return 'znb_CAC';
-	else if (in_arrayDaxQdiiEu($strSymbol))		return 'znb_DAX';
+	else if (in_arrayDaxQdiiEu($strSymbol))			return 'znb_DAX';
     else 
         return false;
 }
@@ -181,16 +174,6 @@ class _QdiiReference extends FundReference
         
 		if ($realtime_ref = $this->GetRealtimeRef())
         {
-/*            if ($this->rt_etf_ref == false)
-            {
-                $this->rt_etf_ref = $est_ref;
-            }
-            $fRealtime = $this->rt_etf_ref->EstFromPair();
-            if ($this->rt_etf_ref != $est_ref)
-            {
-            	$fRealtime /= $this->rt_etf_ref->GetVal();
-            	$fRealtime *= floatval($this->_getEstVal($strDate));
-            }*/
             $fRealtime = $est_ref->EstFromPair();
            	$this->fRealtimeNetValue = $this->GetQdiiValue(strval($fRealtime));
         }
@@ -267,11 +250,6 @@ class QdiiReference extends _QdiiReference
         {
         	$this->est_ref = new FundPairReference($strEstSymbol);
         }
-/*        if ($strRtEtfSymbol = QdiiGetRtEtfSymbol($strSymbol))
-        {
-            $this->rt_etf_ref = new FundPairReference($strRtEtfSymbol);
-        }*/
-       
         $this->EstNetValue();
     }
 }
