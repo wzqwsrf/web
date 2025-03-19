@@ -305,12 +305,32 @@ Func AppClose($hWnd, $idDebug)
 	_DlgClickButton($idDebug, '退出确认', '退出系统')
 EndFunc
 
-Func _getFundName($strSymbol)
+Func _getHuabaoFundName($strSymbol)
+	Switch $strSymbol
+		Case '160216'
+			$strName = '国泰商品LOF'
+		Case '160416'
+			$strName = '石油基金LOF'
+		Case '160717'
+			$strName = 'H股LOF'
+		Case '160723'
+			$strName = '嘉实原油LOF'
+		Case '163208'
+			$strName = '全球油气能源LOF'
+		Case Else
+			$strName = False
+	EndSwitch
+	return $strName
+EndFunc
+
+Func _getYinheFundName($strSymbol)
 	Switch $strSymbol
 		Case '160216'
 			$strName = '国泰商品'
 		Case '160416'
-			$strName = '华安量化'
+			$strName = '石油基金'
+		Case '160717'
+			$strName = '恒生H股'
 		Case '160723'
 			$strName = '嘉实原油'
 		Case '161116'
@@ -327,30 +347,31 @@ Func _getFundName($strSymbol)
 			$strName = '纳指LOF'
 		Case '161226'
 			$strName = '白银基金'
-		Case '162411'
-			$strName = '华宝油气'
-		Case '162415'
-			$strName = '美国消费'
 		Case '163208'
 			$strName = '诺安油气'
 		Case '164824'
 			$strName = '印度基金'
 		Case '164906'
 			$strName = '中国互联'
-		Case '501225'
-			$strName = '全球芯片'
+		Case Else
+			$strName = False
 	EndSwitch
 	return $strName
 EndFunc
 
+Func _getFundName($iSoftware, $strSymbol)
+	If ($iSoftware == $YINHE)	Then
+		$strName = _getYinheFundName($strSymbol)
+	Else
+		$strName = _getHuabaoFundName($strSymbol)
+	EndIf
+	return $strName
+EndFunc
+
 Func _addSymbolSpecialKey($iSoftware, $idDebug, $strSymbol)
-	If $strSymbol == '160216' Or $strSymbol == '160416' Or $strSymbol == '160717' Or $strSymbol == '160723' Or $strSymbol == '161116'  Or $strSymbol == '161125' Or $strSymbol == '161126' Or $strSymbol == '161127' Or $strSymbol == '161128' Or $strSymbol == '161130' Or $strSymbol == '161226' Or $strSymbol == '163208' Or $strSymbol == '164824' Or $strSymbol == '164906' Then
-		If ($iSoftware == $YINHE)	Then
-			$strName = _getFundName($strSymbol)
-			_DlgClickButton($idDebug, '提示', '深圳(' & $strName & ')')
-		Else
-			_DlgClickButton($idDebug, '请选择', '深圳股票')
-		EndIf
+	$strName = _getFundName($iSoftware, $strSymbol)
+	If  $strName <> False Then
+		_DlgClickButton($idDebug, '提示', '深圳(' & $strName & ')')
 	EndIf
 EndFunc
 
@@ -483,34 +504,14 @@ Func _getFundAmount($strSymbol)
 			$strAmount = '10000'
 		Case '160416'
 			$strAmount = '2000'
-		Case '160723'
-			$strAmount = '100'
-		Case '161116'
-			$strAmount = '100'
-		Case '161125'
-			$strAmount = '100'
-		Case '161126'
-			$strAmount = '100'
-		Case '161127'
-			$strAmount = '100'
-		Case '161128'
-			$strAmount = '100'
-		Case '161130'
-			$strAmount = '100'
 		Case '161226'
-			$strAmount = '50000'
-		Case '162411'
-			$strAmount = '100'
-		Case '162415'
-			$strAmount = '100'
-		Case '163208'
-			$strAmount = '100'
-		Case '164824'
-			$strAmount = '100'
+			$strAmount = '10000'
 		Case '164906'
 			$strAmount = '10000'
 		Case '501225'
 			$strAmount = '1000'
+		Case Else
+			$strAmount = '100'
 	EndSwitch
 	return $strAmount
 EndFunc
@@ -1072,7 +1073,7 @@ Func _loadListViewAccount($iSoftware, $idListViewAccount, ByRef $arCheckboxAccou
 EndFunc
 
 Func AppMain()
-	$idFormMain = GUICreate("通达信单独委托版全自动拖拉机0.81", 803, 506, 289, 0)
+	$idFormMain = GUICreate("通达信单独委托版全自动拖拉机0.82", 803, 506, 289, 0)
 
 	$idListViewAccount = GUICtrlCreateListView("客户号", 24, 24, 146, 454, BitOR($GUI_SS_DEFAULT_LISTVIEW,$WS_VSCROLL), BitOR($WS_EX_CLIENTEDGE,$LVS_EX_CHECKBOXES))
 	GUICtrlSendMsg(-1, $LVM_SETCOLUMNWIDTH, 0, 118)
@@ -1102,9 +1103,9 @@ Func AppMain()
 
 	$GroupSoftware = GUICtrlCreateGroup("软件", 336, 400, 225, 81)
 	$iSoftware = 0
-	$RadioYinhe = GUICtrlCreateRadio("银河证券海王星单独委托版3.21", 352, 424, 193, 17)
+	$RadioYinhe = GUICtrlCreateRadio("银河证券海王星单独委托版3.23", 352, 424, 193, 17)
 	GUICtrlSetState(-1, _getRadioState($RadioYinhe, $iSoftware, 'Yinhe', $GUI_CHECKED))
-	$RadioHuabao = GUICtrlCreateRadio("华宝证券通达信版独立交易8.21", 352, 448, 193, 17)
+	$RadioHuabao = GUICtrlCreateRadio("华宝证券通达信版独立交易8.25", 352, 448, 193, 17)
 	GUICtrlSetState(-1, _getRadioState($RadioHuabao, $iSoftware, 'Huabao', $GUI_UNCHECKED))
 	GUICtrlCreateGroup("", -99, -99, 1, 1)
 	$iMax = _onRadioSoftware($iSoftware, $RadioYinhe, $RadioHuabao)

@@ -2,7 +2,7 @@
 require_once('_stock.php');
 require_once('../../php/ui/imagedisp.php');
 
-define('YINHE_AU3_VER', '81');
+define('YINHE_AU3_VER', '82');
 
 function EchoAll()
 {
@@ -10,9 +10,9 @@ function EchoAll()
     
     EchoHtmlElement(GetRemarkElement('完整软件安装步骤：'));
     $strNepturnLink = GetExternalLink('https://www.chinastock.com.cn/newsite/online/downloadCenterDetail.html?softName=neptune', '银河证券官网');
-    $strNepturn = GetBoldElement('海王星单独委托版3.21');
+    $strNepturn = GetBoldElement('海王星单独委托版3.23');
     $strHuabaoLink = GetExternalLink('https://www.cnhbstock.com/view/software/software.html?col=0', '华宝证券官网');
-    $strHuabao = GetBoldElement('通达信版独立交易8.21');
+    $strHuabao = GetBoldElement('通达信版独立交易8.25');
     $strAutoIt =  GetBoldElement('AutoIt3.exe');
     $strAutoItFull =  GetBoldElement('C:\Program Files (x86)\AutoIt3\AutoIt3.exe');
     echo GetListElement(array('在'.$strNepturnLink.'下载并在缺省路径C:\中国银河证券海王星独立交易\Tc.exe位置安装'.$strNepturn.'，桌面图标会显示'.GetInfoElement('中国银河证券海王星独立交易').'，注意它不同于'.GetFontElement('海王星金融终端').'软件。VPN下在银河官网下载经常会停留在8M字节不动，要关闭后才能完整下载。',
