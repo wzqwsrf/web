@@ -255,17 +255,6 @@ function _updateStockOptionSplit($ref, $strSymbol, $strStockId, $his_sql, $strDa
 	}
 }
 
-function _adjustQdiiCalibration($calibration_sql, $strQdii, $strDate, $fNewNav, $fNav)
-{
-	$strQdiiId = SqlGetStockId($strQdii);
-	if ($strClose = $calibration_sql->GetClose($strQdiiId, $strDate))
-	{
-		DebugString(__FUNCTION__.' '.$strQdii.' Change calibaration on '.$strDate);
-		$fFactor = floatval($strClose) * $fNewNav / $fNav;
-		$calibration_sql->WriteDaily($strQdiiId, $strDate, strval($fFactor));
-	}
-}
-
 function _updateStockOptionDividend($ref, $strSymbol, $strStockId, $his_sql, $strDate, $strVal)
 {
 	$sql = new StockDividendSql();
@@ -274,29 +263,54 @@ function _updateStockOptionDividend($ref, $strSymbol, $strStockId, $his_sql, $st
 		DebugString('Dividend updated');
        	$calibration_sql = GetCalibrationSql();
 		$nav_sql = GetNavHistorySql();
-		$fNav = floatval($nav_sql->GetClose($strStockId, $strDate));
-//		$fNav = floatval(SqlGetNavByDate($strStockId, $strDate));
+//		$fNav = floatval($nav_sql->GetClose($strStockId, $strDate));
 
-		$fNewNav = $fNav - floatval($strVal); 
-  		if ($strClose = $calibration_sql->GetClose($strStockId, $strDate))
-  		{	// SPY
-  			DebugString($strSymbol.' Change calibaration on '.$strDate);
-  			$fFactor = floatval($strClose) * $fNav / $fNewNav;
-  			$calibration_sql->WriteDaily($strStockId, $strDate, strval($fFactor));
+//		$fNewNav = $fNav - floatval($strVal); 
+//  	if ($strClose = $calibration_sql->GetClose($strStockId, $strDate))
+  		if ($strClosePrev = $calibration_sql->GetClosePrev($strStockId, $strDate))
+  		{	// SPY, TQQQ
+  			$strDatePrev = $calibration_sql->GetDatePrev($strStockId, $strDate);
+  			DebugString($strSymbol.' Change calibaration on '.$strDatePrev);
+  			$fNav = floatval($nav_sql->GetClose($strStockId, $strDatePrev));
+  			$fNewNav = $fNav - floatval($strVal); 
+  			$fFactor = floatval($strClosePrev) * $fNav / $fNewNav;
+  			$calibration_sql->WriteDaily($strStockId, $strDatePrev, strval($fFactor));
   		}
-  		else if ($strSymbol == 'XOP')
+  		else
   		{
-			foreach (QdiiGetXopSymbolArray() as $strQdii)
+  			switch ($strSymbol)
+  			{
+  			case 'KWEB':
+  				$arQdii = array('SZ164906');
+  				break;
+  				
+  			case 'XBI':
+  				$arQdii = QdiiGetXbiSymbolArray();
+  				break;
+  				
+  			case 'XLY':
+  				$arQdii = array('SZ162415');
+  				break;
+  				
+  			case 'XOP':
+  				$arQdii = QdiiGetXopSymbolArray();
+  				break;
+  			}
+			foreach ($arQdii as $strQdii)
 			{
-				_adjustQdiiCalibration($calibration_sql, $strQdii, $strDate, $fNewNav, $fNav);
+				$strQdiiId = SqlGetStockId($strQdii);
+				if ($strClosePrev = $calibration_sql->GetClosePrev($strQdiiId, $strDate))
+				{
+					$strDatePrev = $calibration_sql->GetDatePrev($strQdiiId, $strDate);
+					DebugString(__FUNCTION__.' '.$strQdii.' Change calibaration on '.$strDatePrev);
+					$fNav = floatval($nav_sql->GetClose($strStockId, $strDatePrev));
+					$fNewNav = $fNav - floatval($strVal); 
+					$fFactor = floatval($strClosePrev) * $fNewNav / $fNav;
+					$calibration_sql->WriteDaily($strQdiiId, $strDatePrev, strval($fFactor));
+				}
   			}
   		}
-  		else if ($strSymbol == 'KWEB')
-  		{
-			_adjustQdiiCalibration($calibration_sql, 'SZ164906', $strDate, $fNewNav, $fNav);
-  		}
-  		
-		$nav_sql->WriteDaily($strStockId, $strDate, strval($fNewNav));
+ 		if ($strClosePrev)	$nav_sql->WriteDaily($strStockId, $strDatePrev, strval($fNewNav));
 		_updateStockHistoryAdjCloseByDividend($ref, $strSymbol, $strStockId, $his_sql, $strDate, $strVal);
 	}
 }

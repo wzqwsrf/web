@@ -111,6 +111,11 @@ function GetSseUrl()
 	return 'http://www.sse.com.cn/';
 }
 
+function GetProsharesUrl()
+{
+	return 'https://www.proshares.com/';
+}
+
 // https://kraneshares.com/kweb/
 // https://kraneshares.com/csv/06_22_2021_kweb_holdings.csv
 // https://kraneshares.com/product-json/?pid=477&type=premium-discount&start=2024-03-15&end=2024-03-15
@@ -142,12 +147,6 @@ function GetCmeUrl($strSymbol)
 	}
 	
 	return false;
-}
-
-// https://www.ssga.com/us/en/individual/etfs/funds/spdr-sp-biotech-etf-xbi
-function GetSpdrEtfUrl()
-{
-	return 'https://www.ssga.com/us/en/individual/etfs/';
 }
 
 // https://www.ishares.com/us/products/239517/ishares-us-oil-gas-exploration-production-etf/
@@ -190,12 +189,50 @@ function _getIsharesXlsUrl($strSymbol)
 	return false;
 }
 
+// https://www.ssga.com/us/en/individual/etfs/funds/spdr-sp-biotech-etf-xbi
+function GetSpdrUrl()
+{
+	return 'https://www.ssga.com/';
+}
+
+function GetSpdrEtfUrl()
+{
+	return GetSpdrUrl().'us/en/individual/etfs/';
+}
+
+function GetSpdrOfficialUrl($strSymbol)
+{
+	$str = GetSpdrEtfUrl().'funds/';
+	switch ($strSymbol)
+	{
+	case 'XBI':
+		$str .= 'spdr-sp-biotech-etf-xbi';
+		break;
+
+	case 'XLE':
+		$str .= 'the-energy-select-sector-spdr-fund-xle';
+		break;
+
+	case 'XLY':
+		$str .= 'the-consumer-discretionary-select-sector-spdr-fund-xly';
+		break;
+
+	case 'XOP':
+		$str .= 'spdr-sp-oil-gas-exploration-production-etf-xop';
+		break;
+		
+	default:
+		return false;
+	}
+	return $str;
+}
+
 // https://www.ssga.com/us/en/individual/etfs/library-content/products/fund-data/etfs/us/navhist-us-en-xop.xlsx
 function GetEtfNavUrl($strSymbol)
 {
 	if ($strName = SqlGetStockName($strSymbol))
 	{
-		if (stripos($strName, 'spdr') !== false)
+		if (GetSpdrOfficialUrl($strSymbol))
 		{
 			return GetSpdrEtfUrl().'library-content/products/fund-data/etfs/us/navhist-us-en-'.strtolower($strSymbol).'.xlsx';
 		}

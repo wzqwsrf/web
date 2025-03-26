@@ -8,6 +8,7 @@ from _tgprivate import TG_TOKEN
 from _tgprivate import WECHAT_KEY
 from _tgprivate import WECHAT_KWEB_KEY
 from _tgprivate import WECHAT_TQQQ_KEY
+from _tgprivate import WECHAT_LIN_KEY
 
 def _get_hedge(arData):
     return float(arData['calibration'])/float(arData['position'])
@@ -43,9 +44,10 @@ class Palmmicro:
     def __init__(self):
         self.arData = {}
         self.iTimer = 0
-        self.arSendMsg = {'telegram':{'timer':0, 'count':13, 'msg':'', 'array_msg':[]},
-                          'kweb':{'timer':0, 'count':17, 'msg':'', 'array_msg':[]},
-                          'tqqq':{'timer':0, 'count':7, 'msg':'', 'array_msg':[]}
+        self.arSendMsg = {'telegram':{'key':WECHAT_KEY, 'timer':0, 'count':13, 'msg':'', 'array_msg':[]},
+                          'kweb':{'key':WECHAT_KWEB_KEY, 'timer':0, 'count':17, 'msg':'', 'array_msg':[]},
+                          'lin':{'key':WECHAT_LIN_KEY, 'timer':0, 'count':11, 'msg':'', 'array_msg':[]},
+                          'tqqq':{'key':WECHAT_TQQQ_KEY, 'timer':0, 'count':7, 'msg':'', 'array_msg':[]}
                          }
 
     def GetTelegramChatId(self):
@@ -183,8 +185,8 @@ class Palmmicro:
         except requests.exceptions.RequestException as e:
             print('SendTelegramMsg Error occurred:', e)
 
-    def __send_wechat_msg(self, strMsg, strKey):
-        url = 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=' + strKey
+    def SendWechatMsg(self, strMsg, group):
+        url = 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=' + self.arSendMsg[group]['key']
         arWechatMsg = {
             'msgtype': 'text',
             'text': {
@@ -203,15 +205,6 @@ class Palmmicro:
                 print('Failed to send POST request. Status code:', response.status_code)
         except requests.exceptions.RequestException as e:
             print('SendWechatMsg Error occurred:', e)
-
-    def SendWechatMsg(self, strMsg, group):
-        if group == 'telegram':
-            strKey = WECHAT_KEY
-        elif group == 'kweb':
-            strKey = WECHAT_KWEB_KEY
-        elif group == 'tqqq':
-            strKey = WECHAT_TQQQ_KEY
-        self.__send_wechat_msg(strMsg, strKey)
 
     def __send_msg(self, group):
         unique = set(self.arSendMsg[group]['array_msg'])

@@ -62,31 +62,21 @@ function GetIsharesOfficialLink($strSymbol)
 
 function GetSpdrOfficialLink($strSymbol)
 {
-	$str = GetSpdrEtfUrl().'funds/';
-	switch ($strSymbol)
-	{
-	case 'XBI':
-		$str .= 'spdr-sp-biotech-etf-xbi';
-		break;
-
-	case 'XLE':
-		$str .= 'the-energy-select-sector-spdr-fund-xle';
-		break;
-
-	case 'XLY':
-		$str .= 'the-consumer-discretionary-select-sector-spdr-fund-xly';
-		break;
-
-	case 'XOP':
-		$str .= 'spdr-sp-oil-gas-exploration-production-etf-xop';
-		break;
-	}
-	return GetOfficialLink($str, $strSymbol);
+	if ($str = GetSpdrOfficialUrl($strSymbol))	return GetOfficialLink($str, $strSymbol);
+	return $strSymbol.' is not SPDR ETF';
 }
 
+/*
 function GetInvescoOfficialLink($strSymbol)
 {
 	$str = 'https://www.invesco.com/us/financial-products/etfs/product-detail?productId='.$strSymbol;
+	return GetOfficialLink($str, $strSymbol);
+}
+*/
+
+function GetProsharesOfficialLink($strSymbol)
+{
+	$str = GetProsharesUrl().'our-etfs/leveraged-and-inverse/'.strtolower($strSymbol);
 	return GetOfficialLink($str, $strSymbol);
 }
 
@@ -294,7 +284,7 @@ function GetSinaForexLink($sym)
 function GetExternalStockHistoryLink($sym)
 {
 	$strHttp = GetYahooStockHistoryUrl($sym->GetYahooSymbol());
-    return GetExternalLink($strHttp, '历史数据');
+    return GetExternalLink($strHttp, 'Yahoo历史数据');
 }
 
 // https://finance.yahoo.com/quote/XOP/history?filter=div
@@ -315,7 +305,8 @@ function GetStockDividendUrl($sym)
 function GetStockDividendLink($sym)
 {
     $strHttp = GetStockDividendUrl($sym);
-    return GetExternalLink($strHttp, '分红数据');
+    $strDisplay = ($sym->IsSymbolA() || $sym->IsSymbolH()) ? 'Sina' : 'Yahoo';
+    return GetExternalLink($strHttp, $strDisplay.'分红数据');
 }
 
 function GetReferenceRateForexLink($strSymbol)

@@ -22,6 +22,22 @@ define('QDII_HK_DISPLAY', '港股QDII');
 define('QDII_JP_DISPLAY', '日本QDII');
 define('QDII_EU_DISPLAY', '欧洲QDII');
 
+define('STOCK_OPTION_ADR', '修改H股对应ADR代码');
+define('STOCK_OPTION_AH', '修改A股对应H股代码');
+define('STOCK_OPTION_AMOUNT', '基金申购金额');
+define('STOCK_OPTION_CALIBRATION', '手工校准');
+define('STOCK_OPTION_CLOSE', '更新收盘价');
+define('STOCK_OPTION_DIVIDEND', '分红');
+define('STOCK_OPTION_EDIT', '修改股票说明');
+define('STOCK_OPTION_EMA', '修改200/50日EMA');
+define('STOCK_OPTION_FUND', '修改对应配对代码');
+define('STOCK_OPTION_HA', '修改H股对应A股代码');
+define('STOCK_OPTION_HOLDINGS', '修改基金持仓');
+define('STOCK_OPTION_NAV', '修改净值');
+define('STOCK_OPTION_PREMIUM', '期货升水');
+define('STOCK_OPTION_SHARE_DIFF', '场内新增(万)');
+define('STOCK_OPTION_SPLIT', '拆股或合股');
+
 function GetStockCategoryArray()
 {
     return array('biotech' => BIOTECH_GROUP_DISPLAY,
@@ -137,6 +153,12 @@ function GetNvCloseHistoryLink($strSymbol)
 	return GetStockSymbolLink('nvclosehistory', $strSymbol, NVCLOSE_HISTORY_DISPLAY);
 }
 
+define('ETF_DIVIDEND_DISPLAY', STOCK_OPTION_DIVIDEND.'数据');
+function GetEtfDividendLink($strSymbol)
+{
+	return GetStockSymbolLink('etfdividend', $strSymbol, ETF_DIVIDEND_DISPLAY);
+}
+
 function GetFundLinks($strSymbol)
 {
 	$bChinaIndex = in_arrayChinaIndex($strSymbol);
@@ -152,8 +174,12 @@ function GetFundLinks($strSymbol)
 	{
 		$str .= ' '.GetCalibrationHistoryLink($strSymbol);
 		if ($bQdii || $bQdiiHk || $bQdiiJp || $bQdiiEu || $bSpecial)	$str .= ' '.GetFundPositionLink($strSymbol);
-		if ($bQdii || $bSpecial)												$str .= ' '.GetFundAccountLink($strSymbol);
-		if ($bQdii)															$str .= ' '.GetThanousParadoxLink($strSymbol);
+		if ($bQdii || $bSpecial)										$str .= ' '.GetFundAccountLink($strSymbol);
+		if ($bQdii)														$str .= ' '.GetThanousParadoxLink($strSymbol);
+	}
+	else
+	{
+		$str .= ' '.GetEtfDividendLink($strSymbol);
 	}
 	return $str;
 }
@@ -187,22 +213,6 @@ function GetFundShareLink($strSymbol)
 {
     return GetStockSymbolLink('fundshare', $strSymbol, FUND_SHARE_DISPLAY);
 }
-
-define('STOCK_OPTION_ADR', '修改H股对应ADR代码');
-define('STOCK_OPTION_AH', '修改A股对应H股代码');
-define('STOCK_OPTION_AMOUNT', '基金申购金额');
-define('STOCK_OPTION_CALIBRATION', '手工校准');
-define('STOCK_OPTION_CLOSE', '更新收盘价');
-define('STOCK_OPTION_DIVIDEND', '分红');
-define('STOCK_OPTION_EDIT', '修改股票说明');
-define('STOCK_OPTION_EMA', '修改200/50日EMA');
-define('STOCK_OPTION_FUND', '修改对应配对代码');
-define('STOCK_OPTION_HA', '修改H股对应A股代码');
-define('STOCK_OPTION_HOLDINGS', '修改基金持仓');
-define('STOCK_OPTION_NAV', '修改净值');
-define('STOCK_OPTION_PREMIUM', '期货升水');
-define('STOCK_OPTION_SHARE_DIFF', '场内新增(万)');
-define('STOCK_OPTION_SPLIT', '拆股或合股');
 
 function GetStockOptionArray()
 {

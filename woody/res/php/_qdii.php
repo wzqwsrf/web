@@ -66,7 +66,7 @@ function GetQdiiLinks($sym)
 	
 	if (in_arrayQqqQdii($strSymbol))
 	{
-		$str .= ' '.GetInvescoOfficialLink('QQQ');
+		$str .= ' '.GetProsharesOfficialLink('TQQQ');	// GetInvescoOfficialLink('QQQ');
 	}
 	
 	if (in_arrayXopQdii($strSymbol))
