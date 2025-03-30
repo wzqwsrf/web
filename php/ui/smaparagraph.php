@@ -151,10 +151,12 @@ function _getSmaParagraphMemo($his)
 {
 	$sym = $his->GetRef();
 	$strSymbol = $sym->GetSymbol();
-	$str = DebugIsAdmin() ? GetStockChartsLink($strSymbol) : GetYahooStockLink($sym);
+	$bAdmin = DebugIsAdmin();
+	$str = $bAdmin ? GetStockChartsLink($strSymbol) : GetYahooStockLink($sym);
 	$str .= ' '.$his->GetStartDate().'数据';
 	if ($strBullBear = $his->GetBullBear())		$str .= ' '.GetBoldElement($strBullBear);
     $str .= ' '.GetStockHistoryLink($strSymbol);
+	if ($bAdmin)	$str .= ' '.GetUpdateStockHistoryLink($sym, STOCK_HISTORY_UPDATE);
     return $str;
 }
 

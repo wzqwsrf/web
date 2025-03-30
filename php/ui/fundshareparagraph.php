@@ -48,7 +48,7 @@ function EchoFundShareParagraph($ref, $iStart = 0, $iNum = TABLE_COMMON_DISPLAY,
     if (IsTableCommonDisplay($iStart, $iNum))
     {
     	$str = GetMyStockLink($strSymbol).'的成交'.$quantity_col->GetDisplay().'相对于场内'.$share_col->GetDisplay().'的'.$turnover_col->GetDisplay().'比例';
-        $str .= ' '.GetFundShareLink($strSymbol);
+        $str .= ' '.GetFundShareLink($strSymbol).' '.GetFundAccountLink($strSymbol);
         $strMenuLink = '';
     }
     else

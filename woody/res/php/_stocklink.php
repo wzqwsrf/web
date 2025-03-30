@@ -71,6 +71,10 @@ function GetCategoryArray($strItem)
     	$ar = array_merge(QdiiGetXopSymbolArray(), QdiiGetOilEtfSymbolArray(), QdiiGetOilSymbolArray());
         break;
         
+    case 'overnight':
+        $ar = array('SZ161125', 'SZ161127', 'SZ161130', 'SZ162411', 'SZ162415', 'SZ164906');
+        break;
+        
     case 'qdii':
         $ar = QdiiGetSymbolArray();
         break;

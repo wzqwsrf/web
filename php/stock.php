@@ -1,6 +1,5 @@
 <?php
 require_once('regexp.php');
-require_once('stocklink.php');
 require_once('externallink.php');
 require_once('sql.php');
 require_once('gb2312.php');

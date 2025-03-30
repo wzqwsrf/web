@@ -14,6 +14,7 @@ define('QQQ_GROUP_DISPLAY', '纳斯达克100');
 define('SPY_GROUP_DISPLAY', '标普500');
 
 define('LOF_ALL_DISPLAY', 'LOF基金');
+define('OVERNIGHT_DISPLAY', '义工群对比');
 
 define('CHINA_INDEX_DISPLAY', 'A股指数');
 define('QDII_DISPLAY', '美股QDII');
@@ -78,6 +79,11 @@ function GetAllLofLink()
     return GetStockPhpLink('lof', LOF_ALL_DISPLAY);
 }
 
+function GetOvernightLink()
+{
+    return GetStockPhpLink('overnight', OVERNIGHT_DISPLAY);
+}
+
 function GetStockCategoryLink($strItem)
 {
     $ar = GetStockCategoryArray();
@@ -128,7 +134,7 @@ function GetHoldingsLink($strSymbol, $strDisplay = HOLDINGS_DISPLAY)
 }
 
 define('STOCK_HISTORY_DISPLAY', '历史价格');
-define('STOCK_HISTORY_UPDATE', '更新历史价格');
+define('STOCK_HISTORY_UPDATE', '更新'.STOCK_HISTORY_DISPLAY);
 function GetStockHistoryLink($strSymbol, $strDisplay = STOCK_HISTORY_DISPLAY)
 {
     return GetStockSymbolLink('stockhistory', $strSymbol, ($strDisplay ? $strDisplay : $strSymbol));

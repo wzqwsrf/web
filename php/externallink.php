@@ -1,4 +1,5 @@
 <?php
+require_once('stocklink.php');
 require_once('externalurl.php');
 require_once('stock/stocksymbol.php');
 
@@ -284,7 +285,7 @@ function GetSinaForexLink($sym)
 function GetExternalStockHistoryLink($sym)
 {
 	$strHttp = GetYahooStockHistoryUrl($sym->GetYahooSymbol());
-    return GetExternalLink($strHttp, 'Yahoo历史数据');
+    return GetExternalLink($strHttp, 'Yahoo'.STOCK_HISTORY_DISPLAY);
 }
 
 // https://finance.yahoo.com/quote/XOP/history?filter=div
@@ -306,7 +307,7 @@ function GetStockDividendLink($sym)
 {
     $strHttp = GetStockDividendUrl($sym);
     $strDisplay = ($sym->IsSymbolA() || $sym->IsSymbolH()) ? 'Sina' : 'Yahoo';
-    return GetExternalLink($strHttp, $strDisplay.'分红数据');
+    return GetExternalLink($strHttp, $strDisplay.ETF_DIVIDEND_DISPLAY);
 }
 
 function GetReferenceRateForexLink($strSymbol)

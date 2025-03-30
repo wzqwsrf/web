@@ -194,7 +194,6 @@ function ImgStockGroup($strPage)
     	return GetWoodyImgQuote('hardlife.jpg', '人生永远都在艰难模式');
 
     case 'lof':
-//    	return GetWoodyImgQuote('nvda.png', '老黄路边KTV');
 		return ImgFreeFood();
     	
     case 'mscius50':
@@ -202,6 +201,9 @@ function ImgStockGroup($strPage)
     	
     case 'oilfund':
     	return GetWoodyImgQuote('dashidai.jpg', '不要怕，是技术性调整，不要怕。');
+
+    case 'overnight':
+    	return GetWoodyImgQuote('nvda.png', '老黄路边KTV');
     	
     case 'qdii':
     	return GetWoodyImgQuote('gan.jpg', '赢了会所嫩模，输了下海挖沙！');
