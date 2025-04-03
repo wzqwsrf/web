@@ -295,6 +295,10 @@ function _updateStockOptionDividend($ref, $strSymbol, $strStockId, $his_sql, $st
   			case 'XOP':
   				$arQdii = QdiiGetXopSymbolArray();
   				break;
+  				
+  			default:
+  				$arQdii = array();
+  				break;
   			}
 			foreach ($arQdii as $strQdii)
 			{

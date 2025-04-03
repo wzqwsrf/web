@@ -9,10 +9,8 @@ def is_daylight_saving_time(dt, utc):
 def GetExchangeTime(strName = 'NYSE'):
     # Define the UTC timezone
     utc = timezone.utc
-
     # Get the current UTC time
     now_utc = datetime.now(utc)
-
     if strName == 'NYSE':
         iHours = -5
         # Determine the Eastern Time Zone offset considering daylight saving time
@@ -21,12 +19,17 @@ def GetExchangeTime(strName = 'NYSE'):
             iHours += 1
     elif strName == 'SZSE':
         iHours = 8
-
     eastern_offset = timedelta(hours=iHours)  # Eastern Standard Time (EST) offset
-
     # Convert UTC time to Eastern Time Zone
     now_ny = now_utc.astimezone(timezone(eastern_offset))
-
     # Extract the hour and minute in 'America/New_York' time zone
     iTime = now_ny.hour * 100 + now_ny.minute 
     return iTime
+
+def GetBeijingTimeDisplay():
+    # 创建 UTC+8 时区
+    utc8 = timezone(timedelta(hours=8))
+    # 获取 UTC+8 时间
+    beijing_time = datetime.now(utc8)
+    # 格式化为 HH:MM:SS
+    return beijing_time.strftime("%H:%M:%S")

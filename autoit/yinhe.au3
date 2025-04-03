@@ -313,6 +313,8 @@ Func _getHuabaoFundName($strSymbol)
 			$strName = '石油基金LOF'
 		Case '160717'
 			$strName = 'H股LOF'
+		Case '160719'
+			$strName = '嘉实黄金LOF'
 		Case '160723'
 			$strName = '嘉实原油LOF'
 		Case '163208'
@@ -331,6 +333,8 @@ Func _getYinheFundName($strSymbol)
 			$strName = '石油基金'
 		Case '160717'
 			$strName = '恒生H股'
+		Case '160719'
+			$strName = '嘉实黄金'
 		Case '160723'
 			$strName = '嘉实原油'
 		Case '161116'
@@ -349,6 +353,8 @@ Func _getYinheFundName($strSymbol)
 			$strName = '白银基金'
 		Case '163208'
 			$strName = '诺安油气'
+		Case '164701'
+			$strName = '黄金LOF'
 		Case '164824'
 			$strName = '印度基金'
 		Case '164906'
@@ -1073,7 +1079,7 @@ Func _loadListViewAccount($iSoftware, $idListViewAccount, ByRef $arCheckboxAccou
 EndFunc
 
 Func AppMain()
-	$idFormMain = GUICreate("通达信单独委托版全自动拖拉机0.82", 803, 506, 289, 0)
+	$idFormMain = GUICreate("通达信单独委托版全自动拖拉机0.84", 803, 506, 289, 0)
 
 	$idListViewAccount = GUICtrlCreateListView("客户号", 24, 24, 146, 454, BitOR($GUI_SS_DEFAULT_LISTVIEW,$WS_VSCROLL), BitOR($WS_EX_CLIENTEDGE,$LVS_EX_CHECKBOXES))
 	GUICtrlSendMsg(-1, $LVM_SETCOLUMNWIDTH, 0, 118)
@@ -1084,7 +1090,7 @@ Func AppMain()
 
 	$idLabelSymbol = GUICtrlCreateLabel("基金代码", 192, 24, 52, 17)
 	$idListSymbol = GUICtrlCreateList("", 192, 48, 121, 97)
-	GUICtrlSetData(-1, '160216|160416|160717|160723|161116|161125|161126|161127|161128|161130|161226|162411|162415|163208|164824|164906|501225|510300', _getProfileString('Symbol', '161128'))
+	GUICtrlSetData(-1, '160216|160416|160717|160719|160723|161116|161125|161126|161127|161128|161130|161226|162411|162415|163208|164701|164824|164906|501225|510300', _getProfileString('Symbol', '161128'))
 
 	$idLabelSellPrice = GUICtrlCreateLabel("卖出价格", 192, 160, 52, 17)
 	$idInputSellPrice = GUICtrlCreateInput("", 192, 184, 121, 21)

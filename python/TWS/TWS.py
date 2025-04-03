@@ -77,19 +77,19 @@ class MyEWrapper(EWrapper):
         self.arTQQQ = {'SH513100', 'SH513110', 'SH513390', 'SH513870', 'SZ159501', 'SZ159513', 'SZ159632', 'SZ159659', 'SZ159660', 'SZ159696', 'SZ159941'}
         self.arHedge = {'SZ161125', 'SZ161127', 'SZ161130', 'SZ162411', 'SZ162415', 'SZ164906'}
         self.arOrder = {}
-        self.arOrder['KWEB'] = GetOrderArray([20.64, 24.74, 31.78, 33.4, 35.61, 36.11, 36.45, 38.82], 200, 3, 5)
+        self.arOrder['KWEB'] = GetOrderArray([20.07, 24.99, 32.08, 33.74, 34.98, 35.33, 36.04, 38.35, 39.17], 200, 2, 4)
         if IsChinaMarketOpen():
             self.arOrder['SPY'] = GetOrderArray()
             self.arOrder['TQQQ'] = GetOrderArray()
             self.arOrder['XBI'] = GetOrderArray()
             self.arOrder['XLY'] = GetOrderArray()
             self.arOrder['XOP'] = GetOrderArray()
-        else:
-        #if IsMarketOpen():
+        #else:
+        if IsMarketOpen():
             #self.arOrder['TLT'] = GetOrderArray([80.08, 83.83, 88.94, 89.08, 90.37, 90.53, 90.76, 92.44, 94.04, 98.99], 100, 2, -1)
-            self.arOrder['SPX'] = GetOrderArray([3914.56, 5254.99, 5491.2, 5693.2, 5693.92, 5737.43, 5895.21, 5925.19, 5947.8, 6255.93, 6595.41])
-            self.arOrder['MES' + self.strCurFuture] = AdjustOrderArray(self.arOrder['SPX'], 1.0081, 2, 4)
-            self.arOrder['MES' + self.strNextFuture] = AdjustOrderArray(self.arOrder['SPX'], 1.0188, -1, -1)
+            self.arOrder['SPX'] = GetOrderArray([4025.59, 5313.1, 5500.43, 5624.21, 5655.72, 5679.35, 5811.01, 5867.38, 5932.56, 6292.85, 6600.62])
+            self.arOrder['MES' + self.strCurFuture] = AdjustOrderArray(self.arOrder['SPX'], 1.0079, 2, 3)
+            self.arOrder['MES' + self.strNextFuture] = AdjustOrderArray(self.arOrder['SPX'], 1.0161, -1, -1)
         self.palmmicro = Palmmicro()
         self.client.StartStreaming(orderId)
         self.data = {}
@@ -266,31 +266,30 @@ class MyEWrapper(EWrapper):
             return 'Sell'
         elif strType == 'bid':
             return 'Buy'
-    
+
     def DebugPriceAndSize(self, data, strSymbol, strHedge, arReply, arResult, strType):
         iSize = arResult['size']
         if iSize > 0:
             strPeerType = self.palmmicro.GetPeerStr(strType)
             fRatio = arResult['ratio']
-            strDebug = str(round(fRatio * 100.0, 2)) + '% '
-            strDebug += self.GetSellBuyStr(strType) + ' ' + str(iSize) + ' ' + strSymbol + ' at ' + str(data[strPeerType + '_price']) + ' and '
-            strDebug += self.GetSellBuyStr(strPeerType) + ' ' + str(arResult['size_hedge']) + ' ' + strHedge + ' at ' + arReply[strType + '_price']
+            strDebug = str(round(fRatio * 100.0, 2)) + '% | '
+            strDebug += self.GetSellBuyStr(strType) + ' ' + strSymbol + ' ' + str(iSize) + ' @' + str(data[strPeerType + '_price']) + ' | '
+            strDebug += self.GetSellBuyStr(strPeerType) + ' ' + strHedge + ' ' + str(arResult['size_hedge']) + ' @' + arReply[strType + '_price']
             strHedgeType = strHedge + strType
             if strHedgeType not in self.arDebug or self.arDebug[strHedgeType] != strDebug:
                 self.arDebug[strHedgeType] = strDebug
                 if iSize >= 1 and ((fRatio > 0.001 and strType == 'ask') or (fRatio < -0.001 and strType == 'bid')):
                     print(strDebug)
-                    self.palmmicro.SendMsg(strDebug, 'tqqq')
+                    if self.palmmicro.SendSymbolMsg(strDebug, strSymbol) == False:
+                        self.palmmicro.SendMsg(strDebug, 'debug')
                 if iSize >= 100 and ((fRatio > 0.01 and strType == 'ask') or (fRatio < -0.005 and strType == 'bid')):
                     self.palmmicro.SendMsg(strDebug)
-                    return
-                if strType == 'bid' and fRatio > -0.005:
+                elif strType == 'bid' and fRatio > -0.005:
                     if strSymbol == 'KWEB':
-                        self.palmmicro.SendMsg(strDebug, 'kweb')
-                        return
+                        self.palmmicro.SendMsg(strDebug.replace(' KWEB', ''), 'kweb')
                     elif fRatio < 0.004:
-                        self.palmmicro.SendMsg(strDebug, 'lin')
-                        return
+                        if self.palmmicro.SendSymbolMsg(strDebug, strSymbol) == False:
+                            self.palmmicro.SendMsg(strDebug, 'lin')
         self.palmmicro.SendOldMsg()
 
     def ProcessPriceAndSize(self, data):

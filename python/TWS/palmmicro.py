@@ -4,11 +4,16 @@ import math
 import requests
 import time
 
+from nyc_time import GetBeijingTimeDisplay
+
 from _tgprivate import TG_TOKEN
 from _tgprivate import WECHAT_KEY
+from _tgprivate import WECHAT_DEBUG_KEY
 from _tgprivate import WECHAT_KWEB_KEY
-from _tgprivate import WECHAT_TQQQ_KEY
 from _tgprivate import WECHAT_LIN_KEY
+from _tgprivate import WECHAT_XBI_KEY
+from _tgprivate import WECHAT_XLY_KEY
+from _tgprivate import WECHAT_XOP_KEY
 
 def _get_hedge(arData):
     return float(arData['calibration'])/float(arData['position'])
@@ -47,7 +52,10 @@ class Palmmicro:
         self.arSendMsg = {'telegram':{'key':WECHAT_KEY, 'timer':0, 'count':13, 'msg':'', 'array_msg':[]},
                           'kweb':{'key':WECHAT_KWEB_KEY, 'timer':0, 'count':17, 'msg':'', 'array_msg':[]},
                           'lin':{'key':WECHAT_LIN_KEY, 'timer':0, 'count':11, 'msg':'', 'array_msg':[]},
-                          'tqqq':{'key':WECHAT_TQQQ_KEY, 'timer':0, 'count':7, 'msg':'', 'array_msg':[]}
+                          'xbi':{'key':WECHAT_XBI_KEY, 'timer':0, 'count':19, 'msg':'', 'array_msg':[]},
+                          'xly':{'key':WECHAT_XLY_KEY, 'timer':0, 'count':23, 'msg':'', 'array_msg':[]},
+                          'xop':{'key':WECHAT_XOP_KEY, 'timer':0, 'count':7, 'msg':'', 'array_msg':[]},
+                          'debug':{'key':WECHAT_DEBUG_KEY, 'timer':0, 'count':5, 'msg':'', 'array_msg':[]}
                          }
 
     def GetTelegramChatId(self):
@@ -185,15 +193,15 @@ class Palmmicro:
         except requests.exceptions.RequestException as e:
             print('SendTelegramMsg Error occurred:', e)
 
-    def SendWechatMsg(self, strMsg, group):
+    def SendWechatMsg(self, strMsg, group, strType = 'text'):
         url = 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=' + self.arSendMsg[group]['key']
         arWechatMsg = {
-            'msgtype': 'text',
-            'text': {
+            'msgtype': strType,  
+            strType: {
                 'content': ''
-                    }
-                           }
-        arText = arWechatMsg['text']
+                     }
+                      }
+        arText = arWechatMsg[strType]
         arText['content'] = strMsg
         try:
             response = requests.post(url, json=arWechatMsg, headers={'Content-Type': 'application/json'})
@@ -209,7 +217,7 @@ class Palmmicro:
     def __send_msg(self, group):
         unique = set(self.arSendMsg[group]['array_msg'])
         str = '\n\n'.join(unique)
-        self.SendWechatMsg(str, group)
+        self.SendWechatMsg(GetBeijingTimeDisplay() + ' | ' + str, group)
         #if group == 'telegram':
             #self.SendTelegramMsg(str)
         self.arSendMsg[group]['array_msg'].clear()
@@ -220,6 +228,12 @@ class Palmmicro:
             self.arSendMsg[group]['array_msg'].append(strMsg)
             if self.IsFree(group):
                 self.__send_msg(group)
+
+    def SendSymbolMsg(self, strMsg, strSymbol):
+        if strSymbol in ['XBI', 'XLY', 'XOP']:
+            self.SendMsg(strMsg.replace(' ' + strSymbol, ''), strSymbol.lower())
+            return True
+        return False;
 
     def SendOldMsg(self):
         for group, value in self.arSendMsg.items():
