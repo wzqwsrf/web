@@ -51,6 +51,11 @@ function GetBoldElement($strContent)
 	return GetHtmlElement($strContent, 'b');
 }
 
+function GetUnderlineElement($strContent)
+{
+	return GetHtmlElement($strContent, 'u');
+}
+
 function GetFontElement($strContent, $strColor = 'red', $strStyle = false)
 {
 	$ar = array('color' => $strColor);

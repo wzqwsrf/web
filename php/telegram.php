@@ -11,7 +11,7 @@ define('MAX_BOT_MSG_LEN', 2048);
 
 define('TG_API_URL', 'https://api.telegram.org/bot'.TG_TOKEN.'/');
 define('TG_ADMIN_CHAT_ID', '992671436');		// @sz152
-define('TG_CAST_CHAT_ID', '-1001346320717');	// @palmmicrocast
+define('TG_CAST_CHAT_ID', '-1001346320717');	// @palmmicrochan
 
 class TelegramCallback
 {

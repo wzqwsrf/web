@@ -62,91 +62,6 @@ function _echoSmaTableItem($his, $strKey, $strVal, $cb_ref, $callback, $callback
     EchoTableColumn($ar, $strColor);
 }
 
-class MaxMin
-{
-    var $fMax;
-    var $fMin;
-    
-    public function __construct() 
-    {
-        $this->fMax = false;
-        $this->fMin = false;
-    }
-
-    function Init($fMax, $fMin)
-    {
-        if ($this->fMin == false && $this->fMax == false)
-        {
-            $this->fMin = $fMin;
-            $this->fMax = $fMax;
-        }
-    }
-    
-    function Set($fVal) 
-    {
-        if ($fVal > $this->fMax)  $this->fMax = $fVal;
-        if ($fVal < $this->fMin)  $this->fMin = $fVal;
-    }
-    
-    function Fit($fVal)
-    {
-        if ($fVal > $this->fMin && $fVal < $this->fMax) return true;
-        return false;
-    }
-}
-
-function _echoSmaTableData($his, $cb_ref, $callback, $callback2, $bAfterHour)
-{
-	$arVal = array();
-    $mm = new MaxMin();
-    $mmB = new MaxMin();
-    $mmW = new MaxMin();
-    foreach ($his->arSMA as $strKey => $strVal)
-    {
-    	$fVal = floatval($strVal);
-        $strColor = false;
-        $strFirst = substr($strKey, 0, 1); 
-        if ($strFirst == 'D')
-        {
-            $mm->Init(0.0, 10000000.0);
-            $mm->Set($fVal);
-            $arVal[] = $fVal;
-        }
-        else if ($strFirst == 'W')
-        {
-            $mmW->Init($mm->fMax, $mm->fMin);
-            $mmW->Set($fVal);
-            if ($mm->Fit($fVal))         $strColor = 'silver';
-            else							$arVal[] = $fVal;
-        }
-        else if ($strFirst == 'M')
-        {
-            if ($mm->Fit($fVal))         $strColor = 'silver';
-            else if ($mmW->Fit($fVal))  $strColor = 'gray';
-            else							$arVal[] = $fVal;
-        }
-        else	// if ($strFirst == 'E')
-        {
-            if ($mm->Fit($fVal))         $strColor = 'silver';
-            else 							$strColor = 'yellow';
-        }
-        _echoSmaTableItem($his, $strKey, $strVal, $cb_ref, $callback, $callback2, $strColor, $bAfterHour);
-    }
-    
-    if (DebugIsAdmin())
-    {
-		sort($arVal, SORT_NUMERIC);
-		$ar = array();
-		foreach ($arVal as $fVal)
-		{
-			$ar[] = strval_round($fVal);
-		}
-		$ar = array_unique($ar);
-    	return implode(', ', $ar);
-    }
-    return '';
-}
-
 function _getSmaParagraphMemo($his)
 {
 	$sym = $his->GetRef();
@@ -210,7 +125,11 @@ function EchoSmaParagraph($ref, $str = false, $cb_ref = false, $callback = false
     if ($callback2)	$ar[] = new TableColumn(call_user_func($callback2), 90);
 
 	EchoTableParagraphBegin($ar, 'smatable', $str);
-    $str = _echoSmaTableData($his, $cb_ref, $callback, $callback2, $bAfterHour);
+    foreach ($his->GetSMA() as $strKey => $strVal)
+    {
+        _echoSmaTableItem($his, $strKey, $strVal, $cb_ref, $callback, $callback2, $his->GetColor($strKey), $bAfterHour);
+    }
+    $str = DebugIsAdmin() ? implode(', ', $his->GetOrderArray()) : '';
     EchoTableParagraphEnd($str);
 }
 

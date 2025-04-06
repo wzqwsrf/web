@@ -77,18 +77,18 @@ class MyEWrapper(EWrapper):
         self.arTQQQ = {'SH513100', 'SH513110', 'SH513390', 'SH513870', 'SZ159501', 'SZ159513', 'SZ159632', 'SZ159659', 'SZ159660', 'SZ159696', 'SZ159941'}
         self.arHedge = {'SZ161125', 'SZ161127', 'SZ161130', 'SZ162411', 'SZ162415', 'SZ164906'}
         self.arOrder = {}
-        self.arOrder['KWEB'] = GetOrderArray([20.07, 24.99, 32.08, 33.74, 34.98, 35.33, 36.04, 38.35, 39.17], 200, 2, 4)
+        self.arOrder['KWEB'] = GetOrderArray([20.07, 25.32, 32.21, 32.35, 33.96, 34.72, 35.7, 39.05, 39.1], 200, 1, 2)
         if IsChinaMarketOpen():
             self.arOrder['SPY'] = GetOrderArray()
             self.arOrder['TQQQ'] = GetOrderArray()
             self.arOrder['XBI'] = GetOrderArray()
             self.arOrder['XLY'] = GetOrderArray()
             self.arOrder['XOP'] = GetOrderArray()
-        #else:
-        if IsMarketOpen():
-            #self.arOrder['TLT'] = GetOrderArray([80.08, 83.83, 88.94, 89.08, 90.37, 90.53, 90.76, 92.44, 94.04, 98.99], 100, 2, -1)
-            self.arOrder['SPX'] = GetOrderArray([4025.59, 5313.1, 5500.43, 5624.21, 5655.72, 5679.35, 5811.01, 5867.38, 5932.56, 6292.85, 6600.62])
-            self.arOrder['MES' + self.strCurFuture] = AdjustOrderArray(self.arOrder['SPX'], 1.0079, 2, 3)
+        else:
+        #if IsMarketOpen():
+            self.arOrder['XOP'] = GetOrderArray([112.77, 112.87, 123.09, 128.03, 128.05, 143.24, 150.91, 153.7], 100, 0)
+            self.arOrder['SPX'] = GetOrderArray([4025.59, 5259.13, 5443.66, 5572.18, 5607.61, 5956.08, 6455.05, 6600.62])
+            self.arOrder['MES' + self.strCurFuture] = AdjustOrderArray(self.arOrder['SPX'], 1.0063, 1, 5)
             self.arOrder['MES' + self.strNextFuture] = AdjustOrderArray(self.arOrder['SPX'], 1.0161, -1, -1)
         self.palmmicro = Palmmicro()
         self.client.StartStreaming(orderId)
@@ -280,16 +280,11 @@ class MyEWrapper(EWrapper):
                 self.arDebug[strHedgeType] = strDebug
                 if iSize >= 1 and ((fRatio > 0.001 and strType == 'ask') or (fRatio < -0.001 and strType == 'bid')):
                     print(strDebug)
-                    if self.palmmicro.SendSymbolMsg(strDebug, strSymbol) == False:
-                        self.palmmicro.SendMsg(strDebug, 'debug')
+                    self.palmmicro.SendSymbolMsg(strDebug, strSymbol)
                 if iSize >= 100 and ((fRatio > 0.01 and strType == 'ask') or (fRatio < -0.005 and strType == 'bid')):
                     self.palmmicro.SendMsg(strDebug)
                 elif strType == 'bid' and fRatio > -0.005:
-                    if strSymbol == 'KWEB':
-                        self.palmmicro.SendMsg(strDebug.replace(' KWEB', ''), 'kweb')
-                    elif fRatio < 0.004:
-                        if self.palmmicro.SendSymbolMsg(strDebug, strSymbol) == False:
-                            self.palmmicro.SendMsg(strDebug, 'lin')
+                    self.palmmicro.SendSymbolMsg(strDebug, strSymbol)
         self.palmmicro.SendOldMsg()
 
     def ProcessPriceAndSize(self, data):
@@ -355,7 +350,7 @@ class MyEClient(EClient):
         order.totalQuantity = iSize
         order.orderType = 'LMT'
         order.lmtPrice = price
-        if strSymbol.startswith('MES'):
+        if strSymbol.startswith('MES') or strSymbol == 'XOP':
             if IsMarketOpen() == False:
                 return -1
         else:

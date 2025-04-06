@@ -10,7 +10,8 @@ from _tgprivate import TG_TOKEN
 from _tgprivate import WECHAT_KEY
 from _tgprivate import WECHAT_DEBUG_KEY
 from _tgprivate import WECHAT_KWEB_KEY
-from _tgprivate import WECHAT_LIN_KEY
+from _tgprivate import WECHAT_SPY_KEY
+from _tgprivate import WECHAT_TQQQ_KEY
 from _tgprivate import WECHAT_XBI_KEY
 from _tgprivate import WECHAT_XLY_KEY
 from _tgprivate import WECHAT_XOP_KEY
@@ -49,13 +50,14 @@ class Palmmicro:
     def __init__(self):
         self.arData = {}
         self.iTimer = 0
-        self.arSendMsg = {'telegram':{'key':WECHAT_KEY, 'timer':0, 'count':13, 'msg':'', 'array_msg':[]},
-                          'kweb':{'key':WECHAT_KWEB_KEY, 'timer':0, 'count':17, 'msg':'', 'array_msg':[]},
-                          'lin':{'key':WECHAT_LIN_KEY, 'timer':0, 'count':11, 'msg':'', 'array_msg':[]},
-                          'xbi':{'key':WECHAT_XBI_KEY, 'timer':0, 'count':19, 'msg':'', 'array_msg':[]},
-                          'xly':{'key':WECHAT_XLY_KEY, 'timer':0, 'count':23, 'msg':'', 'array_msg':[]},
-                          'xop':{'key':WECHAT_XOP_KEY, 'timer':0, 'count':7, 'msg':'', 'array_msg':[]},
-                          'debug':{'key':WECHAT_DEBUG_KEY, 'timer':0, 'count':5, 'msg':'', 'array_msg':[]}
+        self.arSendMsg = {'telegram':{'key':WECHAT_KEY, 'count':5, 'timer':0, 'msg':'', 'array_msg':[]},
+                          'kweb':{'key':WECHAT_KWEB_KEY, 'count':7, 'timer':0, 'msg':'', 'array_msg':[]},
+                          'spy':{'key':WECHAT_SPY_KEY, 'count':11, 'timer':0, 'msg':'', 'array_msg':[]},
+                          'tqqq':{'key':WECHAT_TQQQ_KEY, 'count':13, 'timer':0, 'msg':'', 'array_msg':[]},
+                          'xbi':{'key':WECHAT_XBI_KEY, 'count':17, 'timer':0, 'msg':'', 'array_msg':[]},
+                          'xly':{'key':WECHAT_XLY_KEY, 'count':19, 'timer':0, 'msg':'', 'array_msg':[]},
+                          'xop':{'key':WECHAT_XOP_KEY, 'count':23, 'timer':0, 'msg':'', 'array_msg':[]},
+                          'debug':{'key':WECHAT_DEBUG_KEY, 'count':29, 'timer':0, 'msg':'', 'array_msg':[]}
                          }
 
     def GetTelegramChatId(self):
@@ -230,10 +232,10 @@ class Palmmicro:
                 self.__send_msg(group)
 
     def SendSymbolMsg(self, strMsg, strSymbol):
-        if strSymbol in ['XBI', 'XLY', 'XOP']:
+        if strSymbol in ['KWEB', 'SPY', 'TQQQ', 'XBI', 'XLY', 'XOP']:
             self.SendMsg(strMsg.replace(' ' + strSymbol, ''), strSymbol.lower())
-            return True
-        return False;
+        else:
+            self.SendMsg(strMsg, 'debug')
 
     def SendOldMsg(self):
         for group, value in self.arSendMsg.items():

@@ -100,7 +100,7 @@ function _echo20210227($strHead)
     echo <<<END
 	$strHead
 <p>2021年2月27日
-<br />因为微信个人订阅号的各种限制，最近削尖铅笔基于Telegram电报API开发了机器人@palmmicrobot，把公众号上的查询功能完全复制到了电报软件上。同时创建了@palmmicrocast频道，用来主动发布用户在各种渠道查询过程中碰到的可能需要提醒的信息。
+<br />因为微信个人订阅号的各种限制，最近削尖铅笔基于Telegram电报API开发了机器人@palmmicrobot，把公众号上的查询功能完全复制到了电报软件上。同时创建了@palmmicrochan频道，用来主动发布用户在各种渠道查询过程中碰到的可能需要提醒的信息。
 <br />电报是开源的，而且鼓励大家把它无缝集成到各种应用场景中。墙内使用电报可以从{$strBtok}下载安装Btok手机APP，也可以使用非官方的WEB版本{$strWeb}。
 <br />互联网不是法外之地，虽然墙外的电报软件能畅所欲言并且避免恶意举报，请大家记住Palmmicro的一切都是实名可以抓到我的，不要在电报中有关Palmmicro的地方乱说话！
 <br />不忘初心，接下来打算写个用电报机器人管理的基于MQTT协议的IoT模块。
@@ -173,6 +173,23 @@ $strImage
 END;
 }
 
+function _echo20250224($strHead)
+{
+	$strHead = GetHeadElement($strHead);
+	$strOvernight = GetBlogLink(20250223);
+	$strTelegram = GetNameLink('telegram', '电报');
+	$strImage = ImgFreeFood();
+	
+    echo <<<END
+	$strHead
+<p>2025年2月24日
+<br />从去年开始配合{$strOvernight}交易在{$strTelegram}上写了一个新的跨市场套利工具，炫技之心日益加重，最终还是打着讨饭的名义，又写了一篇公众号文章宣传。
+$strImage
+</p>
+END;
+}
+
+
 function EchoAll()
 {
 	_echo20161014();
@@ -184,6 +201,7 @@ function EchoAll()
 	_echo20210613('微信公众平台进去后显示白板');
 	_echo20210622('UTF-8的双字节空格字符');
 	_echo20211129('放弃微信公众号文章');
+	_echo20250224('恢复微信公众号文章');
 }
 
 require('../../../php/ui/_dispcn.php');
