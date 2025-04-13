@@ -496,7 +496,7 @@ class StockHistory
 //    	{
     		$ref->SetTimeZone();
     		$now_ymd = GetNowYMD();
-    		return ($now_ymd->GetHourMinute() > 1530) ? true : false;
+    		return ($now_ymd->GetHourMinute() > 1520) ? true : false;
 //    	}
 //    	return false;
     }

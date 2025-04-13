@@ -17,15 +17,15 @@ def IsChinaMarketOpen():
     if IsTesting():
         return True
     iTime = GetExchangeTime('SZSE')
-    if iTime >= 915 and iTime <= 1130:
+    if iTime >= 915 and iTime < 1130:
         return True
-    elif iTime >= 1300 and iTime <= 1500:
+    elif iTime >= 1300 and iTime < 1500:
         return True
     return False
 
 def IsMarketOpen():
     iTime = GetExchangeTime()
-    if iTime >= 930 and iTime <= 1600:
+    if iTime >= 930 and iTime < 1600:
         return True
     return False
 
@@ -74,10 +74,11 @@ class MyEWrapper(EWrapper):
         self.arDebug = {}
 
     def nextValidId(self, orderId: int):
-        self.arTQQQ = {'SH513100', 'SH513110', 'SH513390', 'SH513870', 'SZ159501', 'SZ159513', 'SZ159632', 'SZ159659', 'SZ159660', 'SZ159696', 'SZ159941'}
         self.arHedge = {'SZ161125', 'SZ161127', 'SZ161130', 'SZ162411', 'SZ162415', 'SZ164906'}
+        self.arTQQQ = {'SH513100', 'SH513110', 'SH513390', 'SH513870', 'SZ159501', 'SZ159513', 'SZ159632', 'SZ159659', 'SZ159660', 'SZ159696', 'SZ159941'}
+        self.arXOP = {'SH513350', 'SZ159518'}
         self.arOrder = {}
-        self.arOrder['KWEB'] = GetOrderArray([20.07, 25.32, 32.21, 32.35, 33.96, 34.72, 35.7, 39.05, 39.1], 200, 1, 2)
+        self.arOrder['KWEB'] = GetOrderArray([20.07, 25.42, 27.18, 29.61, 31.52, 33.86, 40.55], 200, 3, 4)
         if IsChinaMarketOpen():
             self.arOrder['SPY'] = GetOrderArray()
             self.arOrder['TQQQ'] = GetOrderArray()
@@ -86,9 +87,10 @@ class MyEWrapper(EWrapper):
             self.arOrder['XOP'] = GetOrderArray()
         else:
         #if IsMarketOpen():
-            self.arOrder['XOP'] = GetOrderArray([112.77, 112.87, 123.09, 128.03, 128.05, 143.24, 150.91, 153.7], 100, 0)
-            self.arOrder['SPX'] = GetOrderArray([4025.59, 5259.13, 5443.66, 5572.18, 5607.61, 5956.08, 6455.05, 6600.62])
-            self.arOrder['MES' + self.strCurFuture] = AdjustOrderArray(self.arOrder['SPX'], 1.0063, 1, 5)
+            self.arOrder['TLT'] = GetOrderArray([79.8, 83.3, 86.19, 87.63, 89.8, 89.87, 93.55, 93.93, 98.66], 100, 2, 3)
+            self.arOrder['XOP'] = GetOrderArray([96.06, 106.9, 114.03, 123.36, 150.65, 151.63, 153.7], 100, 0, 2)
+            self.arOrder['SPX'] = GetOrderArray([4025.59, 4948.53, 5267.77, 5323.11, 5508.99, 6069.46, 6473.36, 6600.62])
+            self.arOrder['MES' + self.strCurFuture] = AdjustOrderArray(self.arOrder['SPX'], 1.0068, 2, 5)
             self.arOrder['MES' + self.strNextFuture] = AdjustOrderArray(self.arOrder['SPX'], 1.0161, -1, -1)
         self.palmmicro = Palmmicro()
         self.client.StartStreaming(orderId)
@@ -281,7 +283,7 @@ class MyEWrapper(EWrapper):
                 if iSize >= 1 and ((fRatio > 0.001 and strType == 'ask') or (fRatio < -0.001 and strType == 'bid')):
                     print(strDebug)
                     self.palmmicro.SendSymbolMsg(strDebug, strSymbol)
-                if iSize >= 100 and ((fRatio > 0.01 and strType == 'ask') or (fRatio < -0.005 and strType == 'bid')):
+                if strHedge in self.arHedge and iSize >= 100 and ((fRatio > 0.01 and strType == 'ask') or (fRatio < -0.005 and strType == 'bid')):
                     self.palmmicro.SendMsg(strDebug)
                 elif strType == 'bid' and fRatio > -0.005:
                     self.palmmicro.SendSymbolMsg(strDebug, strSymbol)
@@ -289,8 +291,9 @@ class MyEWrapper(EWrapper):
 
     def ProcessPriceAndSize(self, data):
         strSymbol = data['symbol']
-        arPalmmicro = self.palmmicro.FetchData(self.arHedge | self.arTQQQ)
-        for strHedge in self.arHedge:
+        arAll = self.arHedge | self.arXOP
+        arPalmmicro = self.palmmicro.FetchData(arAll | self.arTQQQ)
+        for strHedge in arAll:
             arReply = arPalmmicro[strHedge]
             if 'symbol_hedge' in arReply and arReply['symbol_hedge'] == strSymbol:
                 for strType in ['ask', 'bid']:
@@ -350,7 +353,7 @@ class MyEClient(EClient):
         order.totalQuantity = iSize
         order.orderType = 'LMT'
         order.lmtPrice = price
-        if strSymbol.startswith('MES') or strSymbol == 'XOP':
+        if strSymbol.startswith('MES') or strSymbol == 'TLT' or strSymbol == 'XOP':
             if IsMarketOpen() == False:
                 return -1
         else:

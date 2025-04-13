@@ -5,7 +5,12 @@ require_once('copyright.php');
 require_once('analytics.php');
 require_once('adsense.php');
 require_once('ui/echohtml.php');
-require_once('class/Mobile_Detect.php');
+
+require_once('Mobile-Detect/standalone/autoloader.php');
+require_once('Mobile-Detect/src/MobileDetectStandalone.php');
+
+use Detection\Exception\MobileDetectException;
+use Detection\MobileDetectStandalone;
 
 define('DEFAULT_WIDTH', 640);
 define('DEFAULT_DISPLAY_WIDTH', 900);
@@ -14,11 +19,16 @@ define('MIN_SCRREN_WIDTH', DEFAULT_DISPLAY_WIDTH + 10 + DEFAULT_ADSENSE_WIDTH);	
 
 function LayoutIsMobilePhone()
 {
-    $detect = new Mobile_Detect;
-    if ($detect->isMobile() && !$detect->isTablet()) 
-    {
-        return true;
-    }
+	$detect = new MobileDetectStandalone();
+	$detect->setUserAgent($_SERVER['HTTP_USER_AGENT'] ?? '');
+	try 
+	{
+		if ($detect->isMobile() && !$detect->isTablet())	return true;
+	}
+	catch (MobileDetectException $e) 
+	{
+		DebugPrint($e);
+	}
     return false;
 }
 
@@ -66,7 +76,7 @@ function ResizePng($strPathName, $iNewWidth = 300, $iNewHeight = false)
 //	https://ibkr.com/referral/rongrong586
 function GetWechatPay($iType = 0, $bChinese = true)
 {
-	if ($iType == 0)	$iType = rand(1, 5);
+	if ($iType == 0)	$iType = rand(1, 6);
 	switch ($iType)
 	{
 	case 1:
@@ -93,13 +103,13 @@ function GetWechatPay($iType = 0, $bChinese = true)
         	
 	case 5:
 		$strRemark = '香港保诚保险投保微信群二维码';
-		$strImage = GetImgElement(ResizeJpg('/debug/wechat/bf19b951e4a2ea3e.jpg'), $strRemark);
+		$strImage = GetImgElement(ResizeJpg('/debug/wechat/52fd2eff12d4a1ff.jpg'), $strRemark);
 		break;
-/*        	
+       	
 	case 6:
 		$strRemark = '扫描Palmmicro微信插件二维码然后关注，可以直接在微信中接收企业微信义工群的消息。';
-		$strImage = GetImgElement(ResizeJpg('/debug/wechat/c77f7f2bebc468bc.jpg'), $strRemark);
-		break;*/
+		$strImage = GetImgElement(ResizeJpg('/debug/wechat/a39e5891dad44379.jpg'), $strRemark);
+		break;
 	}
 	
 	return $strImage.GetBreakElement().GetRemarkElement($strRemark);

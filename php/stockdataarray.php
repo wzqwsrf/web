@@ -1,8 +1,6 @@
 <?php
 require_once('stock.php');
 
-// 'SH513350', 'SZ159518', 'SZ161127', 'SZ162411', 'SZ164906'
-
 function _addIndexArray(&$ar, $strIndex, $strEtf)
 {
 	if (!isset($ar[$strEtf]))

@@ -26,6 +26,11 @@ function DemoPrefetchData()
     StockPrefetchExtendedData(A_DEMO_SYMBOL, AB_DEMO_SYMBOL, ADRH_DEMO_SYMBOL, AH_DEMO_SYMBOL, FUND_DEMO_SYMBOL, US_DEMO_SYMBOL);
 }
 
+function _getDemoFundReference()
+{
+	return StockGetFundReference(FUND_DEMO_SYMBOL);
+}
+
 function EchoNvCloseDemo($strSymbol = US_DEMO_SYMBOL)
 {
     $ref = new MyStockReference($strSymbol);
@@ -130,7 +135,7 @@ function Echo20160108($strHead)
 </p>
 END;
 
-	EchoFundHistoryParagraph(StockGetFundReference(FUND_DEMO_SYMBOL));
+	EchoFundHistoryParagraph(_getDemoFundReference());
 }
 
 function Echo20160126($strHead)
@@ -200,7 +205,7 @@ function Echo20160216($strHead)
 </p>
 END;
 
-	EchoCalibrationHistoryParagraph(StockGetFundReference(FUND_DEMO_SYMBOL));
+	EchoCalibrationHistoryParagraph(_getDemoFundReference());
 }
 
 function Echo20160222($strHead)
@@ -219,7 +224,7 @@ function Echo20160222($strHead)
 </p>
 END;
 
-	EchoNetValueHistoryParagraph(StockGetFundReference(FUND_DEMO_SYMBOL));
+	EchoNetValueHistoryParagraph(_getDemoFundReference());
 }
 
 function Echo20160226($strHead)
@@ -350,7 +355,7 @@ function EchoPage20160818($strPage)
 </p>
 END;
 
-	EchoFundArrayEstParagraph(array(StockGetFundReference(FUND_DEMO_SYMBOL)));
+	EchoFundArrayEstParagraph(array(_getDemoFundReference()));
 	EchoTableParagraphBegin(array(new TableColumn('估值因素', 140), $offical_col, $fair_col, $realtime_col), 'estcompare');
 	EchoTableColumn(array('T日美股交易',		'XOP净值',	'XOP净值',	'XOP净值'));
 	EchoTableColumn(array('CL期货',			'否',		'否',		'是'));
@@ -561,7 +566,7 @@ function Echo20180327($strHead)
 </p>
 END;
 
-	EchoQdiiSmaParagraph(StockGetFundReference(FUND_DEMO_SYMBOL));
+	EchoQdiiSmaParagraph(_getDemoFundReference());
 }
 
 function Echo20180404($strHead)
@@ -774,7 +779,7 @@ function Echo20210714($strHead)
 </p>
 END;
 	
-	EchoFundShareParagraph(StockGetFundReference(FUND_DEMO_SYMBOL));
+	EchoFundShareParagraph(_getDemoFundReference());
 }
 
 function Echo20210728($strPage)
