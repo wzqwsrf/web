@@ -26,7 +26,7 @@ function EchoHead($bChinese = true)
 
 function EchoBody($bChinese = true, $bDisplay = true)
 {
-	$bAdsense = DebugIsAdmin() ? false : $bDisplay;
+	$bAdsense = DebugIsPalmmicro() ? false : $bDisplay;
 	_LayoutTopLeft($bChinese, $bAdsense);
 
 	LayoutBegin();

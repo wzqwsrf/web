@@ -213,7 +213,7 @@ function GetFuGuoSoftwareLinks($strDigitA)
 
 function GetGuangFaSoftwareLinks($strDigitA)
 {
-    $ar = array('SH513380', 'SH513750', 'SZ159605', 'SZ159941', 'SZ162719');
+    $ar = array('SH513380', 'SH513750', 'SZ159312', 'SZ159605', 'SZ159941', 'SZ162719');
 	$strUrl = 'http://www.gffunds.com.cn';
     return ' '.GetOfficialLink($strUrl.'/funds/?fundcode='.$strDigitA, $strDigitA).GetCategorySoftwareLinks($ar, GetExternalLink($strUrl, '广发基金'));
 }

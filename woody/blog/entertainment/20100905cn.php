@@ -87,7 +87,7 @@ function _echoPage20170319($strPage)
 	$strSZ162411 = GetGroupStockLink(FUND_DEMO_SYMBOL);	
 	$strVisitor = GetAllVisitorLink();
 	$strPA1688 = GetInternalLink('/pa1688/indexcn.html', 'PA1688');
-	$strIpInfo = GetExternalLink(GetIpInfoUrl());
+	$strIpInfo = GetExternalLink(GetIpInfoUrl().'what-is-my-ip');
 	$strIp = GetAccountToolLink($strPage);
 
     echo <<<END

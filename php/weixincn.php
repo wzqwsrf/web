@@ -46,8 +46,7 @@ class WeixinStock extends WeixinCallback
 	{
 		LogBotVisit(TABLE_WECHAT_BOT, $strText, $strUserName);
 	    
-        if (stripos($strText, 'Q群') !== false)			return '本公众号不再提供群聊技术支持，有问题请'._wxEmailInfo();
-        else if (strpos($strText, '商务合作') !== false)	return '请把具体合作内容和方式'._wxEmailInfo();
+        if (strpos($strText, '商务合作') !== false)	return '请把具体合作内容和方式'._wxEmailInfo();
         
         if ($str = StockBotGetStr($strText, $this->GetVersion()))		return $str;
 		return $this->GetUnknownText($strText, $strUserName);

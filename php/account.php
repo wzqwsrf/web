@@ -240,6 +240,17 @@ class Account
     	return $this->bAllowCurl;
     }
     
+    function IsPalmmicro()
+    {
+    	$str = '@palmmicro.com';
+    	$iLen = strlen($str);
+    	if (substr($this->GetLoginEmail(), -$iLen, $iLen) == $str)
+    	{
+    		return true;
+    	}
+    	return false;
+    }
+    
     function IsAdmin()
     {
     	if ($this->GetLoginEmail() == ADMIN_EMAIL)
@@ -248,7 +259,7 @@ class Account
     	}
     	return false;
     }
-    
+
     public function AdminProcess()
     {
     	DebugString('Empty Admin Process');

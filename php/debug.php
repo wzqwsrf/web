@@ -8,7 +8,7 @@ define('SECONDS_IN_HOUR', 3600);
 define('SECONDS_IN_DAY', 86400);
 
 // 13.6 in MySQL
-define('MIN_FLOAT_VAL', 0.000001);
+define('MIN_FLOAT_VAL', 0.0000005);
 define('FLOAT_PRECISION', 6);
 
 function IsZeroString($strZero)
@@ -23,8 +23,8 @@ function strval_round($fVal, $iPrecision = false)
 	{
 		$f = abs($fVal);
 		if ($f > (10 - MIN_FLOAT_VAL))		$iPrecision = 2;
-		else if ($f > (2 - MIN_FLOAT_VAL))   $iPrecision = 3;
-		else                                   $iPrecision = 4;
+		else if ($f > (2 - MIN_FLOAT_VAL))	$iPrecision = 3;
+		else								$iPrecision = 4;
     }
 	return strval(round($fVal, $iPrecision));
 }
@@ -129,6 +129,16 @@ function DebugGetPathName($strFileName)
 function DebugGetFile()
 {
     return DebugGetPathName('debug.txt');
+}
+
+function DebugIsPalmmicro()
+{
+   	global $acct;
+	if ($acct && method_exists($acct, 'IsPalmmicro'))
+	{
+		return $acct->IsPalmmicro();
+	}
+	return false;
 }
 
 function DebugIsAdmin()
