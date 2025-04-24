@@ -8,7 +8,7 @@ from nyc_time import GetBeijingTimeDisplay
 
 from _tgprivate import TG_TOKEN
 from _tgprivate import WECHAT_KEY
-from _tgprivate import WECHAT_DEBUG_KEY
+from _tgprivate import WECHAT_IEO_KEY
 from _tgprivate import WECHAT_KWEB_KEY
 from _tgprivate import WECHAT_SPY_KEY
 from _tgprivate import WECHAT_TQQQ_KEY
@@ -57,7 +57,7 @@ class Palmmicro:
                           'xbi':{'key':WECHAT_XBI_KEY, 'count':17, 'timer':0, 'msg':'', 'array_msg':[]},
                           'xly':{'key':WECHAT_XLY_KEY, 'count':19, 'timer':0, 'msg':'', 'array_msg':[]},
                           'xop':{'key':WECHAT_XOP_KEY, 'count':23, 'timer':0, 'msg':'', 'array_msg':[]},
-                          'debug':{'key':WECHAT_DEBUG_KEY, 'count':29, 'timer':0, 'msg':'', 'array_msg':[]}
+                          'ieo':{'key':WECHAT_IEO_KEY, 'count':29, 'timer':0, 'msg':'', 'array_msg':[]}
                          }
 
     def GetTelegramChatId(self):
@@ -232,10 +232,8 @@ class Palmmicro:
                 self.__send_msg(group)
 
     def SendSymbolMsg(self, strMsg, strSymbol):
-        if strSymbol in ['KWEB', 'SPY', 'TQQQ', 'XBI', 'XLY', 'XOP']:
+        if strSymbol in ['IEO', 'KWEB', 'SPY', 'TQQQ', 'XBI', 'XLY', 'XOP']:
             self.SendMsg(strMsg.replace(' ' + strSymbol, ''), strSymbol.lower())
-        else:
-            self.SendMsg(strMsg, 'debug')
 
     def SendOldMsg(self):
         for group, value in self.arSendMsg.items():

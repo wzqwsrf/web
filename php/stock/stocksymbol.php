@@ -186,7 +186,7 @@ function QdiiHkGetIndexSymbolArray()
  
 function QdiiHkGetSymbolArray()
 {
-    $ar = array_merge(array('SH501025') 
+    $ar = array_merge(array('SH501025', 'SZ161124') 
     				   , QdiiHkGetTechSymbolArray()
     				   , QdiiHkGetHSharesSymbolArray()
     				   , QdiiHkGetHangSengSymbolArray());

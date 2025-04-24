@@ -159,7 +159,7 @@ EndFunc
 Func _DlgClickButton($idDebug, $strTitle, $strButton)
 ;	$hDlgWnd = WinWait($strTitle, $strButton, 5)
 	$iCount = 0
-	While $iCount < 5
+	While $iCount < 10
 		$hDlgWnd = WinWait($strTitle, $strButton, 1)
 		If $hDlgWnd <> 0 Then ExitLoop
 		_closeNewDlg($idDebug)
@@ -169,7 +169,7 @@ Func _DlgClickButton($idDebug, $strTitle, $strButton)
 	If $hDlgWnd <> 0 Then
 		_CtlClickButton($hDlgWnd, $idDebug, $strButton)
 	Else
-		_CtlDebug($idDebug, '5秒内没找到对话框"' & $strTitle & '"和按钮"' & $strButton & '"')
+		_CtlDebug($idDebug, '10秒内没找到对话框"' & $strTitle & '"和按钮"' & $strButton & '"')
 	EndIf
 EndFunc
 
@@ -339,6 +339,8 @@ Func _getYinheFundName($strSymbol)
 			$strName = '嘉实原油'
 		Case '161116'
 			$strName = '易基黄金'
+		Case '161124'
+			$strName = '香港小盘'
 		Case '161125'
 			$strName = '标普500'
 		Case '161126'
@@ -347,6 +349,8 @@ Func _getYinheFundName($strSymbol)
 			$strName = '标普生物'
 		Case '161128'
 			$strName = '标普科技'
+		Case '161129'
+			$strName = '原油基金'
 		Case '161130'
 			$strName = '纳指LOF'
 		Case '161226'
@@ -509,7 +513,7 @@ Func _getFundAmount($strSymbol)
 		Case '160216'
 			$strAmount = '10000'
 		Case '160416'
-			$strAmount = '2000'
+			$strAmount = '50'
 		Case '161226'
 			$strAmount = '10000'
 		Case '162411'
@@ -1081,7 +1085,7 @@ Func _loadListViewAccount($iSoftware, $idListViewAccount, ByRef $arCheckboxAccou
 EndFunc
 
 Func AppMain()
-	$idFormMain = GUICreate("通达信单独委托版全自动拖拉机0.85", 803, 506, 289, 0)
+	$idFormMain = GUICreate("通达信单独委托版全自动拖拉机0.88", 803, 506, 289, 0)
 
 	$idListViewAccount = GUICtrlCreateListView("客户号", 24, 24, 146, 454, BitOR($GUI_SS_DEFAULT_LISTVIEW,$WS_VSCROLL), BitOR($WS_EX_CLIENTEDGE,$LVS_EX_CHECKBOXES))
 	GUICtrlSendMsg(-1, $LVM_SETCOLUMNWIDTH, 0, 118)
@@ -1092,7 +1096,7 @@ Func AppMain()
 
 	$idLabelSymbol = GUICtrlCreateLabel("基金代码", 192, 24, 52, 17)
 	$idListSymbol = GUICtrlCreateList("", 192, 48, 121, 97)
-	GUICtrlSetData(-1, '160216|160416|160717|160719|160723|161116|161125|161126|161127|161128|161130|161226|162411|162415|163208|164701|164824|164906|501225|510300', _getProfileString('Symbol', '161128'))
+	GUICtrlSetData(-1, '160216|160416|160717|160719|160723|161116|161124|161125|161126|161127|161128|161129|161130|161226|162411|162415|163208|164701|164824|164906|501225|510300', _getProfileString('Symbol', '161128'))
 
 	$idLabelSellPrice = GUICtrlCreateLabel("卖出价格", 192, 160, 52, 17)
 	$idInputSellPrice = GUICtrlCreateInput("", 192, 184, 121, 21)

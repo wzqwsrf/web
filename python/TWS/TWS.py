@@ -74,12 +74,13 @@ class MyEWrapper(EWrapper):
         self.arDebug = {}
 
     def nextValidId(self, orderId: int):
-        self.arHedge = {'SZ161125', 'SZ161127', 'SZ161130', 'SZ162411', 'SZ162415', 'SZ164906'}
+        self.arHedge = {'SZ161125', 'SZ161127', 'SZ161130', 'SZ162411', 'SZ162415', 'SZ162719', 'SZ164906'}
         self.arTQQQ = {'SH513100', 'SH513110', 'SH513390', 'SH513870', 'SZ159501', 'SZ159513', 'SZ159632', 'SZ159659', 'SZ159660', 'SZ159696', 'SZ159941'}
         self.arXOP = {'SH513350', 'SZ159518'}
         self.arOrder = {}
-        self.arOrder['KWEB'] = GetOrderArray([20.07, 25.42, 26.77, 30.19, 30.78, 32.85, 38.93, 39.07], 200, 3, 5)
+        self.arOrder['KWEB'] = GetOrderArray([20.07, 25.45, 26.5, 30.72, 30.94, 31.9, 37.3, 39.07], 200, 4, 6)
         if IsChinaMarketOpen():
+            self.arOrder['IEO'] = GetOrderArray()
             self.arOrder['SPY'] = GetOrderArray()
             self.arOrder['TQQQ'] = GetOrderArray()
             self.arOrder['XBI'] = GetOrderArray()
@@ -87,10 +88,10 @@ class MyEWrapper(EWrapper):
             self.arOrder['XOP'] = GetOrderArray()
         else:
         #if IsMarketOpen():
-            self.arOrder['TLT'] = GetOrderArray([79.8, 83.3, 85.52, 87.63, 88.56, 89.42, 93.33, 93.93, 98.66], 100, 2, 4)
-            self.arOrder['XOP'] = GetOrderArray([91.02, 107.1, 107.72, 119.61, 148.2, 151.63, 153.7], 100, 0, 3)
-            self.arOrder['SPX'] = GetOrderArray([4025.59, 4908.82, 5253.97, 5360.42, 5462.97, 6017.12, 6473.36, 6600.62])
-            self.arOrder['MES' + self.strCurFuture] = AdjustOrderArray(self.arOrder['SPX'], 1.0065, 1, 3)
+            #self.arOrder['TLT'] = GetOrderArray([79.8, 83.57, 84.41, 87.08, 87.31, 88.94, 93.46, 98.66], 100, 2, 5)
+            self.arOrder['XOP'] = GetOrderArray([90.23, 108.73, 110.82, 115.11, 139.99, 152.2, 153.7], 100, 0, 2)
+            self.arOrder['SPX'] = GetOrderArray([4025.59, 4896.82, 5276.13, 5312.69, 5367.2, 5837.59, 6480.7, 6600.62])
+            self.arOrder['MES' + self.strCurFuture] = AdjustOrderArray(self.arOrder['SPX'], 1.0054, 2, 5)
             self.arOrder['MES' + self.strNextFuture] = AdjustOrderArray(self.arOrder['SPX'], 1.0161, -1, -1)
         self.palmmicro = Palmmicro()
         self.client.StartStreaming(orderId)

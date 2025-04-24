@@ -2,7 +2,7 @@
 require_once('_stock.php');
 require_once('../../php/ui/imagedisp.php');
 
-define('YINHE_AU3_VER', '85');
+define('YINHE_AU3_VER', '88');
 
 function EchoAll()
 {
@@ -14,9 +14,10 @@ function EchoAll()
     $strHuabaoLink = GetExternalLink('https://www.cnhbstock.com/view/software/software.html?col=0', '华宝证券官网');
     $strHuabao = GetBoldElement('通达信版独立交易8.25');
     $strAutoIt =  GetBoldElement('AutoIt3.exe');
+    $strTc =  GetBoldElement('Tc.exe');
     $strAutoItFull =  GetBoldElement('C:\Program Files (x86)\AutoIt3\AutoIt3.exe');
-    echo GetListElement(array('在'.$strNepturnLink.'下载并在缺省路径C:\中国银河证券海王星独立交易\Tc.exe位置安装'.$strNepturn.'，桌面图标会显示'.GetInfoElement('中国银河证券海王星独立交易').'，注意它不同于'.GetFontElement('海王星金融终端').'软件。VPN下在银河官网下载经常会停留在8M字节不动，要关闭后才能完整下载。',
-    							'在'.$strHuabaoLink.'下载并在缺省路径C:\tc_hbzq\Tc.exe位置安装'.$strHuabao.'，桌面图标会显示'.GetInfoElement('华宝证券独立交易').'。',
+    echo GetListElement(array('在'.$strNepturnLink.'下载并在缺省路径C:\中国银河证券海王星独立交易\位置安装'.$strNepturn.'的'.$strTc.'，桌面图标会显示'.GetInfoElement('中国银河证券海王星独立交易').'，注意它不同于'.GetFontElement('海王星金融终端').'软件。VPN下在银河官网下载经常会停留在8M字节不动，要关闭后才能完整下载。',
+    							'在'.$strHuabaoLink.'下载并在缺省路径C:\tc_hbzq\位置安装'.$strHuabao.'的'.$strTc.'，桌面图标会显示'.GetInfoElement('华宝证券独立交易').'。',
     							'下载并安装开源的'.GetExternalLink('https://www.autoitscript.com/site/autoit/downloads/', 'AutoIt').'工具软件包。普通用户实际仅需用到x86版本的'.$strAutoItFull.'文件。通达信还在使用上世纪WIN95时代开始的WIN32控件，去用x64的工具链就无法兼容了。一定要小心软件来源，千万不要运行来历不明的.exe文件，同时也要留意不要让本机上的杀毒软件误拦截'.$strAutoIt.'的运行。',
     							'在本页面下载银河华宝拖拉机自动化PC软件脚本的2个文件到同一个子目录下，分别是'.GetFileLink('/autoit/yinhe.au3').'和'.GetFileLink('/debug/autoitscript/yinheaccounts.au3').'。'));
 /*    							'下载开源的'.GetExternalLink('https://tesseract-ocr.github.io/', 'Tesseract软件').'用来识别登录验证码。也可以在'.GetExternalLink('https://sourceforge.net/projects/tesseract-ocr-alt/files/', 'SourceForge').'下载一个镜像文件'.GetFileLink('/download/tesseract-ocr-setup-3.02.02.exe').'，然后一路回车缺省安装。',

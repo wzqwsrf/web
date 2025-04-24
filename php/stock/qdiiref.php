@@ -63,10 +63,10 @@ function QdiiGetEstSymbol($strSymbol)
 
 function QdiiHkGetEstSymbol($strSymbol)
 {
-    if ($strSymbol == 'SH501025')   		 		return 'SH000869';	// '03143'
-    else if (in_arrayTechQdiiHk($strSymbol))		return '^HSTECH';
-    else if (in_arrayHangSengQdiiHk($strSymbol))	return '^HSI';		// '02800'
-    else if (in_arrayHSharesQdiiHk($strSymbol))		return '^HSCE';	// '02828'
+    if ($strSymbol == 'SH501025')   		 									return 'SH000869';	// '03143'
+    else if (in_arrayTechQdiiHk($strSymbol))									return '^HSTECH';
+    else if (in_arrayHangSengQdiiHk($strSymbol) || $strSymbol == 'SZ161124')	return '^HSI';		// '02800'
+    else if (in_arrayHSharesQdiiHk($strSymbol))									return '^HSCE';		// '02828'
     else 
         return false;
 }
