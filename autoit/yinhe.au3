@@ -491,6 +491,10 @@ Func _getFundAmount($strSymbol)
       $strAmount = '2000'
     Case '161116'
       $strAmount = '100'
+    Case '161124'
+      $strAmount = '100'
+    Case '161129'
+      $strAmount = '100'
     Case '161125'
       $strAmount = '100'
     Case '161126'
@@ -1338,7 +1342,7 @@ Func AppMain()
 
   $idLabelSymbol = GUICtrlCreateLabel("基金代码", 192, 24, 52, 17)
   $idListSymbol = GUICtrlCreateList("", 192, 48, 121, 97)
-  GUICtrlSetData(-1, '160216|160416|160717|161116|161125|161126|161127|161128|161130|161226|162411|162415|163208|164824|164906|501225|501300', _getProfileString('Symbol', '161116'))
+  GUICtrlSetData(-1, '160216|160416|160717|161116|161124|161125|161126|161127|161128|161129|161130|161226|162411|162415|163208|164824|164906|501225|501300|501018', _getProfileString('Symbol', '161116'))
 
   $idLabelSellPrice = GUICtrlCreateLabel("卖出价格", 192, 160, 52, 17)
   $idInputSellPrice = GUICtrlCreateInput("", 192, 184, 121, 21)
