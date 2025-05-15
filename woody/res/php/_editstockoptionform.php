@@ -1,31 +1,52 @@
 <?php
 require_once('_emptygroup.php');
+require_once('../../php/stock/kraneshares.php');
 
-function _getStockOptionDate($strSubmit, $ref)
+function _getStockOptionDate($strSubmit, $ref, $strSymbol)
 {
+    $now_ymd = GetNowYMD();
+	$strYMD = $now_ymd->GetYMD();
+    
     $strStockId = $ref->GetStockId();
 	$his_sql = GetStockHistorySql();
 	switch ($strSubmit)
 	{
 	case STOCK_OPTION_DIVIDEND:
 	case STOCK_OPTION_EMA:
-	case STOCK_OPTION_HOLDINGS:
 	case STOCK_OPTION_SHARE_DIFF:
 	case STOCK_OPTION_SPLIT:
-		if ($strDate = $his_sql->GetDateNow($strStockId))							return $strDate;
-		break;
+		if ($strDate = $his_sql->GetDateNow($strStockId))		return $strDate;
+	 	return $strYMD;
 
 	case STOCK_OPTION_CLOSE:
 		if ($record = $his_sql->GetRecordPrev($strStockId, $ref->GetDate()))	return $record['date'];
-		break;
+	 	return $strYMD;
 
 	case STOCK_OPTION_CALIBRATION:
 	case STOCK_OPTION_NAV:
-		$nav_sql = GetNavHistorySql();
-		if ($strDate = $nav_sql->GetDateNow($strStockId))							return $strDate;
-		if ($strDate = $his_sql->GetDateNow($strStockId))							return $strDate;
-		break;
+		if ($strSymbol == 'KWEB')
+		{
+			if ($strDate = $his_sql->GetDatePrev($strStockId, $ref->GetDate()))		return $strDate;
+		}
+		else
+		{
+			$nav_sql = GetNavHistorySql();
+			if ($strDate = $nav_sql->GetDateNow($strStockId))		return $strDate;
+			if ($strDate = $his_sql->GetDateNow($strStockId))		return $strDate;
+		}
+	 	return $strYMD;
+
+	case STOCK_OPTION_HOLDINGS:
+		$date_sql = new HoldingsDateSql();
+		if ($strDate = $date_sql->ReadDate($strStockId))		return $strDate;
+	 	return $strYMD;
+
+	case STOCK_OPTION_PREMIUM:
+		$premium_sql = new FuturePremiumSql();
+		if ($strDate = $premium_sql->GetDateNow($strStockId))		return $strDate;
+	 	return $strYMD;
 	}
+
 	return '';
 }
 
@@ -55,11 +76,13 @@ function _getStockOptionName($ref, $strSymbol)
 
 function _getStockOptionAmount($strLoginId, $strStockId)
 {
-   	if ($str = SqlGetFundPurchaseAmount($strLoginId, $strStockId))
-   	{
-    	return $str;
+//   	if ($str = SqlGetFundPurchaseAmount($strLoginId, $strStockId))
+	if ($strGroupItemId = SqlGetMyStockGroupItemId($strLoginId, $strStockId))
+	{
+		$amount_sql = new GroupItemAmountSql();
+		return $amount_sql->ReadAmount($strGroupItemId);
     }
-    return FUND_PURCHASE_AMOUNT;
+    return '出错了';
 }
 
 function _getStockOptionAh($strSymbol)
@@ -78,6 +101,22 @@ function _getStockOptionHa($strSymbol)
 		return $strA;
 	}
 	return 'A';
+}
+
+function _getStockOptionNav($ref, $strSymbol, $strStockId, $strDate)
+{
+	if ($strSymbol == 'KWEB')
+	{
+		if ($strNav = GetKraneNav($ref))		return $strNav;
+	}
+	return SqlGetNavByDate($strStockId, $strDate);
+}
+
+function _getStockOptionPremium($strStockId, $strDate)
+{
+	$premium_sql = new FuturePremiumSql();
+	if ($strClose = $premium_sql->GetClose($strStockId, $strDate))		return $strClose;
+	return '4.5';
 }
 
 function _getStockOptionAdr($strSymbol)
@@ -162,8 +201,9 @@ function _getBestEstNav($ref, $strDate)
 function _getStockOptionCalibration($strSymbol, $strDate)
 {
 	$est_ref = false;
-	if (in_arrayChinaIndex($strSymbol))
+	if ($ref = StockGetFundPairReference($strSymbol))
 	{
+		$est_ref = $ref->GetPairRef();
 	}
 	else if ($fund = StockGetQdiiReference($strSymbol))
     {
@@ -179,6 +219,20 @@ function _getStockOptionCalibration($strSymbol, $strDate)
 	}
 
 	return $est_ref ? _getBestEstNav($est_ref, $strDate) : '对方净值';
+}
+
+function _getStockOptionHoldings($strStockId)
+{
+	$sql = GetHoldingsSql();
+	$ar = $sql->GetHoldingsArray($strStockId);
+	if (count($ar) == 0)			return 'STOCK1*10.1;STOCK2*20.2;STOCK3*30.3;STOCK4*39.4';
+
+	$str = '';
+	foreach ($ar as $strStockId => $strRatio)
+	{
+		$str .= SqlGetStockSymbol($strStockId).'*'.rtrim0($strRatio).';';
+	}
+	return rtrim($str, ';');
 }
 
 function _getStockOptionVal($strSubmit, $strLoginId, $ref, $strSymbol, $strDate)
@@ -217,11 +271,14 @@ function _getStockOptionVal($strSubmit, $strLoginId, $ref, $strSymbol, $strDate)
 		return _getStockOptionHa($strSymbol);
 
 	case STOCK_OPTION_HOLDINGS:
-		return 'STOCK1*10.1;STOCK2*20.2;STOCK3*30.3;STOCK4*39.4';
+		return _getStockOptionHoldings($strStockId);
 
 	case STOCK_OPTION_NAV:
-		return SqlGetNavByDate($strStockId, $strDate);
+		return _getStockOptionNav($ref, $strSymbol, $strStockId, $strDate);
 
+	case STOCK_OPTION_PREMIUM:
+		return _getStockOptionPremium($strStockId, $strDate);
+		
 	case STOCK_OPTION_SHARE_DIFF:
 		return _getStockOptionSharesDiff($strStockId, $strDate);
 
@@ -262,6 +319,9 @@ function _getStockOptionMemo($strSubmit)
 	case STOCK_OPTION_NAV:
 		return '清空输入删除对应日期净值。';
 
+	case STOCK_OPTION_PREMIUM:
+		return '期货升水年化百分比';
+		
 	case STOCK_OPTION_SHARE_DIFF:
 		return '清空输入删除对应日期新增。';
 		
@@ -276,21 +336,32 @@ class SymbolEditAccount extends SymbolAccount
 	function StockOptionEditForm($strSubmit)
 	{
 		$ref = $this->GetSymbolRef();
+		$strReadonly = HtmlElementReadonly();
 		$strEmail = $this->GetLoginEmail(); 
-	
-		$strEmailReadonly = HtmlElementReadonly();
+		$strEmailReadonly = $strReadonly;
 		$strSymbol = $ref->GetSymbol();
-//		$strSymbolReadonly = ($strSubmit == STOCK_OPTION_EDIT) ? '' : HtmlElementReadonly();
-		$strSymbolReadonly = HtmlElementReadonly();
+		$strSymbolReadonly = $strReadonly;
 	
 		$strDateDisabled = '';
-		if (($strDate = _getStockOptionDate($strSubmit, $ref)) == '')
+		if (($strDate = _getStockOptionDate($strSubmit, $ref, $strSymbol)) == '')
 		{
 			$strDateDisabled = HtmlElementDisabled();
 		}
     
 		$strVal = _getStockOptionVal($strSubmit, $this->GetLoginId(), $ref, $strSymbol, $strDate);
 		$strMemo = GetInfoElement(_getStockOptionMemo($strSubmit));
+		
+		$strDateReadonly = '';
+		$strValReadonly = '';
+		if ($strSubmit != STOCK_OPTION_AMOUNT)
+		{
+			if ($this->IsAdmin() === false)
+			{
+				$strValReadonly = $strReadonly;
+				if ($strDateDisabled == '')		$strDateReadonly = $strReadonly;
+				$strSubmit = '返回';
+			}
+		}
 	
 		echo <<< END
 	<script>
@@ -304,8 +375,8 @@ class SymbolEditAccount extends SymbolAccount
 		<p>$strMemo
 		<br /><input name="login" value="$strEmail" type="text" size="40" maxlength="128" class="textfield" id="login" $strEmailReadonly />
 		<br /><input name="symbol" value="$strSymbol" type="text" size="20" maxlength="32" class="textfield" id="symbol" $strSymbolReadonly />
-		<br /><input name="date" value="$strDate" type="text" size="10" maxlength="32" class="textfield" id="date" $strDateDisabled />
-		<br /><textarea name="val" rows="8" cols="75" id="val">$strVal</textarea>
+		<br /><input name="date" value="$strDate" type="text" size="10" maxlength="32" class="textfield" id="date" {$strDateReadonly}{$strDateDisabled} />
+		<br /><textarea name="val" rows="8" cols="75" id="val" $strValReadonly>$strVal</textarea>
 	    <br /><input type="submit" name="submit" value="$strSubmit" />
 	    </p>
 	    </div>

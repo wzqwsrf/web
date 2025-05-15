@@ -1,4 +1,5 @@
 <?php
+require_once('sqlint.php');
 require_once('sqlkeystring.php');
 require_once('sqlstocktransaction.php');
 
@@ -8,6 +9,11 @@ class StockGroupSql extends KeyStringSql
     public function __construct() 
     {
         parent::__construct(TABLE_STOCK_GROUP, TABLE_MEMBER, 'groupname', 64);
+    }
+    
+    function GetGroupId($strMemberId, $strGroupName)
+    {
+    	return $this->GetRecordId($strMemberId, $strGroupName);
     }
 }
 
@@ -117,6 +123,33 @@ class StockGroupItemSql extends KeyTableSql
     }
 }    
 
+class GroupItemAmountSql extends IntSql
+{
+    public function __construct()
+    {
+        parent::__construct('groupitemamount');
+    }
+    
+    function ReadAmount($strGroupItemId)
+    {
+		if ($str = $this->ReadString($strGroupItemId))	return $str;
+		return '100000';
+    }
+}
+
+class GroupItemExtraSql extends IntSql
+{
+    public function __construct()
+    {
+        parent::__construct('groupitemextra', 'record');
+    }
+
+    public function Create()
+    {
+    	return $this->CreateIntTable(', `quantity` INT NOT NULL , `cost` DOUBLE(10,3) NOT NULL');
+    }
+}
+
 // ****************************** Stock Group Item table *******************************************************
 /*
 function SqlCreateStockGroupItemTable()
@@ -196,7 +229,7 @@ function SqlGetStocksArray($strGroupId, $bCheckTransaction = false)
     		if ($strSymbol = $sql->GetStockSymbol($strStockId))	$ar[] = $strSymbol;
     	}
     }
-	sort($ar);
+//	sort($ar);
     return $ar;
 }
 
@@ -279,6 +312,27 @@ function SqlDeleteStockGroupItemByStockId($strStockId)
 		return false;
 	}
 	return true;
+}
+
+function SqlGetStockGroupItemId($strGroupId, $strStockId)
+{
+	$item_sql = new StockGroupItemSql($strGroupId);
+	if ($record = $item_sql->GetRecord($strStockId))
+	{
+		return $record['id'];
+	}
+	return false;
+}
+
+function SqlGetMyStockGroupItemId($strMemberId, $strStockId)
+{
+	$group_sql = new StockGroupSql();
+	$strGroupName = SqlGetStockSymbol($strStockId);
+   	if ($strGroupId = $group_sql->GetGroupId($strMemberId, $strGroupName))
+   	{
+   		return SqlGetStockGroupItemId($strGroupId, $strStockId);
+   	}
+	return false;
 }
 
 ?>

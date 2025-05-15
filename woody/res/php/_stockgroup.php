@@ -39,7 +39,7 @@ class GroupAccount extends StockAccount
 
         $sql = $this->GetGroupSql();
         $strGroupName = $this->GetName();
-        if ($strGroupId = $sql->GetRecordId($strLoginId, $strGroupName))
+        if ($strGroupId = $sql->GetGroupId($strLoginId, $strGroupName))
         {
         	$arNew = array();
             foreach ($arRef as $ref)
@@ -51,7 +51,7 @@ class GroupAccount extends StockAccount
         else
         {
 			$sql->InsertString($strLoginId, $strGroupName);
-            if ($strGroupId = $sql->GetRecordId($strLoginId, $strGroupName))
+            if ($strGroupId = $sql->GetGroupId($strLoginId, $strGroupName))
             {
             	$item_sql = new StockGroupItemSql($strGroupId);
                 foreach ($arRef as $ref)

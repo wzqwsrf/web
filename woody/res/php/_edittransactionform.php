@@ -151,8 +151,9 @@ function StockEditTransactionForm($acct, $strSubmit, $strGroupId = false, $strGr
         }
     
         $strPrice = rtrim0($record['price']);
-        $strCost = rtrim0($record['fees']);
         $strRemark = $record['remark'];
+		if (strpos($strRemark, STOCK_DISP_ORDER) !== false)		$strCost = rtrim0($record['fees']);
+		else											        $strCost = '';
         $strGroupItemId = $record['groupitem_id'];
     }
 	$item_sql = new StockGroupItemSql($strGroupId);
@@ -181,8 +182,13 @@ function StockEditTransactionForm($acct, $strSubmit, $strGroupId = false, $strGr
     
     $strPassQuery = UrlPassQuery();
     $strSymbolsList = HtmlGetOption(SqlGetStockGroupItemSymbolArray($item_sql), SqlGetStockSymbol($item_sql->GetStockId($strGroupItemId)));
-    $arColumn = GetTransactionTableColumn();
+
+    $strColumnPrice = GetTableColumnPrice();
+    $strColumnQuantity = GetTableColumnQuantity();
+    $strColumnRemark = GetTableColumnRemark();
+    
 	echo <<< END
+	
 	<script>
 	    function OnLoad()
 	    {
@@ -265,21 +271,20 @@ function StockEditTransactionForm($acct, $strSubmit, $strGroupId = false, $strGr
 	        }
 	    }
 	</script>
-
 	<form id="transactionForm" name="transactionForm" method="post" action="submittransaction.php{$strPassQuery}">
         <div>
 		<p><SELECT name="symbol" onChange=OnSymbol() size=1> $strSymbolsList </SELECT> 
 			  <SELECT name="type" onChange=OnType() size=1> <OPTION value=0>卖出</OPTION> <OPTION value=1>买入</OPTION> </SELECT>
-			  {$arColumn[3]} 
+			  $strColumnPrice 
 		      <input name="price" value="$strPrice" type="text" size="20" maxlength="32" class="textfield" id="price" />
 		      <SELECT name="priceselect" onChange=OnPrice() size=1> $strPriceOption </SELECT>
-		<br />{$arColumn[2]}
+		<br />$strColumnQuantity
 		<br /><input name="quantity" value="$strQuantity" type="text" size="20" maxlength="32" class="textfield" id="quantity" />
 		<br /><SELECT name="commissionselect" size=1> <OPTION value=0>佣金金额</OPTION> <OPTION value=1>佣金‰</OPTION> </SELECT>
 		<br /><input name="commission" value="$strCost" type="text" size="20" maxlength="32" class="textfield" id="commission" />
 		<br /><SELECT name="taxselect" size=1> <OPTION value=0>税费金额</OPTION> <OPTION value=1>税费‰</OPTION> </SELECT>
 		<br /><input name="tax" value="" type="text" size="20" maxlength="32" class="textfield" id="tax" />
-		<br />{$arColumn[5]} $strRemarkLink 
+		<br />$strColumnRemark $strRemarkLink 
 			  <SELECT name="remarkselect" onChange=OnRemark() size=1> 
 			  	<OPTION value="" style="background:#CCCCCC;">---请选择---</OPTION>	<OPTION value=0>清空</OPTION> $strRemarkOption 
 			  </SELECT>

@@ -5,14 +5,14 @@ function _echoCalibrationHistoryItem($fPosition, $nav_sql, $strStockId, $record,
 {
 	$fCalibration = floatval($record['close']);
 	$strDate = $record['date'];
-	$ar = array($strDate, strval_round($fCalibration, 4), $record['time']);
+	$ar = array($strDate, strval_round($fCalibration, 4), GetHM($record['time']), $record['num']);
 
 	if ($fPosition)
 	{
 		$ar[] = $nav_sql->GetClose($strStockId, $strDate);
-		$strArbitrage = strval(round($fCalibration / $fPosition));
-		if ($bAdmin)	$strArbitrage = GetOnClickLink('/php/_submitoperation.php?stockid='.$strStockId.'&fundarbitrage='.$strArbitrage, "确认使用{$strArbitrage}作为参考对冲值？", $strArbitrage);
-		$ar[] = $strArbitrage;
+		$strHedge = strval(round($fCalibration / $fPosition));
+		if ($bAdmin)	$strHedge = GetOnClickLink('/php/_submitoperation.php?stockid='.$strStockId.'&fundhedgeval='.$strHedge, "确认使用{$strHedge}作为参考对冲值？", $strHedge);
+		$ar[] = $strHedge;
 	}
 
 	EchoTableColumn($ar);
@@ -22,7 +22,7 @@ function EchoCalibrationHistoryParagraph($ref, $iStart = 0, $iNum = TABLE_COMMON
 {
 	$strSymbol = $ref->GetSymbol();
 	$strStockId = $ref->GetStockId();
-	$calibration_sql = new CalibrationSql();
+   	$calibration_sql = GetCalibrationSql();
    	if (IsTableCommonDisplay($iStart, $iNum))
    	{
    		$strMenuLink = '';
@@ -31,10 +31,10 @@ function EchoCalibrationHistoryParagraph($ref, $iStart = 0, $iNum = TABLE_COMMON
    	else
    	{
    		$strMenuLink = StockGetMenuLink($strSymbol, $calibration_sql->Count($strStockId), $iStart, $iNum);
-   		$strLink = GetFundLinks($strSymbol).'<br />'.$strMenuLink;
+   		$strLink = GetFundListLink().' '.GetFundLinks($strSymbol).'<br />'.$strMenuLink;
    	}
     
-   	$ar = array(new TableColumnDate(), new TableColumnCalibration(), new TableColumnTime());
+   	$ar = array(new TableColumnDate(), new TableColumnCalibration(), new TableColumnTime(), new TableColumn('次数', 50));
    	if ($ref->IsFundA())
    	{
     	$fPosition = RefGetPosition($ref);

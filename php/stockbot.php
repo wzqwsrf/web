@@ -1,8 +1,27 @@
 <?php
 require_once('stock.php');
+require_once('sql/sqlbotvisitor.php');
 require_once('ui/stocktext.php');
 
 define('MAX_BOT_STOCK', 32);
+
+function _getMatchString($strKey)
+{
+	$str = '%';
+	$iLen = mb_strlen($strKey, 'UTF-8');
+
+	// Separate multi-byte UTF-8 characters
+	for ($i = 0; $i < $iLen; $i++) 
+	{
+		$char = mb_substr($strKey, $i, 1, 'UTF-8');
+		$str .= $char;
+		// Check if the character is multi-byte
+		if (strlen($char) > 1)	$str .= '%'; 
+    }
+	if (substr($str, -1, 1) != '%')	$str .= '%';
+//	DebugString(__FUNCTION__.' '.$str);
+	return $str;
+}
 
 function _botGetStockArray($strKey)
 {
@@ -10,9 +29,10 @@ function _botGetStockArray($strKey)
 	$iLen = strlen($strKey); 
     if ($iLen > 0)
     {
+    	$strMatchKey = _getMatchString($strKey);
+    	$strSymbolWhere = "symbol LIKE '$strMatchKey'";
+    	$strNameWhere = "name LIKE '$strMatchKey'";
     	$strLimit = strval(MAX_BOT_STOCK);
-    	$strSymbolWhere = "symbol LIKE '%$strKey%'";
-    	$strNameWhere = "name LIKE '%$strKey%'";
     	if (is_numeric($strKey))
     	{
     		if ($iLen == 6)
@@ -105,12 +125,8 @@ function StockBotGetStr($strText, $strVersion)
 {
 	InitGlobalStockSql();
 	
-	$strText = str_replace('【', '', $strText);
-	$strText = str_replace('】', '', $strText);
-	$strText = str_replace('，', '', $strText);
-	$strText = str_replace('。', '', $strText);
-	$strText = str_replace_utf8_space($strText);		// &nbsp;
-	$strText = trim($strText, " ,.\n\r\t\v\0");
+	$strText = str_replace(array('【', '】', '，', '。', '、', '“',  '”', '‘', '’', '：', '；', "\xC2\xA0"), '', $strText);	// &nbsp;
+	$strText = trim($strText, " ,.:;~`{}[]'\"\n\r\t\v\0");
 	$strText = SqlCleanString($strText);
 
 //   	$fStart = microtime(true);
@@ -137,6 +153,18 @@ function StockBotGetStr($strText, $strVersion)
 		}
 	}
 	return false;
+}
+
+function LogBotVisit($strType, $strMsg, $strSrc)
+{
+    $visitor_sql = new BotVisitorSql($strType);
+    $msg_sql = new BotMsgSql();
+    $src_sql = new BotSrcSql();
+	    
+    $strIp = UrlGetIp();
+	$msg_sql->InsertText($strMsg);
+	$src_sql->InsertSrc($strSrc);
+	$visitor_sql->InsertBotVisitor($msg_sql->GetId($strMsg), GetIpId($strIp), $src_sql->GetId($strSrc));
 }
 
 ?>

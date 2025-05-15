@@ -4,28 +4,49 @@ require_once('stocktable.php');
 function _echoFundPurchaseTableItem($strStockId, $strAmount, $bChinese)
 {
 	$strSymbol = SqlGetStockSymbol($strStockId);
-    EchoTableColumn(array(GetMyStockLink($strSymbol), $strAmount));
+    EchoTableColumn(array(GetGroupStockLink($strSymbol), $strAmount));
 }
 
-function _echoFundPurchaseTableData($strMemberId, $iStart, $iNum, $bChinese)
+function _echoFundPurchaseTableData($strMemberId, $bChinese)
 {
-	if ($result = SqlGetFundPurchase($strMemberId, $iStart, $iNum)) 
+	$group_sql = new StockGroupSql();
+	$item_sql = new StockGroupItemSql();
+	$amount_sql = new GroupItemAmountSql();
+   	if ($result = $amount_sql->GetData())
+   	{
+   		while ($record = mysqli_fetch_assoc($result)) 
+   		{
+   			if ($item_record = $item_sql->GetRecordById($record['id']))
+   			{
+   				if ($group_record = $group_sql->GetRecordById($item_record['stockgroup_id']))
+   				{
+   					if ($group_record['member_id'] == $strMemberId)
+   					{
+   						_echoFundPurchaseTableItem($item_record['stock_id'], $record['num'], $bChinese);
+   					}
+   				}
+			}
+    	}
+   		mysqli_free_result($result);
+    }
+	
+/*	if ($result = SqlGetFundPurchase($strMemberId, $iStart, $iNum)) 
 	{
 		while ($record = mysqli_fetch_assoc($result)) 
 		{
 			_echoFundPurchaseTableItem($record['stock_id'], $record['amount'], $bChinese);
 		}
 		mysqli_free_result($result);
-	}
+	}*/
 }
 
-function EchoFundPurchaseParagraph($str, $strMemberId, $bChinese, $iStart = 0, $iNum = TABLE_COMMON_DISPLAY)
+function EchoFundPurchaseParagraph($str, $strMemberId, $bChinese)
 {
 	EchoTableParagraphBegin(array(new TableColumnSymbol(),
 								   new TableColumnAmount()
 								   ), 'fund', $str);
 
-	_echoFundPurchaseTableData($strMemberId, $iStart, $iNum, $bChinese);
+	_echoFundPurchaseTableData($strMemberId, $bChinese);
     EchoTableParagraphEnd();
 }
 

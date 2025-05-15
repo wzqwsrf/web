@@ -62,85 +62,16 @@ function _echoSmaTableItem($his, $strKey, $strVal, $cb_ref, $callback, $callback
     EchoTableColumn($ar, $strColor);
 }
 
-class MaxMin
-{
-    var $fMax;
-    var $fMin;
-    
-    public function __construct() 
-    {
-        $this->fMax = false;
-        $this->fMin = false;
-    }
-
-    function Init($fMax, $fMin)
-    {
-        if ($this->fMin == false && $this->fMax == false)
-        {
-            $this->fMin = $fMin;
-            $this->fMax = $fMax;
-        }
-    }
-    
-    function Set($fVal) 
-    {
-        if ($fVal > $this->fMax)  $this->fMax = $fVal;
-        if ($fVal < $this->fMin)  $this->fMin = $fVal;
-    }
-    
-    function Fit($fVal)
-    {
-        if ($fVal > $this->fMin && $fVal < $this->fMax) return true;
-        return false;
-    }
-}
-
-function _echoSmaTableData($his, $cb_ref, $callback, $callback2, $bAfterHour)
-{
-    $mm = new MaxMin();
-    $mmB = new MaxMin();
-    $mmW = new MaxMin();
-    foreach ($his->arSMA as $strKey => $strVal)
-    {
-    	$fVal = floatval($strVal);
-        $strColor = false;
-        $strFirst = substr($strKey, 0, 1); 
-        if ($strFirst == 'D')
-        {
-            $mm->Init(0.0, 10000000.0);
-            $mm->Set($fVal);
-        }
-        else if ($strFirst == 'W')
-        {
-            $mmW->Init($mm->fMax, $mm->fMin);
-            $mmW->Set($fVal);
-            if ($mm->Fit($fVal))         $strColor = 'silver';
-        }
-        else if ($strFirst == 'M')
-        {
-            if ($mm->Fit($fVal))         $strColor = 'silver';
-            else if ($mmW->Fit($fVal))  $strColor = 'gray';
-        }
-        else	// if ($strFirst == 'E')
-        {
-            if ($mm->Fit($fVal))         $strColor = 'silver';
-            else 							$strColor = 'yellow';
-        }
-        _echoSmaTableItem($his, $strKey, $strVal, $cb_ref, $callback, $callback2, $strColor, $bAfterHour);
-    }
-}
-
 function _getSmaParagraphMemo($his)
 {
 	$sym = $his->GetRef();
-
-	$str = GetYahooStockLink($sym);
-	if ($sym->IsSinaFutureUs() || $sym->IsNewSinaForex() || $sym->IsSinaGlobalIndex())		{}
-	else if ($sym->IsSymbolUS())																$str = GetStockChartsLink($sym->GetSymbol());
-	
+	$strSymbol = $sym->GetSymbol();
+	$bAdmin = DebugIsAdmin();
+	$str = $bAdmin ? GetStockChartsLink($strSymbol) : GetYahooStockLink($sym);
 	$str .= ' '.$his->GetStartDate().'数据';
 	if ($strBullBear = $his->GetBullBear())		$str .= ' '.GetBoldElement($strBullBear);
-    $str .= ' '.GetStockHistoryLink($his->GetSymbol());
+    $str .= ' '.GetStockHistoryLink($strSymbol);
+	if ($bAdmin)	$str .= ' '.GetUpdateStockHistoryLink($sym, STOCK_HISTORY_UPDATE);
     return $str;
 }
 
@@ -186,15 +117,20 @@ function EchoSmaParagraph($ref, $str = false, $cb_ref = false, $callback = false
     	$est_ref = call_user_func($callback, $cb_ref);
     	$str .= _getSmaParagraphWarning($est_ref);
 
-    	$ar[] = new TableColumnEst(GetTableColumnStock($est_ref));
+//    	$ar[] = new TableColumnEst(GetTableColumnStock($est_ref));
+    	$ar[] = new TableColumnStock($est_ref, 90);
     	$ar[] = $next_col;
     	if ($bAfterHour)	$ar[] = $afterhour_col;
     }
     if ($callback2)	$ar[] = new TableColumn(call_user_func($callback2), 90);
 
 	EchoTableParagraphBegin($ar, 'smatable', $str);
-    _echoSmaTableData($his, $cb_ref, $callback, $callback2, $bAfterHour);
-    EchoTableParagraphEnd();
+    foreach ($his->GetSMA() as $strKey => $strVal)
+    {
+        _echoSmaTableItem($his, $strKey, $strVal, $cb_ref, $callback, $callback2, $his->GetColor($strKey), $bAfterHour);
+    }
+    $str = DebugIsAdmin() ? implode(', ', $his->GetOrderArray()) : '';
+    EchoTableParagraphEnd($str);
 }
 
 function _callbackQdiiSma($qdii_ref, $strEst = false)
@@ -235,7 +171,7 @@ function EchoAhPairSmaParagraph($ref, $str = false, $callback2 = false)
 	EchoSmaParagraph($ref, $str, $ref, '_callbackAhPairSma', $callback2);
 }
 
-function GetFutureInterestPremium($fRate = 0.05, $strEndDate = '2024-09-20')
+function GetFutureInterestPremium($fRate = 0.0500625, $strEndDate = '2025-03-21')
 {
 	$end_ymd = new StringYMD($strEndDate);
 	date_default_timezone_set('America/New_York');
@@ -245,12 +181,23 @@ function GetFutureInterestPremium($fRate = 0.05, $strEndDate = '2024-09-20')
 	return 1.0 + $fRate * $iDay / 365.0;
 }
 
+function RefGetFuturePremium($ref)
+{
+	$strStockId = $ref->GetStockId();
+	$premium_sql = new FuturePremiumSql();
+	if ($strClose = $premium_sql->GetCloseNow($strStockId))
+	{
+		return GetFutureInterestPremium(floatval($strClose) / 100.0, $premium_sql->GetDateNow($strStockId));
+	}
+	return false;
+}
+
 function _callbackFutureSma($ref, $strEst = false)
 {
 	if ($strEst)
 	{
-		$f = round(4.0 * floatval($strEst) * GetFutureInterestPremium());
-		return strval_round($f / 4.0, 2);
+		$f = floatval($strEst) * RefGetFuturePremium($ref);
+		return strval_round(round(4.0 * $f) / 4.0, 2);
 	}
 	return $ref;
 }
@@ -259,13 +206,12 @@ function EchoFutureSmaParagraph($ref, $callback2 = false)
 {
 	if ($realtime_ref = $ref->GetRealtimeRef())
 	{
-		$strSymbol = $realtime_ref->GetSymbol();
-		if ($strSymbol != 'hf_ES' && $strSymbol != 'hf_NQ')		return;
-
-    	EchoCalibrationHistoryParagraph($ref->GetRtEtfRef(), 0, 1);
-		
-		$str = '理论溢价：'.strval_round(GetFutureInterestPremium(), 4).'。';
-		EchoSmaParagraph($ref->GetEstRef(), $str, $realtime_ref, '_callbackFutureSma', $callback2);
+		if ($fPremium = RefGetFuturePremium($realtime_ref))
+		{
+			EchoCalibrationHistoryParagraph($ref->GetEstRef(), 0, 1);
+			$str = '理论溢价：'.strval_round($fPremium, 4).' '.GetStockOptionLink(STOCK_OPTION_PREMIUM, $realtime_ref->GetSymbol());
+			EchoSmaParagraph($ref->GetEstRef(), $str, $realtime_ref, '_callbackFutureSma', $callback2);
+		}
 	}
 }
 

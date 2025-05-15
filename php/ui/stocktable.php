@@ -179,10 +179,16 @@ class TableColumnProfit extends TableColumn
 
 class TableColumnQuantity extends TableColumn
 {
-	public function __construct($strPrefix = false)
+	public function __construct($iWidth = 100)
 	{
-        parent::__construct(STOCK_DISP_QUANTITY, 100, 'indigo', $strPrefix);
+        parent::__construct(STOCK_DISP_QUANTITY, $iWidth, 'indigo');
 	}
+}
+
+function GetTableColumnQuantity()
+{
+	$col = new TableColumnQuantity();
+	return $col->GetDisplay();
 }
 
 class TableColumnRatio extends TableColumn
@@ -191,6 +197,20 @@ class TableColumnRatio extends TableColumn
 	{
         parent::__construct(STOCK_DISP_RATIO, 100, false, $strPrefix);
 	}
+}
+
+class TableColumnRemark extends TableColumn
+{
+	public function __construct()
+	{
+        parent::__construct(STOCK_DISP_REMARK, 150);
+	}
+}
+
+function GetTableColumnRemark()
+{
+	$col = new TableColumnRemark();
+	return $col->GetDisplay();
 }
 
 class TableColumnShare extends TableColumn
@@ -237,14 +257,6 @@ class TableColumnTest extends TableColumn
 	}
 }
 
-class TableColumnTotalShares extends TableColumn
-{
-	public function __construct()
-	{
-        parent::__construct('总数量', 90);
-	}
-}
-
 class TableColumnTurnover extends TableColumn
 {
 	public function __construct($strPrefix = false, $iWidth = 100)
@@ -275,11 +287,6 @@ class TableColumnUSD extends TableColumn
 	{
         parent::__construct('美元$', 100, 'blue', $strPrefix);
 	}
-}
-
-function GetTransactionTableColumn()
-{
-    return array(GetTableColumnDate(), GetTableColumnSymbol(), '数量', GetTableColumnPrice(), '交易费用', '备注', '操作');
 }
 
 ?>

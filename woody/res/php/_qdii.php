@@ -21,8 +21,8 @@ class QdiiAccount extends QdiiGroupAccount
         StockPrefetchArrayExtendedData(array_merge($this->GetLeverage(), $ar));
         
         $this->ref = new QdiiReference($strSymbol);
-        $this->cnh_ref = new ForexReference($strCNH);
-        if ($bOil)		$this->oil_ref = new FutureReference($strOil);
+        $this->cnh_ref = new MyStockReference($strCNH);
+        if ($bOil)		$this->oil_ref = new MyStockReference($strOil);
         
 		$this->QdiiCreateGroup();
     }
@@ -42,15 +42,20 @@ function EchoAll()
     if ($group = $acct->EchoTransaction()) 
     {
         $acct->EchoMoneyParagraph($group, $cny_ref);
-        $acct->EchoArbitrageParagraph($group);
 	}
 	
     $acct->EchoDebugParagraph();
-    $acct->EchoLinks(false, 'GetQdiiLinks');
+    $acct->EchoLinks('qdii', 'GetQdiiLinks');
 }
 
 function GetQdiiLinks($sym)
 {
+   	global $acct;
+   	
+   	$ref = $acct->GetRef();
+   	if ($realtime_ref = $ref->GetRealtimeRef())		$strRealtimeSymbol = $realtime_ref->GetSymbol();
+   	else											$strRealtimeSymbol = false;
+
 	$str = GetJisiluQdiiLink();
 	
 	$strSymbol = $sym->GetSymbol();
@@ -61,7 +66,7 @@ function GetQdiiLinks($sym)
 	
 	if (in_arrayQqqQdii($strSymbol))
 	{
-		$str .= ' '.GetInvescoOfficialLink('QQQ');
+		$str .= ' '.GetProsharesOfficialLink('TQQQ');	// GetInvescoOfficialLink('QQQ');
 	}
 	
 	if (in_arrayXopQdii($strSymbol))
@@ -74,7 +79,6 @@ function GetQdiiLinks($sym)
 		$str .= ' '.GetSpdrOfficialLink('XBI').' '.GetSpindicesOfficialLink('SPSIBI');
 	}
 	
-	$strRealtimeSymbol = QdiiGetRealtimeSymbol($strSymbol);
 	if ($strCmeUrl = GetCmeUrl($strRealtimeSymbol))				$str .= ' '.GetExternalLink($strCmeUrl, '芝商所');
 	
 	$str .= GetSpySoftwareLinks();
@@ -93,7 +97,7 @@ function GetQdiiLinks($sym)
 		$str .= GetQqqSoftwareLinks();
 		$str .= GetXbiSoftwareLinks();
 	}
-	else if ($strRealtimeSymbol == 'hf_CL')
+	else if ($strRealtimeSymbol == 'hf_CL' || in_arrayOilEtfQdii($strSymbol) || in_arrayXopQdii($strSymbol))
 	{
 		$str .= GetOilSoftwareLinks();
 		$str .= GetChinaInternetSoftwareLinks();

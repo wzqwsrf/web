@@ -13,6 +13,7 @@ function GetMetaDescription()
 
 function EchoAll()
 {
+	$strOvernightTrading = GetBlogTitle(20250223);
 	$strUsdInterest = GetBlogTitle(20230614);
 	$strSnowball = GetBlogTitle(20201205);
 	$strNasdaq100 = GetBlogTitle(20200915);
@@ -33,6 +34,8 @@ function EchoAll()
 <p>分类：$strCategory</p>
 <p>年份：$strYears</p>
 <p>全部：
+{$arYears[2025]}
+<br />$strOvernightTrading
 {$arYears[2023]} 
 <br />$strUsdInterest
 {$arYears[2020]} 

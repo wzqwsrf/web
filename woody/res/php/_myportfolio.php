@@ -49,9 +49,9 @@ function _transEchoReferenceParagraph($arTrans, $bAdmin)
 function _echoMergeParagraph($arMerge)
 {
 	EchoTableParagraphBegin(array(new TableColumnSymbol(),
-								   new TableColumnTotalShares(),
+								   new TableColumnQuantity(),
 								   new TableColumnTest()
-								   ), 'merge', '合并数量');
+								   ), 'merge', '合并'.GetTableColumnQuantity());
 
 	foreach ($arMerge as $strSymbol => $trans)
 	{
@@ -61,14 +61,16 @@ function _echoMergeParagraph($arMerge)
 			$ar = array();
 		
 			$ref = $trans->GetRef();
-			if ($ref->IsSymbolUS())	$ar[] = GetTradingViewLink($strSymbol);
-			else						$ar[] = RefGetMyStockLink($ref);
-			
+			$ar[] = RefGetMyStockLink($ref);
 			$ar[] = strval($iTotal);
 			switch ($strSymbol)
 			{
 			case 'KWEB':
-				$ar[] = strval($iTotal + 1400 - 1855);
+				$ar[] = strval($iTotal - 00 - 239);
+				break;
+
+			case 'XOP':
+				$ar[] = strval($iTotal - 00 - 00);
 				break;
 			}
 			RefEchoTableColumn($ref, $ar);
@@ -133,9 +135,9 @@ function _echoPortfolio($portfolio, $sql, $strMemberId, $bAdmin)
 		            {
 		                $portfolio->OnStockTransaction($trans);
 		                $ref = $trans->GetRef();
-		                if ($ref->IsSymbolA())	       	$arTransA[] = $trans;
-		                else if ($ref->IsSymbolH())      	$arTransH[] = $trans;
-		                else			                	$arTransUS[] = $trans;
+		                if ($ref->IsSymbolA())			$arTransA[] = $trans;
+		                else if ($ref->IsSymbolH())     $arTransH[] = $trans;
+		                else			                $arTransUS[] = $trans;
 		            }
 		        }
 		    }
@@ -177,7 +179,7 @@ function EchoAll()
     $portfolio->arStockGroup[] = $portfolio; 
     $acct->EchoMoneyParagraphs($portfolio->arStockGroup, new CnyReference('USCNY'), new CnyReference('HKCNY'));
     
-    $acct->EchoLinks('myportfolio');
+    $acct->EchoLinks();
 }
 
 function GetTitle()

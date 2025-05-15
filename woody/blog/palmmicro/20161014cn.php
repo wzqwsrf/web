@@ -21,7 +21,7 @@ function _echo20161014()
 	$strPA3288 = GetInternalLink('/pa3288/indexcn.html', 'PA3288');
 	$strQuoteSz162411 = GetQuoteElement('sz162411');
 	$strQuotePalmmicro = GetQuoteElement('palmmicro');
-	$strImage = ImgPalmmicroWechat();
+	$strImage = GetWechatPay(3);
 	
 	EchoBlogDate();
     echo <<<END
@@ -35,7 +35,7 @@ function _echo20161014()
 只好挽起袖子搞优化，尽可能的多在本地存数据，减少每次查询中对外部网站的访问。最后勉强把最长的回应时间控制在4228毫秒，总算满足了要求。
 <br />回到公司的产品上来，这个微信公众号和本网站一起作为一个具体应用实例，为开发中的{$strPA3288}物联网IoT模块提供一个数据采集、存储和查询的总体解决方案。在这个基础上，我们可以提供全套的产品和软硬件技术，帮助客户建立自己的物联网数据管理分析应用系统。
 <br />虽然目前还没有多少功能，大家已经可以扫描下面的二维码添加Palmmicro微信公众订阅号。选用{$strQuoteSz162411}作为微信号既符合目前提供的数据，又是个没有办法的选择，因为我太喜欢用{$strQuotePalmmicro}这个名字，以至于它早早就被我自己的私人晒娃微信号占用了。 
-$strImage
+<br />$strImage
 </p>
 END;
 }
@@ -62,7 +62,7 @@ END;
 function _echo20190601($strHead)
 {
 	$strHead = GetHeadElement($strHead);
-	$strSZ162411 = GetGroupStockLink();
+	$strSZ162411 = GetGroupStockLink('SZ162411');
 	$strImage = ImgTianHeng();
 	
     echo <<<END
@@ -100,7 +100,7 @@ function _echo20210227($strHead)
     echo <<<END
 	$strHead
 <p>2021年2月27日
-<br />因为微信个人订阅号的各种限制，最近削尖铅笔基于Telegram电报API开发了机器人@palmmicrobot，把公众号上的查询功能完全复制到了电报软件上。同时创建了@palmmicrocast频道，用来主动发布用户在各种渠道查询过程中碰到的可能需要提醒的信息。
+<br />因为微信个人订阅号的各种限制，最近削尖铅笔基于Telegram电报API开发了机器人@palmmicrobot，把公众号上的查询功能完全复制到了电报软件上。同时创建了@palmmicrochan频道，用来主动发布用户在各种渠道查询过程中碰到的可能需要提醒的信息。
 <br />电报是开源的，而且鼓励大家把它无缝集成到各种应用场景中。墙内使用电报可以从{$strBtok}下载安装Btok手机APP，也可以使用非官方的WEB版本{$strWeb}。
 <br />互联网不是法外之地，虽然墙外的电报软件能畅所欲言并且避免恶意举报，请大家记住Palmmicro的一切都是实名可以抓到我的，不要在电报中有关Palmmicro的地方乱说话！
 <br />不忘初心，接下来打算写个用电报机器人管理的基于MQTT协议的IoT模块。
@@ -173,6 +173,23 @@ $strImage
 END;
 }
 
+function _echo20250224($strHead)
+{
+	$strHead = GetHeadElement($strHead);
+	$strOvernight = GetBlogLink(20250223);
+	$strTelegram = GetNameLink('telegram', '电报');
+	$strImage = ImgFreeFood();
+	
+    echo <<<END
+	$strHead
+<p>2025年2月24日
+<br />从去年开始配合{$strOvernight}交易在{$strTelegram}上写了一个新的跨市场套利工具，炫技之心日益加重，最终还是打着讨饭的名义，又写了一篇公众号文章宣传。
+$strImage
+</p>
+END;
+}
+
+
 function EchoAll()
 {
 	_echo20161014();
@@ -184,6 +201,7 @@ function EchoAll()
 	_echo20210613('微信公众平台进去后显示白板');
 	_echo20210622('UTF-8的双字节空格字符');
 	_echo20211129('放弃微信公众号文章');
+	_echo20250224('恢复微信公众号文章');
 }
 
 require('../../../php/ui/_dispcn.php');

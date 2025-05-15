@@ -1,6 +1,5 @@
 <?php
 require_once('regexp.php');
-require_once('stocklink.php');
 require_once('externallink.php');
 require_once('sql.php');
 require_once('gb2312.php');
@@ -21,7 +20,6 @@ require_once('stock/holdingsref.php');
 require_once('stock/fundref.php');
 require_once('stock/qdiiref.php');
 
-require_once('stock/forexref.php');
 require_once('stock/fundpairref.php');
 
 function StockGetSymbol($str)
@@ -33,19 +31,16 @@ function StockGetSymbol($str)
     return $str;
 }
 
-function StockGetArraySymbol($ar)
+function GetInputSymbolArray($strSymbols)
 {
+	$strSymbols = str_replace(array(',', '，', '、', "\\n", "\\r", "\\r\\n"), ' ', $strSymbols);
     $arSymbol = array();
-    foreach ($ar as $str)
+    foreach (explode(' ', $strSymbols) as $str)
     {
-    	if (!empty($str))
-    	{
-    		$arSymbol[] = StockGetSymbol($str);
-    	}
+    	if (!empty($str))		$arSymbol[] = StockGetSymbol($str);
     }
     return $arSymbol;
 }
-
 
 function GetYahooNetValueSymbol($strEtfSymbol)
 {
@@ -88,20 +83,15 @@ function explodeQuote($str)
 
 function StockNeedFile($strFileName, $iInterval = SECONDS_IN_MIN)
 {
-   	clearstatcache(true, $strFileName);
-   	if (file_exists($strFileName))
-   	{
-   		$now_ymd = GetNowYMD();
-   		return $now_ymd->NeedFile($strFileName, $iInterval);
-   	}
-   	return true;
+	$now_ymd = GetNowYMD();
+	return $now_ymd->NeedFile($strFileName, $iInterval);
 }
 
-define('SINA_QUOTES_SEPARATOR', ',');
-function GetSinaQuotes($strSinaSymbols)
+function GetSinaQuotes($arSymbol)
 {
+	$strSinaSymbols = implode(',', $arSymbol);
 	$strFileName = DebugGetPathName('debugsina.txt');
-	$iCount = count(explode(SINA_QUOTES_SEPARATOR, $strSinaSymbols));
+	$iCount = count($arSymbol);
 	if (DebugIsAdmin() && $iCount > 1)
 	{
 //		DebugVal($iCount, 'total prefetch - '.$strSinaSymbols);
@@ -117,8 +107,8 @@ function GetSinaQuotes($strSinaSymbols)
     
     if ($str = url_get_contents(GetSinaDataUrl($strSinaSymbols), UrlGetRefererHeader(GetSinaFinanceUrl()), $strFileName))
     {
-    	if ($iCount >= count(explode('=', $str)))		DebugVal($iCount, 'GetSinaQuotes failed: '.$str);		// Sina returns error in an empty file
-    	else												return $str;
+    	if ($iCount >= count(explode('=', $str)))		DebugVal($iCount, __FUNCTION__.' failed: '.$str);		// Sina returns error in an empty file
+    	else											return $str;
     }
     return false;
 }
@@ -162,11 +152,12 @@ function StockGetPercentage($strDivisor, $strDividend)
     return (floatval($strDividend)/$f - 1.0) * 100.0;
 }
 
-function StockCompareEstResult($fund_est_sql, $strStockId, $strNetValue, $strDate, $strSymbol)
+function StockCompareEstResult($strStockId, $strNetValue, $strDate, $strSymbol)
 {
 	$nav_sql = GetNavHistorySql();
     if ($nav_sql->InsertDaily($strStockId, $strDate, $strNetValue))
     {
+    	$fund_est_sql = GetFundEstSql();
        	if ($strEstValue = $fund_est_sql->GetClose($strStockId, $strDate))
        	{
        		$fPercentage = StockGetPercentage($strNetValue, $strEstValue);
@@ -182,11 +173,12 @@ function StockCompareEstResult($fund_est_sql, $strStockId, $strNetValue, $strDat
     return false;
 }
 
-function StockUpdateEstResult($fund_est_sql, $strStockId, $strNetValue, $strDate)
+function StockUpdateEstResult($strStockId, $strNetValue, $strDate)
 {
 	$nav_sql = GetNavHistorySql();
 	if ($nav_sql->GetRecord($strStockId, $strDate) == false)
     {   // Only update when net value is NOT ready
+    	$fund_est_sql = GetFundEstSql();
 		$fund_est_sql->WriteDaily($strStockId, $strDate, $strNetValue);
 	}
 }
@@ -206,9 +198,9 @@ function RefGetPosition($ref)
 	return $ref->GetDefaultPosition();  
 }
 
-function FundGetArbitrage($strStockId)
+function FundGetHedgeVal($strStockId)
 {
-	$sql = new FundArbitrageSql();
+	$sql = new FundHedgeValSql();
    	return $sql->ReadInt($strStockId);
 }
 
@@ -216,6 +208,25 @@ function FundGetArbitrage($strStockId)
 function StockPrefetchArrayData($arSymbol)
 {
     PrefetchSinaStockData(array_unique($arSymbol));
+}
+
+function _addFundPairSymbol(&$ar, $strSymbol)
+{
+	$ar[] = $strSymbol;
+	if ($strPairSymbol = SqlGetFundPair($strSymbol))	$ar[] = $strPairSymbol;
+}
+
+function _addHoldingsSymbol(&$ar, $strSymbol)
+{
+	if (SqlCountHoldings($strSymbol) > 0)
+	{
+		$sql = GetStockSql();
+		$holdings_sql = GetHoldingsSql();
+    	foreach ($holdings_sql->GetHoldingsArray($sql->GetId($strSymbol)) as $strId => $strRatio)
+    	{
+    		_addFundPairSymbol($ar, $sql->GetStockSymbol($strId));
+    	}
+    }
 }
 
 function _getAllSymbolArray($strSymbol)
@@ -226,34 +237,29 @@ function _getAllSymbolArray($strSymbol)
     {
         if (in_arrayQdiiMix($strSymbol))
         {
-        	if ($strSymbol == 'SZ164906')		$ar[] = 'KWEB';
-        	$ar = array_merge($ar, SqlGetHoldingsSymbolArray($strSymbol));
+        	_addHoldingsSymbol($ar, $strSymbol);
+        	if ($strSymbol == 'SZ164906')				$ar[] = 'KWEB';
+			else if ($strSymbol == 'SH501225')		$ar[] = 'SMH';
         }
         else if (in_arrayQdii($strSymbol))
         {
-        	if ($strEstSymbol = QdiiGetEstSymbol($strSymbol))	        		$ar[] = $strEstSymbol; 
-        	if ($strRealtimeSymbol = QdiiGetRealtimeSymbol($strSymbol))		$ar[] = $strRealtimeSymbol; 
-        	if ($strRtEtfSymbol = QdiiGetRtEtfSymbol($strSymbol))				$ar[] = $strRtEtfSymbol; 
+        	if ($strEstSymbol = QdiiGetEstSymbol($strSymbol))		_addFundPairSymbol($ar, $strEstSymbol);
         }
         else if (in_arrayQdiiHk($strSymbol))
         {
-        	if ($strEstSymbol = QdiiHkGetEstSymbol($strSymbol))		        $ar[] = $strEstSymbol; 
-        	if ($strRealtimeSymbol = QdiiHkGetRealtimeSymbol($strSymbol))		$ar[] = $strRealtimeSymbol; 
+        	if ($strEstSymbol = QdiiHkGetEstSymbol($strSymbol))		_addFundPairSymbol($ar, $strEstSymbol);
         }
         else if (in_arrayQdiiJp($strSymbol))
         {
-        	if ($strEstSymbol = QdiiJpGetEstSymbol($strSymbol))		        $ar[] = $strEstSymbol; 
-        	if ($strRealtimeSymbol = QdiiJpGetRealtimeSymbol($strSymbol))		$ar[] = $strRealtimeSymbol; 
+        	if ($strEstSymbol = QdiiJpGetEstSymbol($strSymbol))		_addFundPairSymbol($ar, $strEstSymbol); 
         }
         else if (in_arrayQdiiEu($strSymbol))
         {
-        	if ($strEstSymbol = QdiiEuGetEstSymbol($strSymbol))		        $ar[] = $strEstSymbol; 
-        	if ($strRealtimeSymbol = QdiiEuGetRealtimeSymbol($strSymbol))		$ar[] = $strRealtimeSymbol; 
+        	if ($strEstSymbol = QdiiEuGetEstSymbol($strSymbol))		_addFundPairSymbol($ar, $strEstSymbol); 
         }
-//      else if (in_arrayChinaIndex($strSymbol))
         else
         {
-        	if ($strPairSymbol = SqlGetFundPair($strSymbol))			   		$ar[] = $strPairSymbol;
+        	if ($strPairSymbol = SqlGetFundPair($strSymbol))		$ar[] = $strPairSymbol;
         }
     }
 	else if ($sym->IsSymbolA())
@@ -282,6 +288,7 @@ function _getAllSymbolArray($strSymbol)
     }
     else
     {
+       	_addHoldingsSymbol($ar, $strSymbol);
     	if ($strSymbolH = SqlGetAdrhPair($strSymbol))
         {
            	$ar[] = $strSymbolH;
@@ -292,10 +299,13 @@ function _getAllSymbolArray($strSymbol)
             }
         }
         
-       	$ar = array_merge($ar, SqlGetHoldingsSymbolArray($strSymbol));
-       	if ($strPairSymbol = SqlGetFundPair($strSymbol))			   	$ar[] = $strPairSymbol;
+       	if ($strPairSymbol = SqlGetFundPair($strSymbol))
+       	{
+       		$ar[] = $strPairSymbol;
+         	if ($strSymbol == 'ASHR' || $strSymbol == 'hf_CHA50CFD')	$ar[] = 'fx_susdcnh';
+      	}
     }
-//    DebugPrint($ar, '_getAllSymbolArray', true);
+//   	DebugPrint($ar, __FUNCTION__, true);
     return $ar;
 }
 
@@ -310,7 +320,6 @@ function StockPrefetchArrayExtendedData($ar)
    		else								$arAll[] = $strSymbol;	// new stock symbol	
     }
     StockPrefetchArrayData($arAll);
-//    DebugPrint($arAll, 'StockPrefetchArrayExtendedData', true);
 }
 
 function StockPrefetchExtendedData()
@@ -323,9 +332,7 @@ function StockGetReference($strSymbol)
 	$sym = new StockSymbol($strSymbol);
 
 /*    if ($sym->IsSinaFund())				return new FundReference($strSymbol);
-    else*/ if ($sym->IsSinaFuture())   		return new FutureReference($strSymbol);
-    else if ($sym->IsSinaForex())   		return new ForexReference($strSymbol);
-	else if ($sym->IsEastMoneyForex())	return new CnyReference($strSymbol);
+	else*/ if ($sym->IsEastMoneyForex())	return new CnyReference($strSymbol);
     										return new MyStockReference($strSymbol);
 }
 
@@ -338,11 +345,11 @@ function StockGetQdiiReference($strSymbol)
     return false;
 }
 
-function StockGetFundReference($strSymbol = FUND_DEMO_SYMBOL)
+function StockGetFundReference($strSymbol)
 {
 	if ($ref = StockGetQdiiReference($strSymbol))	return $ref;
 	else if (in_arrayQdiiMix($strSymbol))			return new HoldingsReference($strSymbol);
-	else if (in_arrayChinaIndex($strSymbol))			return new FundPairReference($strSymbol);
+	else if (in_arrayChinaIndex($strSymbol))		return new FundPairReference($strSymbol);
 	return new FundReference($strSymbol);
 }
 
@@ -402,10 +409,8 @@ function StockGetPairReferences($strSymbol)
 function UseSameDayNav($sym)
 {
 	$strSymbol = $sym->GetSymbol();
-	if (in_arrayQdii($strSymbol) || in_arrayQdiiMix($strSymbol))
-	{
-		return false;
-	}
+	if (in_arrayQdii($strSymbol))				return false;
+	else if (in_arrayQdiiMix($strSymbol))	return	in_arrayHkMix($strSymbol);
 	return true;
 }
 

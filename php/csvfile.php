@@ -92,7 +92,7 @@ class CsvFile
     			{
     				$strLine = trim($strLine);
     				if ($strLine != '')
-    				{
+    				{	// SqlCleanString causes error?
     					$arWord = str_getcsv($strLine, $this->strSeparator);		// 跟explode比，str_getcsv会去掉双引号。
     					$this->OnLineArray($arWord);
     				}

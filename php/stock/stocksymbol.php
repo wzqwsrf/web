@@ -1,8 +1,9 @@
 <?php
 
-// SZ164212 SH501226 SH513800 SZ159696
+// SZ164212 SH501226 SZ159696
 
 /* https://finance.sina.com.cn/money/globalindex/ 
+https://finance.sina.com.cn/money/globalindex/asia.shtml
 gb_dji,gb_ixic,gb_inx,
 znb_UKX,znb_DAX,znb_INDEXCF,znb_CAC,znb_SMI,znb_FTSEMIB,znb_MADX,znb_OMX,znb_HEX,znb_OSEAX,znb_ISEQ,znb_AEX,znb_IBEX,znb_SX5E,znb_XU100,znb_NKY,znb_TWJQ,znb_FSSTI,znb_KOSPI,znb_FBMKLCI,znb_SET,znb_JCI,znb_PCOMP,znb_KSE100,znb_SENSEX,znb_VNINDEX,znb_CSEALL,znb_SASEIDX,znb_SPTSX,znb_MEXBOL,znb_IBOV,znb_MERVAL,znb_AS51,znb_NZSE50FG,znb_CASE,znb_JALSH
 */
@@ -50,7 +51,7 @@ function in_arrayChinaIndex($strSymbol)
 
 function QdiiGetGoldSymbolArray()
 {
-    return array('SZ160719', 'SZ161116', 'SZ164701'); 
+    return array('SZ160719', 'SZ161116'); 
 }
 
 function in_arrayGoldQdii($strSymbol)
@@ -130,7 +131,7 @@ function in_arrayXbiQdii($strSymbol)
 
 function QdiiGetSymbolArray()
 {
-    $ar = array_merge(array('SH513290', 'SH513400', 'SZ160140', 'SZ161126', 'SZ161128', 'SZ162415', 'SZ164824') 
+    $ar = array_merge(array('SH501300', 'SH513290', 'SH513400', 'SZ160140', 'SZ161126', 'SZ161128', 'SZ162415', 'SZ164824') 
     				   , QdiiGetGoldSymbolArray()
     				   , QdiiGetOilSymbolArray()
     				   , QdiiGetXbiSymbolArray()
@@ -139,7 +140,7 @@ function QdiiGetSymbolArray()
     				   , QdiiGetCommoditySymbolArray()
     				   , QdiiGetQqqSymbolArray()
     				   , QdiiGetSpySymbolArray());
-    sort($ar);
+//    sort($ar);
     return $ar;
 }
 
@@ -160,7 +161,7 @@ function in_arrayTechQdiiHk($strSymbol)
 
 function QdiiHkGetHSharesSymbolArray()
 {
-    return array('SH510900', 'SZ159823', 'SZ159850', 'SZ159954', 'SZ159960', 'SZ160717', 'SZ161831');
+    return array('SH510900', 'SZ159850', 'SZ159954', 'SZ159960', 'SZ160717', 'SZ161831');
 }
 
 function in_arrayHSharesQdiiHk($strSymbol)
@@ -170,7 +171,7 @@ function in_arrayHSharesQdiiHk($strSymbol)
 
 function QdiiHkGetHangSengSymbolArray()
 {
-    return array('SH501302', 'SH513600', 'SH513660', 'SZ159920', 'SZ160924', 'SZ164705');
+    return array('SH501302', 'SH513600', 'SH513660', 'SZ159312', 'SZ159920', 'SZ160924', 'SZ164705');
 }
 
 function in_arrayHangSengQdiiHk($strSymbol)
@@ -183,6 +184,67 @@ function QdiiHkGetIndexSymbolArray()
     return array('^HSI', '^HSCE', '^HSTECH');
 }
  
+function QdiiHkGetSymbolArray()
+{
+    $ar = array_merge(array('SH501025', 'SZ161124') 
+    				   , QdiiHkGetTechSymbolArray()
+    				   , QdiiHkGetHSharesSymbolArray()
+    				   , QdiiHkGetHangSengSymbolArray());
+//    sort($ar);
+    return $ar;
+}
+
+function in_arrayQdiiHk($strSymbol)
+{
+    return in_array($strSymbol, QdiiHkGetSymbolArray());
+}
+
+function QdiiJpGetNkySymbolArray()
+{
+    return array('SH513000', 'SH513520', 'SH513880', 'SZ159866');
+}
+
+function in_arrayNkyQdiiJp($strSymbol)
+{
+    return in_array($strSymbol, QdiiJpGetNkySymbolArray());
+}
+
+function QdiiJpGetSymbolArray()
+{
+    $ar = array_merge(array('SH513800') 
+    				   , QdiiJpGetNkySymbolArray());
+//    sort($ar);
+    return $ar;
+}
+
+function in_arrayQdiiJp($strSymbol)
+{
+    return in_array($strSymbol, QdiiJpGetSymbolArray());
+}
+
+function QdiiEuGetDaxSymbolArray()
+{
+    return array('SH513030', 'SZ159561');
+}
+
+function in_arrayDaxQdiiEu($strSymbol)
+{
+    return in_array($strSymbol, QdiiEuGetDaxSymbolArray());
+}
+
+function QdiiEuGetSymbolArray()
+{
+    $ar = array_merge(array('SH513080') 
+    				   , QdiiEuGetDaxSymbolArray());
+//    sort($ar);
+    return $ar;
+}
+
+function in_arrayQdiiEu($strSymbol)
+{
+    return in_array($strSymbol, QdiiEuGetSymbolArray());
+}
+
 function GetChinaInternetSymbolArray()
 {
 	return array('SH513050', 'SH513220', 'SZ159605', 'SZ159607', 'SZ164906');
@@ -193,53 +255,29 @@ function GetMsciUs50SymbolArray()
 	return array('SH513850', 'SZ159577');
 }
 
+function GetHkMixSymbolArray()
+{
+	return array('SH513090', 'SH513230', 'SH513750', 'SH513990', 'SZ159567', 'SZ159570', 'SZ159615', 'SZ159751', 'SZ159792');
+}
+
+function in_arrayHkMix($strSymbol)
+{
+    return in_array($strSymbol, GetHkMixSymbolArray());
+}
+
 function QdiiMixGetSymbolArray()
 {
-    $ar = array_merge(array('SH501225', 'SH501312', 'SH513360', 'SZ159509', 'SZ160644') 
+    $ar = array_merge(array('SH501225', 'SH501312', 'SH513360', 'SZ159509', 'SZ159529', 'SZ160644', 'SZ164701') 
     				   , GetChinaInternetSymbolArray()
+    				   , GetHkMixSymbolArray()
     				   , GetMsciUs50SymbolArray());
-    sort($ar);
+//    sort($ar);
     return $ar;
 }
 
 function in_arrayQdiiMix($strSymbol)
 {
     return in_array($strSymbol, QdiiMixGetSymbolArray());
-}
-
-function QdiiHkGetSymbolArray()
-{
-    $ar = array_merge(array('SH501025') 
-    				   , QdiiHkGetTechSymbolArray()
-    				   , QdiiHkGetHSharesSymbolArray()
-    				   , QdiiHkGetHangSengSymbolArray());
-    sort($ar);
-    return $ar;
-}
-
-function in_arrayQdiiHk($strSymbol)
-{
-    return in_array($strSymbol, QdiiHkGetSymbolArray());
-}
-
-function QdiiJpGetSymbolArray()
-{
-    return array('SH513000', 'SH513520', 'SH513880', 'SZ159866');
-}
-
-function in_arrayQdiiJp($strSymbol)
-{
-    return in_array($strSymbol, QdiiJpGetSymbolArray());
-}
-
-function QdiiEuGetSymbolArray()
-{
-    return array('SH513030', 'SH513080', 'SZ159561');
-}
-
-function in_arrayQdiiEu($strSymbol)
-{
-    return in_array($strSymbol, QdiiEuGetSymbolArray());
 }
 
 function GetAllSymbolArray()
@@ -612,21 +650,6 @@ class StockSymbol
    		return false;
     }
     
-    function IsEtf()
-    {
-    	if ($this->IsSymbolA())
-    	{
-    		if ($this->IsFundA())			return true;
-    		if ($this->IsIndexA())		return false;
-    		if ($this->IsStockB())		return false;
-    	}
-    	else
-    	{
-    		if ($this->IsIndex())		return false;
-    	}
-    	return true;
-    }
-    
     function IsEastMoneyForex()
     {
         switch ($this->strSymbol)
@@ -798,14 +821,28 @@ class StockSymbol
 */
     function GetYahooSymbol()
     {
+    	$strFutureSuffix = '%3DF';	// CL=F
+    	$strIndexPrefix = '%5E';		// ^HSI
+    	$strHK = '.hk';
+    	
         $strSymbol = str_replace('.', '-', $this->strSymbol);
-        if ($str = $this->IsSinaFutureUs())											return $str.'%3DF';	// CL=F
+        if ($str = $this->IsSinaFutureUs())
+        {
+        	switch ($str)
+        	{
+        	case 'CHA50CFD':
+				return 'XIN9.FGI';
+				
+			default:
+				return $str.$strFutureSuffix;	// CL=F
+			}
+        }
         else if ($str = $this->IsNewSinaForex())
         {
         	switch ($str)
         	{
         	case 'USDCNH':
-        		return 'CNH'.'%3DF';	// CNH=F
+        		return 'CNH'.$strFutureSuffix;	// CNH=F
         	}
         }
 		else if ($str = $this->IsSinaGlobalIndex())
@@ -813,16 +850,16 @@ class StockSymbol
 			switch ($str)
 			{
 			case 'CAC':
-				return '%5E'.'FCHI';
+				return $strIndexPrefix.'FCHI';
 				
 			case 'DAX':
-				return '%5E'.'GDAXI';
+				return $strIndexPrefix.'GDAXI';
 				
 			case 'NKY':
-				return '%5E'.'N225';
+				return $strIndexPrefix.'N225';
 				
 			case 'SENSEX':
-				return '%5E'.'BSESN';
+				return $strIndexPrefix.'BSESN';
 			}
 		}
         else if ($this->IsIndex())
@@ -830,13 +867,13 @@ class StockSymbol
 			switch ($strSymbol)
 			{
 			case '^HSTECH':
-				return $this->strOthers.'.hk';
+				return $this->strOthers.$strHK;
 				
 			default:
-				return '%5E'.$this->strOthers;	// index ^HSI
+				return $strIndexPrefix.$this->strOthers;	// index ^HSI
 			}
         }
-        else if ($this->IsSymbolH())													return $this->strOthers.'.hk';	// Hongkong market
+        else if ($this->IsSymbolH())													return $this->strOthers.$strHK;	// Hongkong market
         else if ($this->IsSymbolA())
         {
             if ($this->strPrefixA == SH_PREFIX)										return $this->strDigitA.'.ss';	// Shanghai market
@@ -877,7 +914,8 @@ class StockSymbol
     		{
 			case 'CAC':
 			case 'DAX':
-    		case 'NKY':
+			case 'NKY':
+			case 'TPX':
     			if ($iHourMinute < 900)		return true;
     			break;
 
@@ -914,6 +952,7 @@ class StockSymbol
     			break;
     			
     		case 'NKY':
+			case 'TPX':
     			if ($iHourMinute > 1535)		return true;	// 東證所的交易時間（開盤時間）從上午9點到上午11點30分及 下午0點30分到下午3點的2個時間段
     			break;
 
@@ -945,14 +984,14 @@ class StockSymbol
     	return false;
     }
     
-    function IsStockMarketTrading($ymd)
+    function IsStockMarketTrading($ymd, $bNoonBreak = true)
     {
     	if ($ymd->IsWeekDay())
     	{
     		$iHourMinute = $ymd->GetHourMinute();
    			if ($this->IsBeforeStockMarket($iHourMinute))					return false;
    			else if ($this->IsAfterStockMarket($iHourMinute))				return false;
-   			else
+   			else if ($bNoonBreak)
    			{
    				if ($this->IsSymbolA())
    				{
@@ -995,6 +1034,7 @@ class StockSymbol
 				return 'Europe/Berlin';
 				
 			case 'NKY':
+			case 'TPX':
 			case 'SENSEX':
 				return 'PRC';	//  'Asia/Tokyo';
 			}
@@ -1017,6 +1057,17 @@ class StockSymbol
 		if ($str = $this->IsSinaGlobalIndex())	return $str;
 		return $this->GetSymbol();
     }
+
+	function GetMyStockLink()
+	{
+		return GetMyStockLink($this->GetSymbol(), $this->GetDisplay());
+	}
+	
+    function GetStockLink()
+    {
+		if ($str = GetGroupStockLink($this->GetSymbol()))		return $str;
+		return	$this->GetMyStockLink();
+	}
 
     public function GetSymbol()
     {

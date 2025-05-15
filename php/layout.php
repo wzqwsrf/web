@@ -5,7 +5,11 @@ require_once('copyright.php');
 require_once('analytics.php');
 require_once('adsense.php');
 require_once('ui/echohtml.php');
-require_once('class/Mobile_Detect.php');
+
+require_once('Mobile-Detect/standalone/autoloader.php');
+require_once('Mobile-Detect/src/MobileDetectStandalone.php');
+use Detection\Exception\MobileDetectException;
+use Detection\MobileDetectStandalone;
 
 define('DEFAULT_WIDTH', 640);
 define('DEFAULT_DISPLAY_WIDTH', 900);
@@ -14,17 +18,22 @@ define('MIN_SCRREN_WIDTH', DEFAULT_DISPLAY_WIDTH + 10 + DEFAULT_ADSENSE_WIDTH);	
 
 function LayoutIsMobilePhone()
 {
-    $detect = new Mobile_Detect;
-    if ($detect->isMobile() && !$detect->isTablet()) 
-    {
-        return true;
-    }
+	$detect = new MobileDetectStandalone();
+	$detect->setUserAgent($_SERVER['HTTP_USER_AGENT'] ?? '');
+	try 
+	{
+		if ($detect->isMobile() && !$detect->isTablet())	return true;
+	}
+	catch (MobileDetectException $e) 
+	{
+		DebugPrint($e);
+	}
     return false;
 }
 
-function ResizeJpg($strPathName, $iNewWidth = 300, $iNewHeight = 420)
+function ResizeJpg($strPathName, $iNewWidth = 300, $iNewHeight = false)
 {
-	$strNewName = substr($strPathName, 0, strlen($strPathName) - 4).'x'.strval($iNewWidth).'y'.strval($iNewHeight).'__'.substr($strPathName, -4, 4);
+	$strNewName = substr($strPathName, 0, strlen($strPathName) - 4).'x'.strval($iNewWidth).'__'.substr($strPathName, -4, 4);
 	$strNewRootName = UrlModifyRootFileName($strNewName); 
 	if (!file_exists($strNewRootName))
 	{
@@ -32,6 +41,7 @@ function ResizeJpg($strPathName, $iNewWidth = 300, $iNewHeight = 420)
 		$iWidth = imagesx($imgOrg);
 		$iHeight = imagesy($imgOrg);
 		DebugString('Converting '.$strNewName);
+		if ($iNewHeight === false)		$iNewHeight = intval($iNewWidth * $iHeight / $iWidth);
 		$imgNew = imagecreatetruecolor($iNewWidth, $iNewHeight);
 		imagecopyresampled($imgNew, $imgOrg, 0, 0, 0, 0, $iNewWidth, $iNewHeight, $iWidth, $iHeight);
 		imagejpeg($imgNew, $strNewRootName);
@@ -40,27 +50,69 @@ function ResizeJpg($strPathName, $iNewWidth = 300, $iNewHeight = 420)
 	}
 	return $strNewName;
 }
-
-//	https://ibkr.com/referral/rongrong586
-function GetWeixinPay($iType = 0)
+/*
+function ResizePng($strPathName, $iNewWidth = 300, $iNewHeight = false)
 {
-	if ($iType == 0)	$iType = rand(1, 2);
+	$strNewName = substr($strPathName, 0, strlen($strPathName) - 4).'x'.strval($iNewWidth).'__.jpg';
+	$strNewRootName = UrlModifyRootFileName($strNewName); 
+	if (!file_exists($strNewRootName))
+	{
+		$imgOrg = imagecreatefrompng(UrlModifyRootFileName($strPathName));
+		$iWidth = imagesx($imgOrg);
+		$iHeight = imagesy($imgOrg);
+		DebugString('Converting '.$strNewName);
+		if ($iNewHeight === false)		$iNewHeight = intval($iNewWidth * $iHeight / $iWidth);
+		$imgNew = imagecreatetruecolor($iNewWidth, $iNewHeight);
+		imagefill($imgNew, 0, 0, imagecolorallocate($bg, 255, 255, 255));	// 处理透明背景
+		imagecopyresampled($imgNew, $imgOrg, 0, 0, 0, 0, $iNewWidth, $iNewHeight, $iWidth, $iHeight);
+		imagejpeg($imgNew, $strNewRootName, 90);
+		imagedestroy($imgNew);
+		imagedestroy($imgOrg);
+	}
+	return $strNewName;
+}
+*/
+//	https://ibkr.com/referral/rongrong586
+function GetWechatPay($iType = 0, $bChinese = true)
+{
+	if ($iType == 0)	$iType = rand(1, 5);
 	switch ($iType)
 	{
 	case 1:
+		$strRemark = '觉得这个网站有用？可以用微信打赏一块钱给Woody！';
 		$strImage = GetImgElement('/woody/image/wxpay.jpg', '微信打赏一块钱给Woody的二维码');
-		$strText = GetRemarkElement('觉得这个网站有用？可以用微信打赏支持一下！');
+		break;
+		
+	case 2:
+		$strRemark = '觉得这个网站有用？可以用微信打赏支持一下！';
+		$strImage = GetImgElement(ResizeJpg('/debug/wechat/29e0a407b577177b.jpg'), $strRemark);
+		break;
+		
+	case 3:
+		$strRemark = $bChinese ? 'Palmmicro微信公众号小狐狸二维码' : 'Palmmicro Wechat Public Account QR code';
+		$strImage = GetImgElement('/woody/image/wx.jpg', $strRemark);
+		break;
+		
+	case 4:
+//		$strPathName = ResizeJpg('/debug/wechat/59692929fecbbe0d.jpg');
+//		$strRemark = '华宝拖拉机开户微信群二维码';
+		$strRemark = '华宝拖拉机开户群已经超过200人扫码入群限制，扫上面二维码后可以请小瓶子拉进群。';
+		$strImage = GetImgElement(ResizeJpg('/debug/wechat/bec5dabc01d8c812.jpg'), $strRemark);
 		break;
         	
-	case 2:
-		$strPathName = ResizeJpg('/debug/wechat/9524e4c77bae0487.jpg');
-		$strRemark = '华宝拖拉机开户微信群临时二维码';
-		$strImage = GetImgElement($strPathName, $strRemark);
-		$strText = GetFontElement($strRemark, 'navy');
+	case 5:
+		$strRemark = '香港保诚保险投保微信群二维码';
+		$strImage = GetImgElement(ResizeJpg('/debug/wechat/7bafe3bc9486f57f.jpg'), $strRemark);
 		break;
+/*       	
+	case 6:
+		$strRemark = '扫描Palmmicro微信插件二维码然后关注，可以直接在微信中接收企业微信义工群的消息。';
+		$strImage = GetImgElement(ResizeJpg('/debug/wechat/a39e5891dad44379.jpg'), $strRemark);
+		break;
+*/		
 	}
 	
-	return $strImage.'<br />'.$strText;
+	return $strImage.GetBreakElement().GetRemarkElement($strRemark);
 }
 
 function LayoutScreenWidthOk()
@@ -116,12 +168,10 @@ function _layoutBanner($bChinese)
 	$strLink = GetLinkElement($strImage, '/index'.($bChinese ? 'cn' : '').'.html');
     
     echo <<<END
-
 <div id="banner">
     <div class="logo">$strLink</div>
     <div class="blue"></div>
 </div>
-
 <script>
 	var width = window.screen.width;
 	var height = window.screen.height;
@@ -143,7 +193,7 @@ function _layoutAboveMenu($iWidth)
 <tr>
 <td width=30 valign=top bgcolor=#66CC66>&nbsp;</td>
 <td width=120 valign=top bgcolor=#66CC66>
-	<div>
+<div>
 END;
 /*    echo <<<END
         <div id="main">
@@ -159,7 +209,7 @@ function _layoutBelowMenu($iWidth)
 	
     echo <<<END
     
-    </div>
+</div>
 </td>
 <td width=30 valign=top bgcolor=#66CC66>&nbsp;</td>
 <td width=50 valign=top bgcolor=#ffffff>&nbsp;</td>
@@ -219,10 +269,10 @@ function LayoutEnd()
 END;
 }
 
-function _echoWeixinPay($iType = 0)
+function _echoWechatPay($bChinese)
 {
 	LayoutBegin();
-	EchoParagraph(GetWeixinPay($iType));
+	EchoHtmlElement(GetWechatPay(0, $bChinese));
 	LayoutEnd();
 }
 
@@ -232,7 +282,7 @@ function LayoutTail($bChinese = true, $bAdsense = false)
     if ($_SESSION['mobile'])
     {
 		if ($bAdsense)	AdsenseContent();
-   		else				_echoWeixinPay();
+   		else				_echoWechatPay($bChinese);
     }
     else
     {
@@ -245,15 +295,22 @@ function LayoutTail($bChinese = true, $bAdsense = false)
 <td valign=top>
 END;
     		if ($bAdsense)	AdsenseLeft();
-    		else				_echoWeixinPay();
+    		else				_echoWechatPay($bChinese);
     	}
     	else
     	{
     		if ($bAdsense)	AdsenseWoodyBlog();
-    		else				_echoWeixinPay();
+    		else				_echoWechatPay($bChinese);
     	}
+    	echo <<<END2
+
+</td>
+</tr>
+</tbody>
+</table>
+END2;
     	
-        echo '</td></tr></tbody></table>';
+//        echo '</td></tr></tbody></table>';
 //        echo '    </div>';
 //        echo '</div>';
     }

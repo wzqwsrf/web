@@ -20,19 +20,30 @@ class TableSql
     	return $str.'_id';
     }
     
-    function ComposeForeignStr($str)
+    function Remove_id($str)
     {
-		return ' FOREIGN KEY (`'.$str.'`) REFERENCES `'.rtrim($str, '_id').'`(`id`) ON DELETE CASCADE ';
+    	return rtrim($str, '_id');
     }
     
-    function ComposeIdStr($str = 'id')
+    function ComposeForeignStr($str)
+    {
+    	$strTable = $this->Remove_id($str);
+    	if ($strTable == 'ip')	
+    	{
+//    		DebugString(__FUNCTION__.' ip INDEX', true);
+    		return ' INDEX ( `ip_id` )';
+    	}
+		return ' FOREIGN KEY (`'.$str.'`) REFERENCES `'.$strTable.'`(`id`) ON DELETE CASCADE ';
+    }
+    
+    function ComposeIntStr($str = 'id')
     {
     	return ' `'.$str.'` INT UNSIGNED NOT NULL ';
     }
 
     function ComposePrimaryIdStr()
     {
-    	return $this->ComposeIdStr().'PRIMARY KEY';
+    	return $this->ComposeIntStr().'PRIMARY KEY';
     }
 
     function ComposeCloseStr()
@@ -49,7 +60,13 @@ class TableSql
     {
 		return ' `time` TIME NOT NULL ';
 	}
-	
+
+    function ComposeVarcharStr($str = 'close', $iLen = 8192, $bUnicode = true)
+    {
+    	$strCharSet = $bUnicode ? 'utf8 COLLATE utf8_unicode_ci' : 'latin1 COLLATE latin1_general_ci';
+    	return ' `'.$str.'` VARCHAR( '.strval($iLen).' ) CHARACTER SET '.$strCharSet.' NOT NULL ';
+    }
+
     public function Create()
     {
     	return $this->CreateTable($this->ComposePrimaryIdStr());
@@ -57,7 +74,7 @@ class TableSql
     
     function CreateIdTable($str)
     {
-       	return $this->CreateTable($this->ComposeIdStr().'AUTO_INCREMENT PRIMARY KEY ,'.$str);
+       	return $this->CreateTable($this->ComposeIntStr().'AUTO_INCREMENT PRIMARY KEY ,'.$str);
     }
 
     function _query($strQuery, $strDie)

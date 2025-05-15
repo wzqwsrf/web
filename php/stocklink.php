@@ -14,6 +14,7 @@ define('QQQ_GROUP_DISPLAY', '纳斯达克100');
 define('SPY_GROUP_DISPLAY', '标普500');
 
 define('LOF_ALL_DISPLAY', 'LOF基金');
+define('OVERNIGHT_DISPLAY', '义工群对比');
 
 define('CHINA_INDEX_DISPLAY', 'A股指数');
 define('QDII_DISPLAY', '美股QDII');
@@ -22,7 +23,21 @@ define('QDII_HK_DISPLAY', '港股QDII');
 define('QDII_JP_DISPLAY', '日本QDII');
 define('QDII_EU_DISPLAY', '欧洲QDII');
 
-define('FUND_DEMO_SYMBOL', 'SZ162411');
+define('STOCK_OPTION_ADR', '修改H股对应ADR代码');
+define('STOCK_OPTION_AH', '修改A股对应H股代码');
+define('STOCK_OPTION_AMOUNT', '基金申购金额');
+define('STOCK_OPTION_CALIBRATION', '手工校准');
+define('STOCK_OPTION_CLOSE', '更新收盘价');
+define('STOCK_OPTION_DIVIDEND', '分红');
+define('STOCK_OPTION_EDIT', '修改股票说明');
+define('STOCK_OPTION_EMA', '修改200/50日EMA');
+define('STOCK_OPTION_FUND', '修改对应配对代码');
+define('STOCK_OPTION_HA', '修改H股对应A股代码');
+define('STOCK_OPTION_HOLDINGS', '修改基金持仓');
+define('STOCK_OPTION_NAV', '修改净值');
+define('STOCK_OPTION_PREMIUM', '期货升水');
+define('STOCK_OPTION_SHARE_DIFF', '场内新增(万)');
+define('STOCK_OPTION_SPLIT', '拆股或合股');
 
 function GetStockCategoryArray()
 {
@@ -64,6 +79,11 @@ function GetAllLofLink()
     return GetStockPhpLink('lof', LOF_ALL_DISPLAY);
 }
 
+function GetOvernightLink()
+{
+    return GetStockPhpLink('overnight', OVERNIGHT_DISPLAY);
+}
+
 function GetStockCategoryLink($strItem)
 {
     $ar = GetStockCategoryArray();
@@ -97,25 +117,31 @@ function GetMyStockLink($strSymbol = false, $strDisplay = false)
 }
 
 define('CALIBRATION_HISTORY_DISPLAY', '校准记录');
-function GetCalibrationHistoryLink($strSymbol, $bDisplaySymbol = false)
+function GetCalibrationHistoryLink($strSymbol, $strDisplay = CALIBRATION_HISTORY_DISPLAY)
 {
-    return GetStockSymbolLink('calibrationhistory', $strSymbol, ($bDisplaySymbol ? $strSymbol : CALIBRATION_HISTORY_DISPLAY));
+    return GetStockSymbolLink('calibrationhistory', $strSymbol, ($strDisplay ? $strDisplay : $strSymbol));
+}
+
+function SymCalibrationHistoryLink($sym)
+{
+    return GetCalibrationHistoryLink($sym->GetSymbol(), $sym->GetDisplay());
 }
 
 define('HOLDINGS_DISPLAY', '基金持仓');
-function GetHoldingsLink($strSymbol, $bDisplaySymbol = false)
+function GetHoldingsLink($strSymbol, $strDisplay = HOLDINGS_DISPLAY)
 {
-    return GetStockSymbolLink('holdings', $strSymbol, ($bDisplaySymbol ? $strSymbol : HOLDINGS_DISPLAY));
+    return GetStockSymbolLink('holdings', $strSymbol, ($strDisplay ? $strDisplay : $strSymbol));
 }
 
 define('STOCK_HISTORY_DISPLAY', '历史价格');
-function GetStockHistoryLink($strSymbol)
+define('STOCK_HISTORY_UPDATE', '更新'.STOCK_HISTORY_DISPLAY);
+function GetStockHistoryLink($strSymbol, $strDisplay = STOCK_HISTORY_DISPLAY)
 {
-    return GetStockSymbolLink('stockhistory', $strSymbol, STOCK_HISTORY_DISPLAY);
+    return GetStockSymbolLink('stockhistory', $strSymbol, ($strDisplay ? $strDisplay : $strSymbol));
 }
 
 define('FUND_HISTORY_DISPLAY', '基金溢价记录');
-function GetFundHistoryLink($strSymbol = FUND_DEMO_SYMBOL)
+function GetFundHistoryLink($strSymbol)
 {
     return GetStockSymbolLink('fundhistory', $strSymbol, FUND_HISTORY_DISPLAY);
 }
@@ -133,6 +159,12 @@ function GetNvCloseHistoryLink($strSymbol)
 	return GetStockSymbolLink('nvclosehistory', $strSymbol, NVCLOSE_HISTORY_DISPLAY);
 }
 
+define('ETF_DIVIDEND_DISPLAY', STOCK_OPTION_DIVIDEND.'数据');
+function GetEtfDividendLink($strSymbol)
+{
+	return GetStockSymbolLink('etfdividend', $strSymbol, ETF_DIVIDEND_DISPLAY);
+}
+
 function GetFundLinks($strSymbol)
 {
 	$bChinaIndex = in_arrayChinaIndex($strSymbol);
@@ -148,8 +180,12 @@ function GetFundLinks($strSymbol)
 	{
 		$str .= ' '.GetCalibrationHistoryLink($strSymbol);
 		if ($bQdii || $bQdiiHk || $bQdiiJp || $bQdiiEu || $bSpecial)	$str .= ' '.GetFundPositionLink($strSymbol);
-		if ($bQdii || $bSpecial)												$str .= ' '.GetFundAccountLink($strSymbol);
-		if ($bQdii)															$str .= ' '.GetThanousParadoxLink($strSymbol);
+		if ($bQdii || $bSpecial)										$str .= ' '.GetFundAccountLink($strSymbol);
+		if ($bQdii)														$str .= ' '.GetThanousParadoxLink($strSymbol);
+	}
+	else
+	{
+		$str .= ' '.GetEtfDividendLink($strSymbol);
 	}
 	return $str;
 }
@@ -167,7 +203,7 @@ function GetThanousParadoxLink($strSymbol)
 }
 
 define('FUND_ACCOUNT_DISPLAY', '基金场内申购账户');
-function GetFundAccountLink($strSymbol = FUND_DEMO_SYMBOL, $iNum = false)
+function GetFundAccountLink($strSymbol, $iNum = false)
 {
     return GetStockSymbolLink('fundaccount', $strSymbol, ($iNum ? strval($iNum) : FUND_ACCOUNT_DISPLAY));
 }
@@ -184,25 +220,13 @@ function GetFundShareLink($strSymbol)
     return GetStockSymbolLink('fundshare', $strSymbol, FUND_SHARE_DISPLAY);
 }
 
-define('STOCK_OPTION_ADR', '修改H股对应ADR代码');
-define('STOCK_OPTION_AH', '修改A股对应H股代码');
-define('STOCK_OPTION_AMOUNT', '基金申购金额');
-define('STOCK_OPTION_CALIBRATION', '手工校准');
-define('STOCK_OPTION_CLOSE', '更新收盘价');
-define('STOCK_OPTION_DIVIDEND', '分红');
-define('STOCK_OPTION_EDIT', '修改股票说明');
-define('STOCK_OPTION_EMA', '修改200/50日EMA');
-define('STOCK_OPTION_FUND', '修改基金对应跟踪代码');
-define('STOCK_OPTION_HA', '修改H股对应A股代码');
-define('STOCK_OPTION_HOLDINGS', '修改基金持仓');
-define('STOCK_OPTION_NAV', '修改净值');
-define('STOCK_OPTION_SHARE_DIFF', '场内新增(万)');
-define('STOCK_OPTION_SPLIT', '拆股或合股');
 function GetStockOptionArray()
 {
     $ar = array(
                   'editcalibration' => STOCK_OPTION_CALIBRATION,
+                  'editfund' => STOCK_OPTION_FUND,
                   'editnetvalue' => STOCK_OPTION_NAV,
+                  'editpremium' => STOCK_OPTION_PREMIUM,
                   'editsharesdiff' => STOCK_OPTION_SHARE_DIFF,
     			  'editstock' => STOCK_OPTION_EDIT,
                   'editstockadr' => STOCK_OPTION_ADR,
@@ -211,7 +235,6 @@ function GetStockOptionArray()
                   'editstockclose' => STOCK_OPTION_CLOSE,
                   'editstockdividend' => STOCK_OPTION_DIVIDEND,
                   'editstockema' => STOCK_OPTION_EMA,
-                  'editfund' => STOCK_OPTION_FUND,
                   'editstockha' => STOCK_OPTION_HA,
                   'editstockholdings' => STOCK_OPTION_HOLDINGS,
                   'editstocksplit' => STOCK_OPTION_SPLIT,
@@ -226,9 +249,11 @@ function GetStockOptionLink($strOption, $strSymbol)
     return GetStockSymbolLink($strPage, $strSymbol, $strOption);
 }
 
-function GetStockEditDeleteLink($strSymbol)
+function GetStockEditDeleteLink($strSymbol, $bAdmin)
 {
-	return GetStockOptionLink(STOCK_OPTION_EDIT, $strSymbol).' '.GetDeleteLink(PATH_STOCK.'deletesymbol.php?symbol='.$strSymbol, '股票'.$strSymbol);
+	$str = GetStockOptionLink(STOCK_OPTION_EDIT, $strSymbol);
+	if ($bAdmin)	$str .= ' '.GetDeleteLink(PATH_STOCK.'deletesymbol.php?symbol='.$strSymbol, '股票'.$strSymbol);
+	return $str;
 }
 
 define('AUTO_TRACTOR_DISPLAY', '拖拉机自动化');
@@ -280,7 +305,11 @@ function StockGetTransactionLink($strGroupId, $strSymbol, $strDisplay = false)
     $strQuery = 'groupid='.$strGroupId;
     if ($strSymbol)	$strQuery .= '&symbol='.$strSymbol;
     
-    if ($strDisplay == false)	$strDisplay = $strSymbol;
+    if ($strDisplay == false)
+    {
+    	$sym = new StockSymbol($strSymbol);
+    	$strDisplay = $sym->GetDisplay();
+    }
 	return GetStockPageLink('mystocktransaction', $strDisplay, $strQuery);
 }
 
@@ -312,7 +341,7 @@ function StockGetGroupTransactionLinks($strGroupId)
 }
 
 // ****************************** Other internal link related functions *******************************************************
-function GetGroupStockLink($strSymbol = FUND_DEMO_SYMBOL, $bFull = false)
+function GetGroupStockLink($strSymbol, $bFull = false)
 {
     if (in_arrayAll($strSymbol))		return GetStockPageLink(strtolower($strSymbol), ($bFull ? SqlGetStockName($strSymbol).'('.$strSymbol.')' : $strSymbol));
     return false;

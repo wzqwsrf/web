@@ -26,7 +26,7 @@ function _LayoutTopLeft($bChinese = true, $bAdsense = true)
 function _LayoutBottom($bChinese = true, $bAdsense = true)
 {
 	LayoutBegin();
-	EchoParagraph(GetBlogPhotoLinks($bChinese));
+	EchoHtmlElement(GetBlogPhotoLinks($bChinese));
 	LayoutEnd();
 	
 	LayoutBlogMenuArray($bChinese);

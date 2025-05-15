@@ -5,17 +5,9 @@ define('TRADING_QUOTE_NUM', 5);
 
 function _getTradingTableColumn()
 {
-	return array(new TableColumn('交易', 60),
+	return array(new TableColumn('交易', 50),
 				  new TableColumnPrice(),
-				  new TableColumn('数量(手)', 100));
-}
-
-function _getTradingNumber($strNumber)
-{
-	if ($strNumber == '')	return '';
-	
-    $fNum = (floatval($strNumber) + 50) / 100.0;
-    return strval(intval($fNum));
+				  new TableColumnQuantity());
 }
 
 function _echoTradingTableItem($strColor, $strAskBid, $strPrice, $strQuantity, $ref, $strEstPrice, $strEstPrice2, $strEstPrice3, $callback)
@@ -24,7 +16,7 @@ function _echoTradingTableItem($strColor, $strAskBid, $strPrice, $strQuantity, $
 	
     $ar = array($strAskBid);
     $ar[] = $ref->GetPriceDisplay($strPrice, $ref->GetPrevPrice());
-    $ar[] = _getTradingNumber($strQuantity);
+    $ar[] = $strQuantity;
     
 	if ($strEstPrice)		$ar[] = $ref->GetPercentageDisplay($strEstPrice, $strPrice);
 	if ($strEstPrice2)	$ar[] = $ref->GetPercentageDisplay($strEstPrice2, $strPrice);
@@ -50,6 +42,11 @@ function _getTradingIndex($i)
 
 function _echoTradingTableData($ref, $strEstPrice, $strEstPrice2, $strEstPrice3, $callback)
 {
+   	$strPrice = $ref->IsStockMarketTrading(GetNowYMD(), false) ? $ref->GetPrevPrice() : $ref->GetPrice();
+   	$iPrecision = $ref->IsFundA() ? 3 : 2;
+   	$strColor = 'orange';
+	_echoTradingTableItem($strColor, '涨停', strval_round(floatval($strPrice) * 1.1, $iPrecision), '', $ref, $strEstPrice, $strEstPrice2, $strEstPrice3, $callback);
+    
     for ($i = TRADING_QUOTE_NUM - 1; $i >= 0; $i --)
     {
     	if (isset($ref->arAskQuantity[$i]))
@@ -66,11 +63,7 @@ function _echoTradingTableData($ref, $strEstPrice, $strEstPrice2, $strEstPrice3,
     	}
     }
 
-    if ($ref->IsFundA())
-    {
-    	$strPrice = $ref->IsStockMarketTrading(GetNowYMD()) ? $ref->GetPrevPrice() : $ref->GetPrice();
-   		_echoTradingTableItem('gray', '跌停', strval_round(floatval($strPrice) * 0.9, 3), '', $ref, $strEstPrice, $strEstPrice2, $strEstPrice3, $callback);
-    }
+	_echoTradingTableItem($strColor, '跌停', strval_round(floatval($strPrice) * 0.9, $iPrecision), '', $ref, $strEstPrice, $strEstPrice2, $strEstPrice3, $callback);
 }
 
 function _checkTradingQuantity($ref)
@@ -126,13 +119,10 @@ function EchoFundTradingParagraph($fund, $callback = false)
     		$strEstPrice .= '/'.$ref->GetPriceDisplay($strFair, $strPrev);
     	}
 
-    	if (method_exists($fund, 'GetRealtimeNav'))
-    	{
-    		if ($strRealtime = $fund->GetRealtimeNav())
-    		{
-    			$arColumn[] = new TableColumnPremium(STOCK_DISP_REALTIME);
-    			$strEstPrice .= '/'.$ref->GetPriceDisplay($strRealtime, $strPrev);
-    		}
+   		if ($strRealtime = $fund->GetRealtimeNav())
+   		{
+   			$arColumn[] = new TableColumnPremium(STOCK_DISP_REALTIME);
+   			$strEstPrice .= '/'.$ref->GetPriceDisplay($strRealtime, $strPrev);
     	}
 
     	$strEst = GetTableColumnEst();
@@ -151,7 +141,7 @@ function EchoFundTradingParagraph($fund, $callback = false)
 
 function EchoFundPairTradingParagraph($ref)
 {
-    $strPairSymbol = RefGetMyStockLink($ref->GetPairNavRef());
+    $strPairSymbol = RefGetMyStockLink($ref->GetPairRef());
 
     $arColumn = _getTradingTableColumn();
     $col = new TableColumnPremium(STOCK_DISP_OFFICIAL);

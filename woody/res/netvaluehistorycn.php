@@ -19,11 +19,11 @@ function EchoAll()
    			$jpg = new DateImageFile();
    			if ($jpg->Draw($csv->ReadColumn(2), $csv->ReadColumn(1)))
    			{
-   				EchoParagraph($csv->GetLink().'<br />'.$jpg->GetAll(STOCK_DISP_POSITION, $ref->GetSymbol()));
+   				EchoHtmlElement($csv->GetLink().'<br />'.$jpg->GetAll(STOCK_DISP_POSITION, $ref->GetSymbol()));
    			}
    		}
     }
-    $acct->EchoLinks('netvaluehistory');
+    $acct->EchoLinks();
 }    
 
 function GetMetaDescription()

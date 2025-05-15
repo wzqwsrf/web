@@ -10,8 +10,25 @@ function _getStockHistoryLinks($ref, $bAdmin)
 	$str = $ref->IsFund() ? GetFundLinks($strSymbol) : '';
     $str .= ' '.GetExternalStockHistoryLink($ref);
     if ($ref->IsTradable())	$str .= ' '.GetStockDividendLink($ref);
-    if ($bAdmin)	$str .= ' '.StockGetAllLink($strSymbol).' '.GetUpdateStockHistoryLink($ref, '更新历史记录');
+    if ($bAdmin)	$str .= ' '.StockGetAllLink($strSymbol).' '.GetUpdateStockHistoryLink($ref, STOCK_HISTORY_UPDATE);
     return $str;
+}
+
+function _echoUploadFile()
+{
+    $strPassQuery = UrlPassQuery();
+    $strSubmit = STOCK_HISTORY_UPDATE;
+    
+	echo <<< END
+	<form action="uploadfile.php{$strPassQuery}" method="post" enctype="multipart/form-data">
+        <div>
+		<label for="file">文件名称：</label>
+		<input type="file" name="file" id="file" /> 
+		<br />
+		<input type="submit" name="submit" value="$strSubmit" />
+        </div>
+	</form>
+END;
 }
 
 function EchoAll()
@@ -20,12 +37,25 @@ function EchoAll()
 	
     if ($ref = $acct->EchoStockGroup())
     {
-   		$strLinks = _getStockHistoryLinks($ref, $acct->IsAdmin());
+    	$bAdmin = $acct->IsAdmin();
+   		$strLinks = _getStockHistoryLinks($ref, $bAdmin);
    		$csv = new PageCsvFile();
-   		EchoStockHistoryParagraph($ref, $strLinks, $csv, $acct->GetStart(), $acct->GetNum(), $acct->IsAdmin());
+   		EchoStockHistoryParagraph($ref, $strLinks, $csv, $acct->GetStart(), $acct->GetNum(), $bAdmin);
    		$csv->Close();
-    }
-    $acct->EchoLinks('stockhistory');
+   		
+   		if ($acct->GetLoginId()) 
+   		{
+   			$strSymbol = $ref->GetSymbol();
+   			switch ($strSymbol)
+   			{
+   			case 'hf_CHA50CFD';
+   			case 'SH000016';
+   				_echoUploadFile();
+   				break;
+   			}
+   		}
+   	}
+    $acct->EchoLinks();
 }
 
 function GetMetaDescription()

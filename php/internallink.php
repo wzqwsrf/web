@@ -119,9 +119,33 @@ function GetVisitorLink($strIp, $bChinese = true)
 	return _getIpLink(TABLE_VISITOR, $strIp, $bChinese);
 }
 
-function GetAllVisitorLink($bChinese = true)
+function GetWechatDisplay($bChinese = true)
 {
-	return GetPhpLink(PATH_ACCOUNT.TABLE_VISITOR, false, ($bChinese ? '访问统计' : 'Visitor'), $bChinese);
+	return $bChinese ? '微信' : 'Wechat ';
+}
+
+function GetTelegramDisplay($bChinese = true)
+{
+	return $bChinese ? '电报' : 'Telegram ';
+}
+
+function GetBotDisplay($strType, $bChinese = true)
+{
+	if ($strType == TABLE_TELEGRAM_BOT)		return GetTelegramDisplay($bChinese);
+	else if ($strType == TABLE_WECHAT_BOT)	return GetWechatDisplay($bChinese);
+	return '';
+}
+
+function GetAllVisitorLink($strType = TABLE_VISITOR, $bChinese = true)
+{
+	$strQuery = false;
+	$strDisplay = '';
+	if ($strType == TABLE_TELEGRAM_BOT || $strType == TABLE_WECHAT_BOT)
+	{
+		$strQuery = 'type='.$strType;
+		$strDisplay = GetBotDisplay($strType, $bChinese);
+	}
+	return GetPhpLink(PATH_ACCOUNT.TABLE_VISITOR, $strQuery, $strDisplay.($bChinese ? '访问统计' : 'Visitor'), $bChinese);
 }
 
 function GetAllCommentLink($strQuery, $bChinese = true)

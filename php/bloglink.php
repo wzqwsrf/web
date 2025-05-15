@@ -26,6 +26,10 @@ function GetBlogLink($iDate, $bChinese = true, $bLink = true)
 	
 	switch ($iDate)
 	{
+	case 20250223:
+		$strDisplay = $bChinese ? '美股夜盘' : 'Overnight Trading';
+		break;
+		
 	case 20230614:
 		$strDisplay = $bChinese ? '美元利息' : 'USD Interest';
 		break;
@@ -44,7 +48,7 @@ function GetBlogLink($iDate, $bChinese = true, $bLink = true)
 		
 	case 20161014:
 		$strMenu = 'palmmicro';
-		$strDisplay = $bChinese ? '微信公众号' : 'WeChat Public Account';
+		$strDisplay = GetWechatDisplay($bChinese).($bChinese ? '公众号' : 'Public Account');
 		break;
 		
 	case 20150818:
@@ -81,6 +85,10 @@ function GetBlogTitle($iDate, $bChinese = true, $bLink = true)
 	$strDisplay = GetBlogLink($iDate, $bChinese, $bLink); 
 	switch ($iDate)
 	{
+	case 20250223:
+		$strTitle = $bChinese ? '一个新的'.$strDisplay.'跨市场套利软件工具' : 'A New Arbitrage Software Tool for '.$strDisplay;
+		break;
+		
 	case 20230614:
 		$strTitle = $bChinese ? '纳斯达克100期货升水和'.$strDisplay.'的关系' : 'Nasdaq 100 Futures Premium and '.$strDisplay;
 		break;
@@ -163,11 +171,6 @@ function GetPhotoParagraph($strPathName, $strText = '', $bChinese = true, $strEx
 	return GetHtmlElement($str);
 }
 
-function ImgPalmmicroWechat($bChinese = true)
-{
-	return GetImgQuote('/woody/image/wx.jpg', GetBlogTitle(20161014, $bChinese, false).($bChinese ? '小狐狸二维码' : ' small fox QR code'), $bChinese);
-}
-
 function ImgPortfolio20141016($bChinese = true)
 {
 	$strDate = '20141016';
@@ -178,6 +181,12 @@ function ImgPortfolio20141016($bChinese = true)
 function ImgWoody20060701($bChinese = true)
 {
 	return GetImgQuote('/woody/myphoto/2006/baihuashan.jpg', GetBlogYmd('20060701', $bChinese).($bChinese ? '绿野百花山' : ' Baihua Mountain with Lvye.'), $bChinese);
+}
+
+function ImgWoody20190128($bChinese = true)
+{
+	$strYmd = GetBlogYmd('20190128', $bChinese);
+	return GetWoodyImgQuote('20190128.jpg', $strYmd.'San Gabriel的麻辣香锅', $strYmd.'. Woody. 301 W Valley Blvd, Ste 101, San Gabriel, CA.', $bChinese);
 }
 
 function ImgWorriedWoody($bChinese = true)

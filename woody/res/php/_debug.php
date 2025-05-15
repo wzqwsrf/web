@@ -33,7 +33,7 @@ function _echoDebugParagraph($arDebug, $str)
     {
     	if ($iCount > 2)		$str .= GetBreakElement().GetVisitorLink($strIp).' '.strval($iCount);
     }
-    EchoParagraph($str);
+    EchoHtmlElement($str);
 }
 
 function _echoStockDebug()
@@ -57,25 +57,11 @@ function _echoStockDebug()
         fclose($file);
     }
     
-    EchoParagraph('本机IP:'.GetVisitorLink($strLocalIp));
+    EchoHtmlElement('本机IP:'.GetVisitorLink($strLocalIp));
     _echoDebugParagraph($arCurl, 'curl错误');
     _echoDebugParagraph($arMysql, 'Mysql异常');
     _echoDebugParagraph($arUrl, '弱智爬虫');
     _echoDebugParagraph($arIp, 'IP异常');
-}
-
-function _echoFileDebug()
-{
-	echo <<< END
-	<form action="uploadfile.php" method="post" enctype="multipart/form-data">
-        <div>
-		<label for="file">Filename:</label>
-		<input type="file" name="file" id="file" /> 
-		<br />
-		<input type="submit" name="submit" value="Submit" />
-        </div>
-	</form>
-END;
 }
 
 function EchoAll()
@@ -83,8 +69,7 @@ function EchoAll()
 	global $acct;
     
 	_echoStockDebug();
-	_echoFileDebug();
-    $acct->EchoLinks();
+    $acct->EchoLinks('chaos');
 }
 
 function GetMetaDescription()

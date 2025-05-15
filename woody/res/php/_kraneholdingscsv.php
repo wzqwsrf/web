@@ -32,6 +32,7 @@ class _KraneHoldingsCsvFile extends _HoldingsCsvFile
     	{
     		$strHolding = $arWord[3];
     		if (is_numeric($strHolding))	$strHolding = BuildHongkongStockSymbol($strHolding);
+    		if ($strHolding == 'YY')		$strHolding = 'JOYY';
     		if ($this->InsertHolding($strHolding, $strName, $strRatio))		$this->AddSum(floatval(str_replace(',', '', $arWord[6])));
     	}
     }
@@ -69,7 +70,6 @@ function CopyHoldings($date_sql, $strStockId, $strDstId)
     return true;
 }
 
-// https://kraneshares.com/csv/01_12_2022_kweb_holdings.csv
 function ReadKraneHoldingsCsvFile($strSymbol, $strStockId, $strDate, $strNav)
 {
 	$arYMD = explode('-', $strDate);

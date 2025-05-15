@@ -2,6 +2,7 @@
 require_once('externalurl.php');
 require_once('stocklink.php');
 require_once('sql/sqlipaddress.php');
+require_once('sql/sqlbotvisitor.php');
 require_once('ui/commentparagraph.php');
 
 function _getIpInfoIpLookUpUrl($strIp)
@@ -82,31 +83,20 @@ class IpLookupAccount extends CommentAccount
 	{
 		$str = '';
 		$visitor_sql = $this->GetVisitorSql();
-		$sql = $this->GetIpSql();
-		if ($record = $sql->GetRecord($strIp))
-		{
-			$iVisit = intval($record['visit']);
-			$iVisit += $visitor_sql->CountBySrc($record['id']);
-			$str .= '<br />'.($bChinese ? '普通网页总访问次数' : 'Total normal page visit').': '.strval($iVisit);
-			$str .= '<br />'.($bChinese ? '总登录次数' : 'Total login').': '.$record['login'];
-			switch ($record['status'])
-			{
-			case IP_STATUS_CRAWLER:
-				$str .= '<br />'.GetRemarkElement($bChinese ? '已标注爬虫' : 'Marked crawler');
-			    break;
-				
-			case IP_STATUS_MALICIOUS:
-				$str .= '<br />'.GetFontElement($bChinese ? '已标注恶意IP' : 'Marked malicious IP');
-			    break;
-			}
-		}
+		$iVisit = $visitor_sql->CountBySrc(GetIpId($strIp));
+		if ($iStored = $this->GetVisit($strIp))		$iVisit += $iStored;
+		if ($iVisit > 0)								$str .= '<br />'.($bChinese ? '普通网页总访问次数' : 'Total normal page visit').': '.strval($iVisit);
+		if ($iLogin = $this->GetLogin($strIp))		$str .= '<br />'.($bChinese ? '总登录次数' : 'Total login').': '.strval($iLogin);
+	    if ($this->IsMalicious($strIp))				$str .= '<br />'.GetFontElement($bChinese ? '已标注恶意IP' : 'Marked malicious IP');
+		if ($this->IsCrawler($strIp))				$str .= '<br />'.GetRemarkElement($bChinese ? '已标注爬虫' : 'Marked crawler');
 		return $str;
 	}
 
     function IpLookupString($strIp, $bChinese)
     {
     	$fStart = microtime(true);
-    	$str = GetVisitorLink($strIp, $bChinese).' '.GetAllVisitorLink($bChinese);
+    	$str = GetVisitorLink($strIp, $bChinese).' '.GetAllVisitorLink(TABLE_VISITOR, $bChinese);
+    	if ($this->IsAdmin())		$str .= ' '.GetAllVisitorLink(TABLE_TELEGRAM_BOT, $bChinese).' '.GetAllVisitorLink(TABLE_WECHAT_BOT, $bChinese);
     	$str .= '<br />'.GetExternalLink(_getIpInfoIpLookUpUrl($strIp), 'ipinfo.io').': ';
     	if ($arInfo = $this->_ipInfoLookUp($strIp))
     	{

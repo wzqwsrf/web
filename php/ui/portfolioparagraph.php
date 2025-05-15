@@ -6,19 +6,19 @@ function _getPortfolioTestVal($iShares, $strSymbol)
 	switch ($strSymbol)
     {
     case 'KWEB':
-		$iQuantity = 3121;
+		$iQuantity = 1200;
 		break;
 		
     case 'SH600104':
-		$iQuantity = 26000;
+		$iQuantity = 16000;
+		break;
+
+    case 'TLT':
+		$iQuantity = 400;
 		break;
 /*
     case 'XOP':
 		$iQuantity = -400;
-		break;
-
-    case 'TLT':
-		$iQuantity = 100;
 		break;
 
     case 'ASHR':
@@ -78,6 +78,7 @@ function _getArbitrageTestStr($iShares, $strGroupId, $strStockId, $strSymbol)
 
 function _echoPortfolioTableItem($trans)
 {
+	static $fCny = 0.0;
 	$ar = array();
 	
     $ref = $trans->ref;
@@ -90,7 +91,10 @@ function _echoPortfolioTableItem($trans)
     $iShares = $trans->GetTotalShares();
     if ($iShares != 0)
     {
-        $ar[] = GetNumberDisplay($trans->GetValue());
+    	$fVal = $trans->GetValue();
+    	if (in_arrayQdiiMix($strSymbol) || in_arrayQdii($strSymbol))	$fCny += $fVal * RefGetPosition($ref);
+    	
+        $ar[] = GetNumberDisplay($fVal);
         $ar[] = strval($iShares); 
         $ar[] = $trans->GetAvgCostDisplay();
        	$ar[] = ($trans->GetTotalCost() > 0.0) ? $ref->GetPercentageDisplay(strval($trans->GetAvgCost())) : '';
@@ -106,18 +110,24 @@ function _echoPortfolioTableItem($trans)
 //		case 'SH510300':
 		case 'SH600104':
 //		case 'SPY':
-//		case 'TLT':
+		case 'TLT':
         	$ar[] = strval(_getPortfolioTestVal($iShares, $strSymbol));
 			break;
 
 //        case 'SZ161127':
 		case 'SZ162411':
+		case 'SZ162415':
         case 'SZ164906':
         	$ar[] = GetArbitrageQuantity($strStockId, floatval($iShares));
 			break;
 
 		case 'hf_ES':
         	$ar[] = strval($iShares / 5);
+			break;
+			
+		case 'fx_susdcnh':
+			$fVal += $fCny;
+			$ar[] = GetNumberDisplay($fVal).' $'.GetNumberDisplay($fVal / floatval($ref->GetPrice()));
 			break;
    		}
     }
@@ -131,7 +141,7 @@ function EchoPortfolioParagraph($arTrans)
 	EchoTableParagraphBegin(array(new TableColumnSymbol(),
 								   $profit_col,
 								   new TableColumnHolding(),
-								   new TableColumnTotalShares(),
+								   new TableColumnQuantity(),
 								   new TableColumnPrice('平均'),
 								   new TableColumnChange(),
 								   new TableColumnTest()

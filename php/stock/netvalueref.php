@@ -2,16 +2,13 @@
 
 class NetValueReference extends MysqlReference
 {
-	var $fund_est_sql;
-	
     public function __construct($strSymbol) 
     {
         parent::__construct($strSymbol);
         
-       	$this->fund_est_sql = new FundEstSql();
         if ($this->IsFundA())
         {
-       		if (StockCompareEstResult($this->fund_est_sql, $this->GetStockId(), $this->GetPrice(), $this->GetDate(), $this->GetSymbol()))
+       		if (StockCompareEstResult($this->GetStockId(), $this->GetPrice(), $this->GetDate(), $this->GetSymbol()))
        		{	// new NAV
        		}
         }
@@ -28,13 +25,8 @@ class NetValueReference extends MysqlReference
         }
         else
         {
-        	$this->LoadSqlData();
+        	$this->LoadSqlNavData();
         }
-    }
-
-    function GetFundEstSql()
-    {
-    	return $this->fund_est_sql;
     }
 }
 

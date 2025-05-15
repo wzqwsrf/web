@@ -2,49 +2,12 @@
 require_once('account.php');
 require_once('stock.php');
 //require_once('stocktrans.php');
-//require_once('stock/csindex.php');		// 中证指数有限公司
-require_once('stock/sinastock.php');
 
 //require_once('sql/sqlkeystring.php');
 
 define('DEBUG_UTF8_BOM', "\xef\xbb\xbf");
 
 // http://www.todayir.com/en/index.php HSFML25
-
-function _debug_dividend($strSymbol)
-{
-	if ($arMatch = SinaGetStockDividendA($strSymbol))
-	{
-		$iVal = count($arMatch);
-	
-		DebugVal($iVal);
-		for ($j = 0; $j < $iVal; $j ++)
-		{
-			DebugString($arMatch[$j][0]);
-			for ($i = 1; $i < 9; $i ++) DebugString($arMatch[$j][$i]);
-		}
-	}
-}
-
-function TestCmdLine()
-{
-	DebugString('cmd line test '.UrlGetQueryString());
-    if ($strSymbol = UrlGetQueryValue('symbol'))
-    {
-    	$strSrc = UrlGetQueryDisplay('src', 'sina');
-    	$ref = new MyStockReference($strSymbol);
-    	DebugString('Stock ID '.$ref->GetStockId());
-    	$fStart = microtime(true);
-    	switch ($strSrc)
-    	{
-    	case 'sina':
-    		_debug_dividend($strSymbol);
-			break;
-    	}
-    	if (empty($str))	$str = '(Not found)';
-    	DebugString($strSymbol.':'.$str.DebugGetStopWatchDisplay($fStart));
-    }
-}
 
 /*
 function TestModifyTransactions($strGroupId, $strSymbol, $strNewSymbol, $iRatio)
@@ -73,6 +36,23 @@ function TestModifyTransactions($strGroupId, $strSymbol, $strNewSymbol, $iRatio)
    	UpdateStockGroupItem($strGroupId, $strGroupItemId);
 }
 */
+
+function TestConvertTables()
+{
+	$amount_sql = new GroupItemAmountSql();
+	$sql = new TableSql('fundpurchase');
+   	if ($result = $sql->GetData())
+   	{
+   		while ($record = mysqli_fetch_assoc($result)) 
+   		{
+   			if ($strGroupItemId = SqlGetMyStockGroupItemId($record['member_id'], $record['stock_id']))
+   			{
+				$amount_sql->WriteString($strGroupItemId, $record['amount']);
+			}
+    	}
+   		mysqli_free_result($result);
+    }
+}
 
 function DebugLogFile()
 {
@@ -110,16 +90,15 @@ function DebugClearPath($strSection)
 	$acct = new Account();
 	if ($acct->AllowCurl() == false)		die('Crawler not allowed on this page');
 
-    echo '<meta http-equiv="content-type" content="text/html; charset=UTF-8">';
+    echo GetContentType();
 
 	file_put_contents(DebugGetFile(), DEBUG_UTF8_BOM.'Start debug:'.PHP_EOL);
 //	DebugString($_SERVER['DOCUMENT_ROOT']);
 	DebugString(UrlGetRootDir());
-	DebugString(phpversion());
+	DebugString('PHP version: '.phpversion());
 	DebugLogFile();
 	echo strval(rand()).' Hello, world!<br />';
 	
-	TestCmdLine();
 	DebugClearPath('csv');
 	DebugClearPath('image');
 
@@ -133,11 +112,11 @@ function DebugClearPath($strSection)
 //    $iCount = $his_sql->DeleteInvalidDate();		// this can be very slow!
 //	if ($iCount > 0)	DebugVal($iCount, 'Invalid or older date'); 
 	
-//	CsindexGetData();
-
 //	TestModifyTransactions('1376', 'UWT', 'USO');
 //	TestModifyTransactions('1831', 'CHU', '00762', 10);
 //	TestModifyTransactions('160', 'SNP', '00386', 100);
 
+//	TestConvertTables();
+	
 	phpinfo();
 ?>

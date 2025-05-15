@@ -1,24 +1,10 @@
 <?php
+//require_once('sqlint.php');
 require_once('sqlkeyname.php');
 require_once('sqlkeytable.php');
 require_once('sqldailyclose.php');
+require_once('sqldailytime.php');
 require_once('sqlholdings.php');
-
-class NavHistorySql extends DailyCloseSql
-{
-    public function __construct() 
-    {
-        parent::__construct('netvaluehistory');
-    }
-}
-
-class StockEmaSql extends DailyCloseSql
-{
-    public function __construct($iDays) 
-    {
-        parent::__construct('stockema'.strval($iDays));
-    }
-}
 
 class StockHistorySql extends DailyCloseSql
 {
@@ -53,11 +39,11 @@ class StockHistorySql extends DailyCloseSql
     	if ($record = $this->GetRecord($strStockId, $strDate))
     	{
     		unset($ar['date']);
-    		if (abs(floatval($record['open']) - floatval($strOpen)) < 0.001)					unset($ar['open']);
-    		if (abs(floatval($record['high']) - floatval($strHigh)) < 0.001)					unset($ar['high']);
-    		if (abs(floatval($record['low']) - floatval($strLow)) < 0.001)						unset($ar['low']);
-    		if (abs(floatval($record['close']) - floatval($strClose)) < 0.001)					unset($ar['close']);
-    		if ($record['volume'] == $strVolume)													unset($ar['volume']);
+    		if (abs(floatval($record['open']) - floatval($strOpen)) < 0.0005)					unset($ar['open']);
+    		if (abs(floatval($record['high']) - floatval($strHigh)) < 0.0005)					unset($ar['high']);
+    		if (abs(floatval($record['low']) - floatval($strLow)) < 0.0005)						unset($ar['low']);
+    		if (abs(floatval($record['close']) - floatval($strClose)) < 0.0005)					unset($ar['close']);
+    		if ($record['volume'] == $strVolume)												unset($ar['volume']);
     		if (abs(floatval($record['adjclose']) - floatval($strAdjClose)) < MIN_FLOAT_VAL)	unset($ar['adjclose']);
     		
     		if (count($ar) > 0)	return $this->UpdateById($ar, $record['id']);
@@ -99,39 +85,48 @@ class StockHistorySql extends DailyCloseSql
     	return false;
     }
     
-    function GetAdjClose($strStockId, $strDate)
+    function GetAdjClose($strStockId, $strDate, $bStrict = false)
     {
     	$str = $this->_getAdjCloseString('GetRecord', $strStockId, $strDate);
-		if ($str === false)		$str = $this->_getAdjCloseString('GetRecordPrev', $strStockId, $strDate);	// when hongkong market on holiday
+    	if ($bStrict === false)
+    	{
+    		if ($str === false)		$str = $this->_getAdjCloseString('GetRecordPrev', $strStockId, $strDate);	// when hongkong market on holiday
+    	}
 		return $str;
     }
 }
 
 class StockSql extends KeyNameSql
 {
-    var $his_sql;
-    var $nav_sql;
-	var $holdings_sql;
-    
+    var $calibration_sql;
     var $ema50_sql;
     var $ema200_sql;
+	var $fund_est_sql;
+    var $his_sql;
+	var $holdings_sql;
+    var $nav_sql;
+//    var $quote_sql;
+//    var $nav_quote_sql;
     
     public function __construct()
     {
         parent::__construct('stock', 'symbol');
         
-       	$this->his_sql = new StockHistorySql();
-       	$this->nav_sql = new NavHistorySql();
-        $this->holdings_sql = new HoldingsSql();
-       	
+       	$this->calibration_sql = new CalibrationSql();
        	$this->ema50_sql = new StockEmaSql(50);
        	$this->ema200_sql = new StockEmaSql(200);
+       	$this->fund_est_sql = new FundEstSql();
+       	$this->his_sql = new StockHistorySql();
+        $this->holdings_sql = new HoldingsSql();
+       	$this->nav_sql = new DailyCloseSql('netvaluehistory');
+//       	$this->quote_sql = new StockQuoteSql();
+//       	$this->nav_quote_sql = new StockQuoteSql('navquote');
     }
 
     public function Create()
     {
-    	$str = ' `symbol` VARCHAR( 32 ) CHARACTER SET latin1 COLLATE latin1_general_ci NOT NULL ,'
-         	. ' `name` VARCHAR( 128 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL ,'
+    	$str = $this->ComposeVarcharStr('symbol', 32, false).','
+         	. $this->ComposeVarcharStr('name', 128).','
          	. ' UNIQUE ( `symbol` )';
     	return $this->CreateIdTable($str);
     }
@@ -178,8 +173,6 @@ class StockSql extends KeyNameSql
     	return $this->GetKey($strStockId);
 	}
 }
-
-// ****************************** Stock symbol functionse *******************************************************
 
 global $g_stock_sql;
 
@@ -235,6 +228,18 @@ function SqlGetStockSymbolAndId($strWhere, $strLimit = false)
     return $ar;
 }
 
+function GetCalibrationSql()
+{
+	global $g_stock_sql;
+   	return $g_stock_sql->calibration_sql;
+}
+
+function GetFundEstSql()
+{
+	global $g_stock_sql;
+   	return $g_stock_sql->fund_est_sql;
+}
+
 function GetStockHistorySql()
 {
 	global $g_stock_sql;
@@ -244,14 +249,16 @@ function GetStockHistorySql()
 function SqlDeleteStockHistory($strStockId)
 {
 	$his_sql = GetStockHistorySql();
-	$iTotal = $his_sql->Count($strStockId);
-	if ($iTotal > 0)
+	if ($strStockId)
 	{
-		DebugVal($iTotal, 'Stock history existed');
-		$his_sql->DeleteAll($strStockId);
+		$iTotal = $his_sql->Count($strStockId);
+		if ($iTotal > 0)
+		{
+			DebugVal($iTotal, 'Stock history existed');
+			$his_sql->DeleteAll($strStockId);
+		}
 	}
 }
-
 /*
 function SqlGetHisByDate($strStockId, $strDate)
 {
@@ -259,7 +266,6 @@ function SqlGetHisByDate($strStockId, $strDate)
 	return $his_sql->GetClose($strStockId, $strDate);
 }
 */
-
 function GetStockEmaSql($iDays)
 {
 	global $g_stock_sql;
@@ -300,6 +306,12 @@ function SqlDeleteNavHistory($strStockId)
 	}
 }
 
+function SqlSetNav($strStockId, $strDate, $strNav)
+{
+	$nav_sql = GetNavHistorySql();
+	return $nav_sql->InsertDaily($strStockId, $strDate, $strNav);
+}
+
 function SqlGetNavByDate($strStockId, $strDate)
 {
 	$nav_sql = GetNavHistorySql();
@@ -338,22 +350,18 @@ function SqlCountHoldings($strSymbol)
 	$holdings_sql = GetHoldingsSql();
 	return $holdings_sql->Count(SqlGetStockId($strSymbol));
 }
-
-function SqlGetHoldingsSymbolArray($strSymbol)
+/*
+function GetStockQuoteSql()
 {
-   	$arSymbol = array();
-	if (SqlCountHoldings($strSymbol) > 0)
-	{
-		$sql = GetStockSql();
-		$strStockId = $sql->GetId($strSymbol);
-		$holdings_sql = GetHoldingsSql();
-    	$ar = $holdings_sql->GetHoldingsArray($strStockId);
-    	foreach ($ar as $strId => $strRatio)
-    	{
-    		$arSymbol[] = $sql->GetStockSymbol($strId);
-    	}
-    }
-   	return $arSymbol;
+	global $g_stock_sql;
+   	return $g_stock_sql->quote_sql;
 }
+
+function GetNavQuoteSql()
+{
+	global $g_stock_sql;
+   	return $g_stock_sql->nav_quote_sql;
+}
+*/
 
 ?>

@@ -21,7 +21,7 @@ function _getMenuFontStyle()
 
 function _echoMenuEnabled($strDisplay)
 {
-   	EchoParagraph(GetFontElement($strDisplay, 'yellow', _getMenuFontStyle()));
+   	EchoHtmlElement(GetFontElement($strDisplay, 'yellow', _getMenuFontStyle()));
 }
 
 function MenuWriteItemLink($iLevel, $strPage, $strType, $strDisplay, $bCheck = false)
@@ -40,7 +40,7 @@ function MenuWriteItemLink($iLevel, $strPage, $strType, $strDisplay, $bCheck = f
     {
     	$strLevel .= '../';
     }
-    echo MenuGetLink($strLevel.$strPage.$strType, $strDisplay);
+    EchoNewLine(MenuGetLink($strLevel.$strPage.$strType, $strDisplay));
 }
 
 function MenuWriteLink($strPage, $strType, $strDisplay, $strOutput)
@@ -52,7 +52,7 @@ function MenuWriteLink($strPage, $strType, $strDisplay, $strOutput)
     	break;
     	
     case MENU_OUTPUT_DISABLED:
-    	EchoParagraph(GetQuoteElement($strDisplay, _getMenuFontStyle()));
+    	EchoHtmlElement(GetQuoteElement($strDisplay, _getMenuFontStyle()));
         break;
         
     case MENU_OUTPUT_ENABLED:
@@ -137,7 +137,7 @@ function MenuTitle($arTitles, $strDir)
 
 function MenuContinueNewLine()
 {
-	EchoParagraph('&nbsp;');
+	EchoNewLine(GetEmptyElement());
 }
 
 function MenuBegin()

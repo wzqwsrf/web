@@ -1,5 +1,10 @@
 <?php
 
+function GetContentType()
+{
+	return '<meta http-equiv="content-type" content="text/html; charset=UTF-8">';
+}
+
 function GetDoubleQuotes($str)
 {
 	return '"'.$str.'"';
@@ -29,6 +34,11 @@ function GetHtmlElement($strContent, $strTag = 'p', $arAttribute = false)
 	return "<$strStart>$strContent</$strTag>";
 }
 
+function GetEmptyElement()
+{
+	return GetHtmlElement('&nbsp;');
+}
+
 function GetLinkElement($strContent, $strPathName, $arExtraAttribute = false)
 {
 	$ar = array('href' => GetDoubleQuotes($strPathName));
@@ -39,6 +49,11 @@ function GetLinkElement($strContent, $strPathName, $arExtraAttribute = false)
 function GetBoldElement($strContent)
 {
 	return GetHtmlElement($strContent, 'b');
+}
+
+function GetUnderlineElement($strContent)
+{
+	return GetHtmlElement($strContent, 'u');
 }
 
 function GetFontElement($strContent, $strColor = 'red', $strStyle = false)

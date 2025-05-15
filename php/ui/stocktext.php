@@ -10,7 +10,7 @@ function _textPriceVolume($ref)
     $strVolume = $ref->GetVolume();
     if (intval($strVolume) > 0)
     {
-        $str .= STOCK_DISP_QUANTITY.':'.$strVolume.'股'.BOT_EOL;
+        $str .= '成交'.STOCK_DISP_QUANTITY.':'.$strVolume.'股'.BOT_EOL;
     }
     return $str;
 }
@@ -73,10 +73,7 @@ function _textEstNav($fund, $ref)
 	$str = '';
 	if ($strNav = $fund->GetOfficialNav())		$str .= STOCK_DISP_OFFICIAL._textEstPremium($ref, $strNav).' '.$fund->GetOfficialDate().BOT_EOL;
 	if ($strNav = $fund->GetFairNav())			$str .= STOCK_DISP_FAIR._textEstPremium($ref, $strNav).BOT_EOL;
-    if (method_exists($fund, 'GetRealtimeNav'))
-    {
-    	if ($strNav = $fund->GetRealtimeNav())	$str .= STOCK_DISP_REALTIME._textEstPremium($ref, $strNav).BOT_EOL;
-    }
+   	if ($strNav = $fund->GetRealtimeNav())		$str .= STOCK_DISP_REALTIME._textEstPremium($ref, $strNav).BOT_EOL;
 	return $str;
 }
 

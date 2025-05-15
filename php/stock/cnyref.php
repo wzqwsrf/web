@@ -7,7 +7,7 @@ class CnyReference extends MysqlReference
     	$strSymbol = $this->GetSymbol();
     	
     	$this->strSqlId = SqlGetStockId($strSymbol);
-       	$this->LoadSqlData();
+       	$this->LoadSqlNavData();
    		$this->strTime = '09:15:00';
         $this->strFileName = DebugGetChinaMoneyFile();
         $this->strExternalLink = GetReferenceRateForexLink($strSymbol);
@@ -18,18 +18,9 @@ class CnyReference extends MysqlReference
 		if ($strDate == $this->GetDate())	return $this->GetPrice();
 		return SqlGetNavByDate($this->strSqlId, $strDate);
 	}
-	
-	function GetVal($strDate = false)
-	{
-		if ($strDate)
-		{
-			if ($strClose = $this->GetClose($strDate))		return floatval($strClose);
-		}
-		return floatval($this->GetPrice());
-	}
 }
 
-class HkdUsdReference
+class UsdHkdReference
 {
 	var $uscny_ref;
 	var $hkcny_ref;
@@ -40,9 +31,14 @@ class HkdUsdReference
    		$this->hkcny_ref = new CnyReference('HKCNY');
     }
     
-	function GetVal($strDate = false)
+	public function GetVal($strDate = false)
 	{
-		return $this->hkcny_ref->GetVal($strDate) / $this->uscny_ref->GetVal($strDate); 
+		return $this->uscny_ref->GetVal($strDate) / $this->hkcny_ref->GetVal($strDate); 
+	}
+    
+	public function GetClose($strDate)
+	{
+		return $this->uscny_ref->GetClose($strDate) / $this->hkcny_ref->GetClose($strDate); 
 	}
 }
 

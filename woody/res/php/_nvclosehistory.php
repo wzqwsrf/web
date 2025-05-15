@@ -30,7 +30,7 @@ function _echoNvCloseGraph($csv)
     {
     	$str = $csv->GetLink();
     	$str .= '<br />'.$jpg->GetAllLinks();
-    	EchoParagraph($str);
+    	EchoHtmlElement($str);
     }
 }
 
@@ -55,7 +55,7 @@ function EchoAll()
 			_echoNvCloseGraph($csv);
     	}
     }
-    $acct->EchoLinks('nvclosehistory');
+    $acct->EchoLinks();
 }
 
 function GetMetaDescription()

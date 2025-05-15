@@ -1,4 +1,5 @@
 <?php
+require_once('stocklink.php');
 require_once('externalurl.php');
 require_once('stock/stocksymbol.php');
 
@@ -62,31 +63,21 @@ function GetIsharesOfficialLink($strSymbol)
 
 function GetSpdrOfficialLink($strSymbol)
 {
-	$str = GetSpdrEtfUrl().'funds/';
-	switch ($strSymbol)
-	{
-	case 'XBI':
-		$str .= 'spdr-sp-biotech-etf-xbi';
-		break;
-
-	case 'XLE':
-		$str .= 'the-energy-select-sector-spdr-fund-xle';
-		break;
-
-	case 'XLY':
-		$str .= 'the-consumer-discretionary-select-sector-spdr-fund-xly';
-		break;
-
-	case 'XOP':
-		$str .= 'spdr-sp-oil-gas-exploration-production-etf-xop';
-		break;
-	}
-	return GetOfficialLink($str, $strSymbol);
+	if ($str = GetSpdrOfficialUrl($strSymbol))	return GetOfficialLink($str, $strSymbol);
+	return $strSymbol.' is not SPDR ETF';
 }
 
+/*
 function GetInvescoOfficialLink($strSymbol)
 {
 	$str = 'https://www.invesco.com/us/financial-products/etfs/product-detail?productId='.$strSymbol;
+	return GetOfficialLink($str, $strSymbol);
+}
+*/
+
+function GetProsharesOfficialLink($strSymbol)
+{
+	$str = GetProsharesUrl().'our-etfs/leveraged-and-inverse/'.strtolower($strSymbol);
 	return GetOfficialLink($str, $strSymbol);
 }
 
@@ -171,8 +162,17 @@ function GetXueqiuLink($sym, $strDisplay = false)
 			break;
 		}
 	}
+	else if ($sym->IsSinaFuture())
+	{
+    	switch ($strSymbol)
+    	{
+   		case 'hf_CHA50CFD':
+			$strXueqiu = 'CNmain';
+			break;
+		}
+	}
     $strHttp = GetXueqiuUrl().'S/'.$strXueqiu;
-    return GetExternalLink($strHttp, ($strDisplay ? $strDisplay : $strSymbol));
+    return GetExternalLink($strHttp, ($strDisplay ? $strDisplay : $sym->GetDisplay()));
 }
 
 function GetXueqiuIdLink($strId, $strDisplay)
@@ -185,13 +185,13 @@ function GetYahooStockLink($sym)
     $strHttp = GetYahooStockUrl($sym->GetYahooSymbol());
     return GetExternalLink($strHttp, $sym->GetDisplay());
 }
-/*
+
 function GetYahooNavLink($strSymbol)
 {
     $strHttp = GetYahooStockUrl(GetYahooNetValueSymbol($strSymbol));
     return GetExternalLink($strHttp, $strSymbol);
 }
-*/
+
 function GetSinaFundLink($sym)
 {
     $strDigit = $sym->IsFundA();
@@ -285,7 +285,7 @@ function GetSinaForexLink($sym)
 function GetExternalStockHistoryLink($sym)
 {
 	$strHttp = GetYahooStockHistoryUrl($sym->GetYahooSymbol());
-    return GetExternalLink($strHttp, '历史数据');
+    return GetExternalLink($strHttp, 'Yahoo'.STOCK_HISTORY_DISPLAY);
 }
 
 // https://finance.yahoo.com/quote/XOP/history?filter=div
@@ -306,18 +306,13 @@ function GetStockDividendUrl($sym)
 function GetStockDividendLink($sym)
 {
     $strHttp = GetStockDividendUrl($sym);
-    return GetExternalLink($strHttp, '分红数据');
+    $strDisplay = ($sym->IsSymbolA() || $sym->IsSymbolH()) ? 'Sina' : 'Yahoo';
+    return GetExternalLink($strHttp, $strDisplay.ETF_DIVIDEND_DISPLAY);
 }
 
 function GetReferenceRateForexLink($strSymbol)
 {
     $strHttp = 'http://www.chinamoney.com.cn/index.html';
-    return GetExternalLink($strHttp, $strSymbol);
-}
-
-function GetTradingViewLink($strSymbol)
-{
-    $strHttp = 'https://www.tradingview.com/symbols/AMEX-'.$strSymbol.'/';
     return GetExternalLink($strHttp, $strSymbol);
 }
 
@@ -362,6 +357,16 @@ function GetEtfNavLink($strSymbol)
 function GetUscfLink()
 {
 	return GetOfficialLink('http://www.uscfinvestments.com', 'USO'); 
+}
+
+function GetSecondListingLink()
+{
+	return GetExternalLink(GetAastocksSecondListingUrl(), '阿思達克二次回港上市');
+}
+
+function GetAdrLink()
+{
+	return GetExternalLink(GetAastocksAdrUrl(), '阿思達克ADR');
 }
 
 ?>

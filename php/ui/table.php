@@ -89,8 +89,6 @@ function GetTableColumnTime()
 	return $col->GetDisplay();
 }
 
-// ****************************** Common Table Functions *******************************************************
-
 function EchoTableParagraphBegin($ar, $strId, $str = '')
 {
     $strColumn = '';
@@ -105,11 +103,10 @@ function EchoTableParagraphBegin($ar, $strId, $str = '')
 
 	$strColumn = GetTableRow($strColumn);
 	$strColumn = GetHtmlElement($strColumn, 'thead');
-	$strId .= 'teble';
     echo <<<END
     
     <p>$str
-    	<TABLE borderColor=#cccccc cellSpacing=0 width=$strWidth border=1 class="text" id="$strId">
+    	<TABLE borderColor=#cccccc cellSpacing=0 width=$strWidth border=1 class="text" id="{$strId}table">
         	$strColumn
         	<tbody>
 END;
@@ -151,6 +148,7 @@ END;
 
 function EchoTableParagraphEnd($str = '')
 {
+	if ($str == '')	$str = '&nbsp;';
     echo <<<END
     	
     		</tbody>

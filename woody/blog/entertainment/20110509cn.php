@@ -1,4 +1,4 @@
-<?php require_once('php/_20110509.php'); ?>
+<?php require_once('php/_entertainment.php'); ?>
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
@@ -34,13 +34,26 @@
 </p>
 <?php AdsenseSearchEngine(); ?>
 
-<h3><a name="first">第一笔</a>Adsense收入</h3>
+<?php
+function Echo20160122($strHead)
+{
+	$strHead = GetHeadElement($strHead);
+	$strQuote = GetQuoteElement('Good news! On Jan 21, 2016, we sent you a payment for your Google AdSense earnings.');
+	$strAdsense = GetNameLink('adsense', 'Adsense');
+	$strSZ162411 = GetBlogLink(20150818);
+	$strStock = GetBlogLink(20141016);
+
+    echo <<<END
+	$strHead
 <p>2016年1月22日
-<br />收到来自billing-noreply@google.com的一封信说<font color=gray>Good news! On Jan 21, 2016, we sent you a payment for your Google AdSense earnings.</font>
-去我的Bank of America的账户看, 果然来了一笔108.11美元的收款.
-<br />第一笔<a href="#adsense">Adsense</a>收入比2012年时候预计的来得早了3年, 主要是因为过去几个月我的<a href="20150818cn.php">华宝油气净值</a>页面吸引了很多新用户, 现在差不多每天已经有1000次广告展示.
-<br />有<a href="20141016cn.php">股票</a>用户觉得我网站的古老排版很难看, 尤其是在宽屏电脑上, 右边总是空荡荡的一大片, 我就把页面最底部的广告挪到了电脑用户的右边.
+<br />收到来自billing-noreply@google.com的一封信说{$strQuote} 去我的Bank of America的账户看，果然来了一笔108.11美元的收款。
+<br />第一笔{$strAdsense}收入比2012年时候预计的来得早了3年，主要是因为过去几个月我的{$strSZ162411}净值页面吸引了很多新用户，现在差不多每天已经有1000次广告展示。
+<br />有{$strStock}用户觉得我网站的古老排版很难看，尤其是在宽屏电脑上，右边总是空荡荡的一大片。我就把页面最底部的广告挪到了电脑用户的右边。
 </p>
+END;
+}
+	Echo20160122(GetNameTag('first', '第一笔').'Adsense收入');
+?>
 
 <h3><a name="second">第二笔</a>Adsense收入</h3>
 <p>2018年7月23日
@@ -52,7 +65,7 @@
 <br />进入移动互联网时代, Google赖以起家的羊毛出在猪身上的广告模式明显落伍了. 国内BAT慢慢变成了AT, 百度落伍的原因当然很多, 不过在我看来最重要的一点就是它没有成功的移动支付渠道. 
 <br />努力拥抱知识付费时代, 我给自己的网站也加上了流行的微信打赏.
 </p>
-<?php EchoParagraph(GetWeixinPay(1)); ?>
+<?php EchoHtmlElement(GetWechatPay(1)); ?>
 
 <h3><a name="third">第三笔</a>Adsense收入</h3>
 <p>2020年10月24日
@@ -64,7 +77,39 @@
 </p>
 
 <?php
+function Echo20211222($strHead)
+{
+	$strHead = GetHeadElement($strHead);
+	$strThird = GetNameLink('third', '第三笔');
+	$strChinaInternet = GetStockCategoryLink('chinainternet');
+	$strSZ164906 = GetGroupStockLink('SZ164906', true);
+
+    echo <<<END
+	$strHead
+<p>2021年12月22日 周三
+<br />在十四个月后，收到了第四笔100.98美元的收入。跟一年多前{$strThird}时想象的不同，拖拉机软件并没有持续多久的热度，今年是靠一路下跌的{$strChinaInternet}维持住了网站的流量。 
+最开始时候华宝油气一枝独秀的时代已经结束，在过去的三十天里{$strSZ164906}估值网页的访问量已经是华宝油气的三倍。
+</p>
+END;
+}
+
+function Echo20250121($strHead)
+{
+	$strHead = GetHeadElement($strHead);
+	$strTurbify = GetExternalLink('https://www.turbify.com/', 'Turbify');
+	$strYahoo = GetInternalLink('/res/translationcn.html#webhosting', 'Yahoo网站服务');
+
+    echo <<<END
+	$strHead
+<p>2025年1月21日 周二
+<br />在三年外加一个月后，终于收到了第五笔100.14美元的收入。其实网站的访问量一直在稳步增长，广告收入下降的主要原因是传统网页实在是落伍了，大家都在用手机APP，广告商的投放也都集中在手机APP上，网页的浏览和点击都是越来越不值钱了。 
+<br />雪上加霜的是，疫情后美元疯狂贬值，现在叫{$strTurbify}的{$strYahoo}从2024年开始每个月收费从原来的12美元跳涨到了18美元，指望广告费能覆盖网站费用成了不可能的事情。
+</p>
+END;
+}
+
 	Echo20211222(GetNameTag('forth', '第四笔').'Adsense收入');
+	Echo20250121(GetNameTag('fifth', '第五笔').'Adsense收入');
 ?>
 
 </div>

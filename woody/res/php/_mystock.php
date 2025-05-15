@@ -56,36 +56,44 @@ function _echoMyStockTransactions($acct, $ref, $strStockId)
 
 function _getFundOptionLinks($strSymbol)
 {
-	return ' '.GetStockOptionLink(STOCK_OPTION_NAV, $strSymbol).' '.GetStockOptionLink(STOCK_OPTION_CALIBRATION, $strSymbol).' '.GetStockOptionLink(STOCK_OPTION_FUND, $strSymbol).' '.GetStockOptionLink(STOCK_OPTION_HOLDINGS, $strSymbol);
+	return ' '.GetStockOptionLink(STOCK_OPTION_NAV, $strSymbol).' '.GetStockOptionLink(STOCK_OPTION_CALIBRATION, $strSymbol).' '.GetStockOptionLink(STOCK_OPTION_HOLDINGS, $strSymbol);
 }
 
-function _getMyStockLinks($sym)
+function _getMyStockLinks($sym, $bAdmin)
 {
 	$strSymbol = $sym->GetSymbol();
-    $str = GetStockEditDeleteLink($strSymbol);
-   	$str .= ' '.GetStockOptionLink(STOCK_OPTION_SPLIT, $strSymbol);
-   	$str .= ' '.GetStockOptionLink(STOCK_OPTION_DIVIDEND, $strSymbol);
-   	if (SqlGetFundPair($strSymbol) == false)
+    $str = GetStockEditDeleteLink($strSymbol, $bAdmin);
+   	if ($sym->IsSinaFuture())
    	{
-   		$str .= ' '.GetStockOptionLink(STOCK_OPTION_EMA, $strSymbol);
+   		$str .= ' '.GetStockOptionLink(STOCK_OPTION_PREMIUM, $strSymbol);
    	}
-   	if ($sym->IsSymbolA())
+   	else 
    	{
-    	if ($sym->IsFundA())		$str .= _getFundOptionLinks($strSymbol);
-    	else if ($sym->IsTradable())
-    	{
-    		$str .= ' '.GetStockOptionLink(STOCK_OPTION_AH, $strSymbol);
-    	}
+   		$str .= ' '.GetStockOptionLink(STOCK_OPTION_SPLIT, $strSymbol);
+   		$str .= ' '.GetStockOptionLink(STOCK_OPTION_DIVIDEND, $strSymbol);
+   		$str .= ' '.GetStockOptionLink(STOCK_OPTION_FUND, $strSymbol);
+   		if (SqlGetFundPair($strSymbol) == false)
+   		{
+   			$str .= ' '.GetStockOptionLink(STOCK_OPTION_EMA, $strSymbol);
+   		}
+   		if ($sym->IsSymbolA())
+   		{
+   			if ($sym->IsFundA())		$str .= _getFundOptionLinks($strSymbol);
+   			else if ($sym->IsTradable())
+   			{
+   				$str .= ' '.GetStockOptionLink(STOCK_OPTION_AH, $strSymbol);
+   			}
+   		}
+   		else if ($sym->IsSymbolH())
+   		{
+   			$str .= ' '.GetStockOptionLink(STOCK_OPTION_HA, $strSymbol);
+   			$str .= ' '.GetStockOptionLink(STOCK_OPTION_ADR, $strSymbol);
+   		}
+   		else
+   		{
+   			if ($sym->IsTradable())	$str .= _getFundOptionLinks($strSymbol);
+   		}
    	}
-    else if ($sym->IsSymbolH())
-    {
-    	$str .= ' '.GetStockOptionLink(STOCK_OPTION_HA, $strSymbol);
-    	$str .= ' '.GetStockOptionLink(STOCK_OPTION_ADR, $strSymbol);
-    }
-    else
-    {
-    	if ($sym->IsTradable())	$str .= _getFundOptionLinks($strSymbol);
-    }
     return $str;
 }
 
@@ -93,7 +101,7 @@ function _callbackCnhSma($ref, $strEst = false)
 {
 	if ($strEst)
 	{
-		$f = round(2000.0 * floatval($strEst) * GetFutureInterestPremium(-0.020, '2024-06-16'));
+		$f = round(2000.0 * floatval($strEst) * GetFutureInterestPremium(-0.0190, '2025-01-13'));
 		return strval_round($f / 2000.0, 4);
 	}
 	return $ref;
@@ -155,21 +163,23 @@ function _echoMyStockData($ref, $strStockId, $bAdmin)
 	EchoFundShareParagraph($ref);
 	EchoStockHistoryParagraph($ref);
     
-    if ($bAdmin)
-    {
-     	$str = GetMyStockLink();
-     	if ($strStockId)
-    	{
-    		$str .= '<br />id='.$strStockId.'<br />'._getMyStockLinks($ref).'<br />'.$ref->DebugLink();
+	$strNewLine = GetBreakElement();
+   	$str = GetMyStockLink();
+   	if ($strStockId)
+   	{
+   		$str .= ' '._getMyStockLinks($ref, $bAdmin);
+   		if ($bAdmin)
+   		{
+   			$str .= $strNewLine.'id='.$strStockId.' '.$ref->DebugLink();
    			if ($ref->IsFundA())
    			{
    				$nav_ref = new NetValueReference($strSymbol);
-   				$str .= '<br />基金:'.$nav_ref->DebugLink(); 
+   				$str .= $strNewLine.'基金:'.$nav_ref->DebugLink(); 
    			}
-   			$str .= '<br />均线:'.$ref->DebugConfigLink();
+   			$str .= $strNewLine.'均线:'.$ref->DebugConfigLink();
     	}
-    	EchoParagraph($str);
     }
+   	EchoHtmlElement($str);
 }
 
 function GetMyStockLinks($ref)
@@ -221,7 +231,7 @@ function EchoAll()
     	}
     }
 	else	EchoStockParagraph($acct->GetStart(), $acct->GetNum(), $bAdmin);
-    $acct->EchoLinks(false, 'GetMyStockLinks');
+    $acct->EchoLinks('chaos', 'GetMyStockLinks');
 }
 
 function GetMetaDescription()

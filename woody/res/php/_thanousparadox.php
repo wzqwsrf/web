@@ -29,7 +29,7 @@ function _echoThanousParadoxGraph($csv)
     {
     	$str = $csv->GetLink();
     	$str .= '<br />'.$jpg->GetAllLinks();
-    	EchoParagraph($str);
+    	EchoHtmlElement($str);
     }
 }
 
@@ -119,7 +119,7 @@ function EchoAll()
 //            DebugString($strSymbol.' Thanous Paradox: '.DebugGetStopWatchDisplay($fStart));
         }
     }
-    $acct->EchoLinks('thanousparadox');
+    $acct->EchoLinks();
 }
 
 function GetMetaDescription()

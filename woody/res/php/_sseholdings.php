@@ -50,17 +50,33 @@ function ReadSseHoldingsFile($strSymbol, $strStockId)
 	case 'SH513050':
 		$strEtfType = '087';
 		break;
-    		
+
+	case 'SH513090':
+		$strEtfType = '254';
+		break;
+
 	case 'SH513220':
 		$strEtfType = '509';
+		break;
+
+	case 'SH513230':
+		$strEtfType = '459';
 		break;
 
 	case 'SH513360':
 		$strEtfType = '395';
 		break;
 
+	case 'SH513750':
+		$strEtfType = '607';
+		break;
+		
 	case 'SH513850':
 		$strEtfType = '577';
+		break;
+
+	case 'SH513990':
+		$strEtfType = '244';
 		break;
 	}
 	$strUrl = 'http://query.sse.com.cn/etfDownload/downloadETF2Bulletin.do?etfType='.$strEtfType;

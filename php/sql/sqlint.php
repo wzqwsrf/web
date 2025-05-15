@@ -11,7 +11,7 @@ class IntSql extends ValSql
     function CreateIntTable($strExtra = '')
     {
     	$str = $this->ComposePrimaryIdStr().','
-         	  . $this->ComposeIdStr($this->GetValName())
+         	  . $this->ComposeIntStr($this->GetValName())
          	  . $strExtra;
     	return $this->CreateTable($str);
     }
@@ -21,23 +21,75 @@ class IntSql extends ValSql
     	return $this->CreateIntTable();
     }
     
-    function WriteInt($strId, $strInt)
+    function WriteString($strId, $str)
     {
-    	return $this->WriteVal($strId, $strInt, true);
+    	return $this->WriteVal($strId, $str, true);
     }
     
-    function ReadInt($strId)
+    function ReadString($strId)
     {
     	return $this->ReadVal($strId, true);
     }
-}
-
-class FundArbitrageSql extends IntSql
-{
-    public function __construct()
+    
+    public function WriteInt($strId, $iInt)
     {
-        parent::__construct('fundarbitrage');
+    	return $this->WriteString($strId, strval($iInt));
+    }
+    
+    public function ReadInt($strId)
+    {
+    	if ($str = $this->ReadString($strId))	return intval($str);
+    	return false;
+    }
+    
+    function Add($strId, $iInt)
+    {
+    	$iVal = $this->ReadInt($strId);
+    	if ($iVal === false)		$iVal = 0;
+    	
+    	return $this->WriteInt($strId, $iVal + $iInt);
+    }
+    
+    function Inc($strId)
+    {
+    	return $this->Add($strId, 1);
     }
 }
 
+class FundHedgeValSql extends IntSql
+{
+    public function __construct()
+    {
+        parent::__construct('fundhedgeval');
+    }
+}
+/*
+class StockQuoteSql extends IntSql
+{
+	var $strQuoteName = 'quote';
+
+    public function __construct($strTableName = 'stockquote')
+    {
+        parent::__construct($strTableName, 'tick');
+    }
+
+    public function Create()
+    {
+    	return $this->CreateIntTable(','.$this->ComposeVarcharStr($this->strQuoteName));
+    }
+    
+    function WriteQuote($strId, $iTick, $strQuote)
+    {
+    	$strTick = strval($iTick);
+    	$ar = array($this->strValName => $strTick, $this->strQuoteName => $strQuote);
+   		if ($record = $this->GetRecordById($strId))
+   		{
+   			if ($strQuote == $record[$this->strQuoteName])	unset($ar[$this->strQuoteName]);
+   			if ($strTick == $record[$this->strValName])		return false;
+   			return $this->UpdateById($ar, $strId);
+   		}
+    	return $this->InsertArray(array('id' => $strId) + $ar);
+    }
+}                                                                                                                                              
+*/
 ?>

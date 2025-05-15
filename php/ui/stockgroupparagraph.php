@@ -7,15 +7,17 @@ function _stockGroupGetStockLinks($strGroupId)
 	
     $strStocks = '';
 	$arStock = SqlGetStocksArray($strGroupId);
+//	sort($arStock);
 	foreach ($arStock as $strSymbol)
 	{
+		$sym = new StockSymbol($strSymbol);
 		if (in_array($strSymbol, $arSymbol))
 		{
-			$strStocks .= $strSymbol;
+			$strStocks .= $sym->GetDisplay();
 		}
 		else
 		{
-			$strStocks .= GetMyStockLink($strSymbol);
+			$strStocks .= $sym->GetMyStockLink();
 			$arSymbol[] = $strSymbol;
 		}
 		$strStocks .= ', ';

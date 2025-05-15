@@ -31,13 +31,10 @@ function _echoFundEstTableItem($ref, $bFair, $bWide = false)
     	$ar[] = '';
     }
     
-    if (method_exists($ref, 'GetRealtimeNav'))
-    {
-    	if ($strRealtimePrice = $ref->GetRealtimeNav())
-    	{
-    		$ar[] = $ref->GetPriceDisplay($strRealtimePrice);
-    		$ar[] = $ref->GetPercentageDisplay($strRealtimePrice);
-    	}
+   	if ($strRealtimePrice = $ref->GetRealtimeNav())
+   	{
+   		$ar[] = $ref->GetPriceDisplay($strRealtimePrice);
+   		$ar[] = $ref->GetPercentageDisplay($strRealtimePrice);
     }
     
 	RefEchoTableColumn($ref, $ar, $bWide);
@@ -77,17 +74,19 @@ function _getFundEstTableColumn($arRef, &$bFair, $bWide = false)
 	
     foreach ($arRef as $ref)
     {
-    	if (method_exists($ref, 'GetRealtimeNav'))
-    	{
-    		if ($ref->GetRealtimeNav())
-    		{
-    			$ar[] = new TableColumnRealtimeEst();
-    			$ar[] = $premium_col;
-    			break;
-    		}
+   		if ($ref->GetRealtimeNav())
+   		{
+   			$ar[] = new TableColumnRealtimeEst();
+   			$ar[] = $premium_col;
+   			break;
     	}
     }
     return $ar;
+}
+
+function _getOrderByDisplay($strOrder)
+{
+	return '按'.$strOrder.'排序';
 }
 
 function _echoFundEstParagraph($arColumn, $bFair, $arRef, $str, $bWide = false)
@@ -98,8 +97,21 @@ function _echoFundEstParagraph($arColumn, $bFair, $arRef, $str, $bWide = false)
 		$iCount = count($arRef);
 		if ($iCount > 2)
 		{
-			$arRef = RefSortByNumeric($arRef, '_callbackSortFundEst');
 			$str .= '共'.strval($iCount).'项';
+			if ($strSort = UrlGetQueryValue('sort'))
+			{
+				if ($strSort == 'symbol')				
+				{
+					$arRef = RefSortBySymbol($arRef);
+					$str .= _getOrderByDisplay(GetTableColumnSymbol());
+				}
+				else if ($strSort == 'premium')
+				{
+					$arRef = RefSortByNumeric($arRef, '_callbackSortFundEst');
+					$str .= _getOrderByDisplay(STOCK_DISP_OFFICIAL.GetTableColumnPremium());
+				}
+			}
+			else	$str .= ' '.CopyPhpLink(UrlAddQuery('sort=symbol'), _getOrderByDisplay(STOCK_DISP_SYMBOL)).' '.CopyPhpLink(UrlAddQuery('sort=premium'), _getOrderByDisplay(STOCK_DISP_OFFICIAL.STOCK_DISP_PREMIUM));
 		}
 	}
 	
@@ -118,8 +130,8 @@ function _getFundPositionStr($ref)
 {
 	$str = '';
 	$fPosition = RefGetPosition($ref);
-	if ($fPosition < 1.0)		$str .= GetFundPositionLink($ref->GetSymbol()).'值使用'.strval($fPosition).'。';
-	if ($strArbitrage = FundGetArbitrage($ref->GetStockId()))		$str .= '建议'.GetTableColumnConvert().$strArbitrage.'。';
+	if ($fPosition < 1.0)									$str .= GetFundPositionLink($ref->GetSymbol()).'值使用'.strval($fPosition).'。';
+	if ($iHedge = FundGetHedgeVal($ref->GetStockId()))		$str .= '建议'.GetTableColumnConvert().strval($iHedge).'。';
 	return $str;
 }
 
@@ -134,11 +146,7 @@ function EchoFundEstParagraph($ref)
     	$col = $bFair ? $arColumn[6] : $arColumn[4]; 
     	$est_ref = $ref->GetEstRef();
     	$realtime_ref = $ref->GetRealtimeRef();
-    	$rt_etf_ref = $ref->GetRtEtfRef();
-    
-    	$str .= $col->GetDisplay().$realtime_ref->GetMyStockLink().'和'.GetCalibrationHistoryLink($rt_etf_ref->GetSymbol(), true);
-    	if ($rt_etf_ref != $est_ref)	$str .= '、'.$est_ref->GetMyStockLink().'和'.$rt_etf_ref->GetMyStockLink();
-    	$str .= '关联程度按照100%估算。';
+    	$str .= $col->GetDisplay().$realtime_ref->GetMyStockLink().'和'.SymCalibrationHistoryLink($est_ref).'关联程度按照100%估算。';
     }
     
 	_echoFundEstParagraph($arColumn, $bFair, $arRef, $str);

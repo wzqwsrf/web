@@ -55,7 +55,12 @@ function _updateFundPurchaseAmount($strEmail, $strSymbol, $strVal)
 	$strStockId = SqlGetStockId($strSymbol);
 	if ($strMemberId && $strStockId && is_numeric($strVal))
 	{
-    	if ($str = SqlGetFundPurchaseAmount($strMemberId, $strStockId))
+		if ($strGroupItemId = SqlGetMyStockGroupItemId($strMemberId, $strStockId))
+		{
+			$amount_sql = new GroupItemAmountSql();
+			$amount_sql->WriteString($strGroupItemId, $strVal);
+		}
+/*    	if ($str = SqlGetFundPurchaseAmount($strMemberId, $strStockId))
     	{
     		if ($str != $strVal)
     		{
@@ -65,7 +70,7 @@ function _updateFundPurchaseAmount($strEmail, $strSymbol, $strVal)
     	else
     	{
     		SqlInsertFundPurchase($strMemberId, $strStockId, $strVal);
-    	}
+    	}*/
 	}
 }
 
@@ -192,6 +197,7 @@ function _updateStockOptionFund($strSymbol, $strVal)
 
 function _updateOptionDailySql($sql, $strStockId, $strDate, $strVal)
 {
+	DebugString(__FUNCTION__.' '.$strVal.' '.$strDate, true);
 	return $sql->ModifyDaily($strStockId, $strDate, $strVal);
 }
 
@@ -255,34 +261,60 @@ function _updateStockOptionDividend($ref, $strSymbol, $strStockId, $his_sql, $st
 	if (_updateOptionDailySql($sql, $strStockId, $strDate, $strVal))
 	{
 		DebugString('Dividend updated');
-		$calibration_sql = new CalibrationSql();
+       	$calibration_sql = GetCalibrationSql();
 		$nav_sql = GetNavHistorySql();
-		$fNav = floatval($nav_sql->GetClose($strStockId, $strDate));
-//		$fNav = floatval(SqlGetNavByDate($strStockId, $strDate));
+//		$fNav = floatval($nav_sql->GetClose($strStockId, $strDate));
 
-		$fNewNav = $fNav - floatval($strVal); 
-  		if ($strClose = $calibration_sql->GetClose($strStockId, $strDate))
-  		{	// SPY
-  			DebugString($strSymbol.' Change calibaration on '.$strDate);
-  			$fFactor = floatval($strClose) * $fNav / $fNewNav;
-  			$calibration_sql->WriteDaily($strStockId, $strDate, strval($fFactor));
-  			$nav_sql->WriteDaily($strStockId, $strDate, strval($fNewNav));
+//		$fNewNav = $fNav - floatval($strVal); 
+//  	if ($strClose = $calibration_sql->GetClose($strStockId, $strDate))
+  		if ($strClosePrev = $calibration_sql->GetClosePrev($strStockId, $strDate))
+  		{	// SPY, TQQQ
+  			$strDatePrev = $calibration_sql->GetDatePrev($strStockId, $strDate);
+  			DebugString($strSymbol.' Change calibaration on '.$strDatePrev);
+  			$fNav = floatval($nav_sql->GetClose($strStockId, $strDatePrev));
+  			$fNewNav = $fNav - floatval($strVal); 
+  			$fFactor = floatval($strClosePrev) * $fNav / $fNewNav;
+  			$calibration_sql->WriteDaily($strStockId, $strDatePrev, strval($fFactor));
   		}
-  		else if ($strSymbol == 'XOP')
+  		else
   		{
-//  			$strQdii = 'SZ162411';	// 'SZ159518'
-			foreach (QdiiGetXopSymbolArray() as $strQdii)
+  			switch ($strSymbol)
+  			{
+  			case 'KWEB':
+  				$arQdii = array('SZ164906');
+  				break;
+  				
+  			case 'XBI':
+  				$arQdii = QdiiGetXbiSymbolArray();
+  				break;
+  				
+  			case 'XLY':
+  				$arQdii = array('SZ162415');
+  				break;
+  				
+  			case 'XOP':
+  				$arQdii = QdiiGetXopSymbolArray();
+  				break;
+  				
+  			default:
+  				$arQdii = array();
+  				break;
+  			}
+			foreach ($arQdii as $strQdii)
 			{
 				$strQdiiId = SqlGetStockId($strQdii);
-				if ($strClose = $calibration_sql->GetClose($strQdiiId, $strDate))
+				if ($strClosePrev = $calibration_sql->GetClosePrev($strQdiiId, $strDate))
 				{
-					DebugString($strQdii.' Change calibaration on '.$strDate);
-					$fFactor = floatval($strClose) * $fNewNav / $fNav;
-					$calibration_sql->WriteDaily($strQdiiId, $strDate, strval($fFactor));
+					$strDatePrev = $calibration_sql->GetDatePrev($strQdiiId, $strDate);
+					DebugString(__FUNCTION__.' '.$strQdii.' Change calibaration on '.$strDatePrev);
+					$fNav = floatval($nav_sql->GetClose($strStockId, $strDatePrev));
+					$fNewNav = $fNav - floatval($strVal); 
+					$fFactor = floatval($strClosePrev) * $fNewNav / $fNav;
+					$calibration_sql->WriteDaily($strQdiiId, $strDatePrev, strval($fFactor));
 				}
   			}
   		}
-  		
+ 		if ($strClosePrev)	$nav_sql->WriteDaily($strStockId, $strDatePrev, strval($fNewNav));
 		_updateStockHistoryAdjCloseByDividend($ref, $strSymbol, $strStockId, $his_sql, $strDate, $strVal);
 	}
 }
@@ -293,11 +325,18 @@ function _updateStockOptionCalibration($strSymbol, $strStockId, $strDate, $strVa
 	if (!empty($strVal))
 	{
 		$strNav = SqlGetNavByDate($strStockId, $strDate);
-		if ($strNav == false)	return;
+//		if ($strNav == false)	return;
 		
-		if ($strSymbol == 'INDA')
+		if ($strSymbol == 'INDA' || $strSymbol == 'ASHR')
 		{
-			$strVal = strval(EtfGetCalibration($strVal, $strNav));
+			$ref = new FundPairReference($strSymbol);
+			YahooGetNetValue($ref);
+			$strVal = strval($ref->CalcFactor($strVal, SqlGetNavByDate($strStockId, $strDate), $strDate));
+		}
+		else if ($strSymbol == 'hf_CHA50CFD')
+		{
+			$ref = new FundPairReference($strSymbol);
+			$strVal = strval($ref->CalcFactor($strVal, $ref->GetPrice(), $strDate));
 		}
 		else
 		{
@@ -312,7 +351,8 @@ function _updateStockOptionCalibration($strSymbol, $strStockId, $strDate, $strVa
 			$strVal = strval(QdiiGetCalibration($strVal, $strCNY, $strNav));
 		}
 	}
-	_updateOptionDailySql(new CalibrationSql(), $strStockId, $strDate, $strVal);
+	
+	_updateOptionDailySql(GetCalibrationSql(), $strStockId, $strDate, $strVal);
 }
 
 class _SubmitOptionsAccount extends Account
@@ -380,16 +420,26 @@ class _SubmitOptionsAccount extends Account
 				switch ($strSymbol)
 				{
 				case 'SH513050':
+				case 'SH513090':
 				case 'SH513220':
+				case 'SH513230':
 				case 'SH513360':
+				case 'SH513750':
 				case 'SH513850':
+				case 'SH513990':
 					ReadSseHoldingsFile($strSymbol, $strStockId);
 					break;
 					
 				case 'SZ159509':
+				case 'SZ159529':
+				case 'SZ159567':
+				case 'SZ159570':
 				case 'SZ159577':
 				case 'SZ159605':
 				case 'SZ159607':
+				case 'SZ159615':
+				case 'SZ159751':
+				case 'SZ159792':
 					ReadSzseHoldingsFile($strSymbol, $strStockId, $strDate);
 					break;
 					
@@ -408,10 +458,14 @@ class _SubmitOptionsAccount extends Account
 				{
 				case 'KWEB':
 					ReadKraneHoldingsCsvFile($strSymbol, $strStockId, $strDate, $strVal);
-					_updateStockOptionCalibration('SZ164906', SqlGetStockId('SZ164906'), $strDate, $strVal);
+//					_updateStockOptionCalibration('SZ164906', SqlGetStockId('SZ164906'), $strDate, $strVal);
 					break;
 				}
 			}
+			break;
+			
+		case STOCK_OPTION_PREMIUM:
+			if ($bAdmin)	_updateOptionDailySql(new FuturePremiumSql(), $strStockId, $strDate, $strVal);
 			break;
 			
 		case STOCK_OPTION_SHARE_DIFF:

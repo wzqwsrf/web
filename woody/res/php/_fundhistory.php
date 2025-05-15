@@ -8,7 +8,7 @@ function _echoFundHistory($strSymbol, $iStart, $iNum, $bAdmin)
 {
     $str = GetFundLinks($strSymbol);
     if ($bAdmin)		$str .= '<br />'.StockGetAllLink($strSymbol);
-   	EchoParagraph($str);
+   	EchoHtmlElement($str);
   
    	$csv = new PageCsvFile();
    	$sym = new StockSymbol($strSymbol);
@@ -27,7 +27,7 @@ function _echoFundHistory($strSymbol, $iStart, $iNum, $bAdmin)
     if ($csv->HasFile())
     {
     	$jpg = new DateImageFile();
-   		if ($jpg->Draw($csv->ReadColumn(2), $csv->ReadColumn(1)))		EchoParagraph($csv->GetLink().'<br />'.$jpg->GetAll(STOCK_DISP_PREMIUM, $strSymbol));
+   		if ($jpg->Draw($csv->ReadColumn(2), $csv->ReadColumn(1)))		EchoHtmlElement($csv->GetLink().'<br />'.$jpg->GetAll(STOCK_DISP_PREMIUM, $strSymbol));
    	}
 }
 
@@ -36,7 +36,7 @@ function EchoAll()
 	global $acct;
 	
     if ($ref = $acct->EchoStockGroup())		_echoFundHistory($ref->GetSymbol(), $acct->GetStart(), $acct->GetNum(), $acct->IsAdmin());
-    $acct->EchoLinks('fundhistory');
+    $acct->EchoLinks();
 }
 
 function GetMetaDescription()

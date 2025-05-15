@@ -1,4 +1,6 @@
 <?php
+require_once('url.php');
+
 define('DEBUG_TIME_ZONE', 'PRC');
 
 define('SECONDS_IN_MIN', 60);
@@ -6,11 +8,13 @@ define('SECONDS_IN_HOUR', 3600);
 define('SECONDS_IN_DAY', 86400);
 
 // 13.6 in MySQL
-define('MIN_FLOAT_VAL', 0.000001);
+define('MIN_FLOAT_VAL', 0.0000005);
+define('FLOAT_PRECISION', 6);
 
-function str_replace_utf8_space($str)
+function IsZeroString($strZero)
 {
-	return str_replace("\xC2\xA0", '', $str);	// &nbsp;
+	if (abs(floatval($strZero)) < MIN_FLOAT_VAL)	return true;
+	return false;
 }
 
 function strval_round($fVal, $iPrecision = false)
@@ -19,13 +23,18 @@ function strval_round($fVal, $iPrecision = false)
 	{
 		$f = abs($fVal);
 		if ($f > (10 - MIN_FLOAT_VAL))		$iPrecision = 2;
-		else if ($f > (2 - MIN_FLOAT_VAL))   $iPrecision = 3;
-		else                                   $iPrecision = 4;
+		else if ($f > (2 - MIN_FLOAT_VAL))	$iPrecision = 3;
+		else								$iPrecision = 4;
     }
 	return strval(round($fVal, $iPrecision));
 }
 
-function strval_round_implode($arVal, $strSeparator = ', ')
+function mysql_round($str, $iPrecision = FLOAT_PRECISION)
+{
+	return strval_round(floatval($str), $iPrecision);
+}
+
+function strval_round_implode($arVal, $strSeparator = ': ')
 {
 	$str = '';
 	foreach ($arVal as $fVal)
@@ -122,10 +131,20 @@ function DebugGetFile()
     return DebugGetPathName('debug.txt');
 }
 
+function DebugIsPalmmicro()
+{
+   	global $acct;
+	if ($acct && method_exists($acct, 'IsPalmmicro'))
+	{
+		return $acct->IsPalmmicro();
+	}
+	return false;
+}
+
 function DebugIsAdmin()
 {
    	global $acct;
-	if (method_exists($acct, 'IsAdmin'))
+	if ($acct && method_exists($acct, 'IsAdmin'))
 	{
 		return $acct->IsAdmin();
 	}
@@ -198,13 +217,8 @@ function DebugGetChinaMoneyFile()
 function DebugGetSymbolFile($strSection, $strSymbol)
 {
     $strPath = DebugGetPath($strSection);
-    
     $str = strtolower($strSymbol);
-    $str = str_replace('+', '_', $str);
-    $str = str_replace(',', '_', $str);
-    $str = str_replace('^', '_', $str);
-    $str = str_replace('.', '_', $str);
-    $str = str_replace(':', '_', $str);
+    $str = str_replace(array('+', ',', '^', '.', ':'), '_', $str);
     return "$strPath/$str.txt";
 }
 

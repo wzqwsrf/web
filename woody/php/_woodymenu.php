@@ -2,7 +2,7 @@
 
 function GetMyPhotoYears()
 {
-	return array(2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2020, 2021, 2023);
+	return array(2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2019, 2020, 2021, 2023);
 }
 
 function GetMiaPhotoYears()
@@ -15,7 +15,7 @@ function GetBlogPhotoYears()
 /*	$ar = array();
 	for ($i = 2006; $i <= 2016; $i ++)	$ar[] = $i;
 	return $ar;*/
-	return array(2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2020, 2023);
+	return array(2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2020, 2023, 2025);
 }
 
 function GetPhotoPageArray($arYears)
@@ -80,14 +80,14 @@ function GetBlogMenuLinks($bChinese = true)
 function LayoutWoodyMenuArray($bChinese)
 {
 	LayoutBegin();
-	EchoParagraph(GetCategoryLinks(GetWoodyMenuArray($bChinese), '/woody/', $bChinese));
+	EchoHtmlElement(GetCategoryLinks(GetWoodyMenuArray($bChinese), '/woody/', $bChinese));
 	LayoutEnd();
 }
 
 function LayoutBlogMenuArray($bChinese)
 {
 	LayoutBegin();
-	EchoParagraph(GetBlogMenuLinks($bChinese));
+	EchoHtmlElement(GetBlogMenuLinks($bChinese));
 	LayoutEnd();
 	
 	LayoutWoodyMenuArray($bChinese);
@@ -96,7 +96,7 @@ function LayoutBlogMenuArray($bChinese)
 function LayoutMiaPhotoArray($bChinese)
 {
 	LayoutBegin();
-	EchoParagraph(GetMiaPhotoLinks($bChinese));
+	EchoHtmlElement(GetMiaPhotoLinks($bChinese));
 	LayoutEnd();
 
 	LayoutWoodyMenuArray($bChinese);

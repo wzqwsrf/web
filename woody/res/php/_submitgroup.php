@@ -2,17 +2,11 @@
 require_once('_stock.php');
 require_once('_editgroupform.php');
 
-function _stockGetSymbolArray($strSymbols)
-{
-	$str = str_replace(array(',', '，', "\\n", "\\r", "\\r\\n"), ' ', $strSymbols);
-    $ar = explode(' ', $str);
-    return StockGetArraySymbol($ar);
-}
-
 function _getStockIdArray($strSymbols)
 {
 	$arStockId = array();
-    $arSymbol = _stockGetSymbolArray($strSymbols);
+    $arSymbol = GetInputSymbolArray($strSymbols);
+    StockPrefetchArrayExtendedData($arSymbol);
 	foreach ($arSymbol as $strSymbol)
 	{
 	    $strStockId = SqlGetStockId($strSymbol);
@@ -73,9 +67,11 @@ class _SubmitGroupAccount extends StockAccount
     
     function _onNew($strLoginId, $strGroupName, $strSymbols)
     {
+    	if (in_arrayAll($strGroupName))  $strGroupName = '@'.$strGroupName;		// 避免跟系统自动产生的分组重名
+    	
 		$sql = $this->GetGroupSql();
     	$sql->InsertString($strLoginId, $strGroupName);
-    	if ($strGroupId = $sql->GetRecordId($strLoginId, $strGroupName))
+    	if ($strGroupId = $sql->GetGroupId($strLoginId, $strGroupName))
     	{
     		$item_sql = new StockGroupItemSql($strGroupId);
     		$arStockId = _getStockIdArray($strSymbols);

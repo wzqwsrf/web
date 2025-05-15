@@ -23,7 +23,7 @@ function EchoAll()
 	$strAccount161130 = GetFundAccountLink('SZ161130', 59882);
 	$strFundPosition = GetFundPositionLink('SZ161130');
 	$strVideo = VidAboutSZ161130();
-	$strSZ162411Link = GetGroupStockLink();
+	$strSZ162411Link = GetGroupStockLink('SZ162411');
 
 	EchoBlogDate();
     echo <<<END

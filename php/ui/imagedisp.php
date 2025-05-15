@@ -136,35 +136,40 @@ function ImgBelieveMe($bChinese = true)
 	return ImgAutoQuote(PATH_BLOG_PHOTO.'believe.jpg', ($bChinese ? '至于你信不信，我反正信了。' : 'You believe it or not, I believe it anyway.'), $bChinese);
 }
 
+function ImgFreeFood($bChinese = true)
+{
+	return ImgAutoQuote(PATH_BLOG_PHOTO.'freefood.jpg', ($bChinese ? '又要到饭了兄弟们' : 'I got free food again!'), $bChinese);
+}
+
 function ImgAlwaysWin()
 {
 	return ImgAutoQuote(PATH_BLOG_PHOTO.'linqingxia.jpg', '东方不败林青霞');
 }
 
-function ImgAccountTool($strPage)
+function ImgAccountTool($strPage, $bChinese = true)
 {
 	switch ($strPage)
 	{
 	case 'benfordslaw':
-		return GetWoodyImgQuote('benfordslaw.jpg', "Benford's Law equation");
+		return GetWoodyImgQuote('benfordslaw.jpg', '本福特定律方程', "Benford's Law equation", $bChinese);
 
 	case 'chisquaredtest':
-		return GetWoodyImgQuote('chi2PValue.gif', 'Pearson卡方检验方程和曲线');	// chisquaredtest.jpg
+		return GetWoodyImgQuote('chi2PValue.gif', 'Pearson卡方检验方程和曲线', "Pearson's chi-squared test equation and graph", $bChinese);	// chisquaredtest.jpg
 		
 	case 'cramersrule':
-		return GetWoodyImgQuote('20190815.jpg', '用Cramer法则计算步骤');
+		return GetWoodyImgQuote('20190815.jpg', '用Cramer法则计算步骤', "Cramer's rule calculation steps", $bChinese);
 
     case 'dicecaptcha':
-    	return GetWoodyImgQuote('robloxdice.jpg', '罗布乐思4个骰子加14验证码');
+    	return GetWoodyImgQuote('robloxdice.jpg', '罗布乐思4个骰子加14验证码', 'Roblox dice captcha adding up to 14', $bChinese);
     	
 	case 'linearregression':
-		return GetWoodyImgQuote('20190824.jpg', ACCOUNT_TOOL_LINEAR_CN.'计算步骤');
+		return GetWoodyImgQuote('20190824.jpg', ACCOUNT_TOOL_LINEAR_CN.'计算步骤', 'Linear regression calculation steps', $bChinese);
 
 	case 'primenumber':
-		return GetWoodyImgQuote('primenumber.jpg', '激励我写'.ACCOUNT_TOOL_PRIME_CN.'工具的图片');
+		return GetWoodyImgQuote('primenumber.jpg', '激励我写'.ACCOUNT_TOOL_PRIME_CN.'工具的图片', 'Prime factorization for 707829217', $bChinese);
 
 	case 'simpletest':
-		return GetWoodyImgQuote('easything.jpg', '成年人的生活中没有容易二字');
+		return GetWoodyImgQuote('easything.jpg', '成年人的生活中没有容易二字', "Easy doesn't enter into grown-up life", $bChinese);
 	}
 	return '';
 }
@@ -189,14 +194,16 @@ function ImgStockGroup($strPage)
     	return GetWoodyImgQuote('hardlife.jpg', '人生永远都在艰难模式');
 
     case 'lof':
-//    	return GetWoodyImgQuote('nvda.png', '老黄路边KTV');
-		return ImgAutoQuote(PATH_BLOG_PHOTO.'freefood.jpg', '又要到饭了兄弟们');
+		return ImgFreeFood();
     	
     case 'mscius50':
     	return ImgBelieveMe();
     	
     case 'oilfund':
     	return GetWoodyImgQuote('dashidai.jpg', '不要怕，是技术性调整，不要怕。');
+
+    case 'overnight':
+    	return GetWoodyImgQuote('nvda.png', '老黄路边KTV');
     	
     case 'qdii':
     	return GetWoodyImgQuote('gan.jpg', '赢了会所嫩模，输了下海挖沙！');

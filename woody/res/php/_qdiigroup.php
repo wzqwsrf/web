@@ -1,9 +1,7 @@
 <?php
 require_once('_fundgroup.php');
-require_once('../../php/ui/arbitrageparagraph.php');
-require_once('../../php/ui/fundlistparagraph.php');
 
-function TradingUserDefined($strVal = false)
+function _tradingUserDefined($strVal = false)
 {
 	global $acct;
     
@@ -23,6 +21,17 @@ function TradingUserDefined($strVal = false)
    	return GetTableColumnStock($est_ref).GetTableColumnPrice();
 }
 
+function _convertCallback($fRatio, $fFactor)
+{
+	global $acct;
+   	$calibration_sql = GetCalibrationSql();
+    
+	$ref = $acct->GetRef();
+   	$fPosition = RefGetPosition($ref);
+   	$fCalibration = floatval($calibration_sql->GetCloseNow($ref->GetStockId()));
+   	return strval(round(($fCalibration / $fPosition) * ($fRatio / $fFactor)));
+}
+
 class QdiiGroupAccount extends FundGroupAccount 
 {
 //    var $arLeverage = array();
@@ -39,14 +48,15 @@ class QdiiGroupAccount extends FundGroupAccount
     	
         if ($ar = YahooUpdateNetValue($est_ref))
         {
-        	list($strNav, $strDate) = $ar;
+//        	list($strNav, $strDate) = $ar;
         	if ($est_ref->GetSymbol() == 'INDA')
         	{
-        		if ($realtime_ref->GetDate() == $strDate)
+        		$est_ref->DailyCalibration();
+/*        		if ($realtime_ref->GetDate() == $strDate)
         		{
-        			$calibration_sql = new CalibrationSql();
+        			$calibration_sql = GetCalibrationSql();
         			$calibration_sql->WriteDaily($est_ref->GetStockId(), $strDate, strval(EtfGetCalibration($realtime_ref->GetPrice(), $strNav)));
-        		}
+        		}*/
         	}
         }
         
@@ -58,6 +68,7 @@ class QdiiGroupAccount extends FundGroupAccount
     		$leverage_ref = new FundPairReference($strSymbol);
     		$this->ar_leverage_ref[] = $leverage_ref;
     		YahooUpdateNetValue($leverage_ref);
+    		$leverage_ref->DailyCalibration();
     	}
         $this->CreateGroup(array_merge($arRef, $this->ar_leverage_ref));
     }
@@ -76,16 +87,17 @@ class QdiiGroupAccount extends FundGroupAccount
     {
     	$ref = $this->GetRef();
     	
-    	EchoFundTradingParagraph($ref, 'TradingUserDefined');    
+    	EchoFundTradingParagraph($ref, '_tradingUserDefined');    
     	EchoQdiiSmaParagraph($ref);
     	if (count($this->ar_leverage_ref) > 0)	
     	{
-    		EchoFundListParagraph($this->ar_leverage_ref);
+    		EchoFundListParagraph($this->ar_leverage_ref, '_convertCallback');
     		EchoFundPairSmaParagraphs($ref->GetEstRef(), $this->ar_leverage_ref);
     	}
     	EchoFutureSmaParagraph($ref);
     	EchoFundHistoryParagraph($ref);
     	EchoFundShareParagraph($ref);
+    	EchoNvCloseHistoryParagraph($ref->GetEstRef());
     }
 
     function GetLeverageSymbols($strEstSymbol)
@@ -94,65 +106,13 @@ class QdiiGroupAccount extends FundGroupAccount
         $this->arLeverage = $pair_sql->GetSymbolArray($strEstSymbol);
     }
     
-    function ConvertToEtfTransaction($fund, $fCNY, $etf_convert_trans, $qdii_trans)
-    {
-        $etf_convert_trans->AddTransaction($fund->GetEstQuantity($qdii_trans->iTotalShares), $qdii_trans->fTotalCost / $fCNY);
-    }
-    
-    function ConvertToQdiiTransaction($fund, $fCNY, $qdii_convert_trans, $etf_trans)
-    {
-        $qdii_convert_trans->AddTransaction($fund->GetQdiiQuantity($etf_trans->iTotalShares), $etf_trans->fTotalCost * $fCNY);
-    }
-    
-    function EchoArbitrageParagraph($group)
-    {
-    	$fund = $this->GetRef();
-    	$stock_ref = $fund->GetStockRef();
-    	$est_ref = $fund->GetEstRef();
-    	$cny_ref = $fund->GetCnyRef();
-    	$fCNY = floatval($cny_ref->GetPrice());
-	
-        $qdii_trans = $group->GetStockTransactionCN();
-        $etf_trans = $group->GetStockTransactionNoneCN();
-        $group->OnArbitrage();
-        
-        $strGroupId = $group->GetGroupId();
-        
-        $qdii_convert_trans = new MyStockTransaction($stock_ref, $strGroupId);
-        $qdii_convert_trans->Add($qdii_trans);
-        $this->ConvertToQdiiTransaction($fund, $fCNY, $qdii_convert_trans, $etf_trans);
-        
-        $etf_convert_trans = new MyStockTransaction($est_ref, $strGroupId);
-        $etf_convert_trans->Add($etf_trans);
-        $this->ConvertToEtfTransaction($fund, $fCNY, $etf_convert_trans, $qdii_trans);
-    
-        EchoArbitrageTableBegin();
-		$arbi_trans = $group->arbi_trans;
-        $sym = $arbi_trans->ref;
-        if ($sym->IsSymbolA())
-        {
-            $arbi_convert_trans = new MyStockTransaction($est_ref, $strGroupId);
-            $this->ConvertToEtfTransaction($fund, $fCNY, $arbi_convert_trans, $arbi_trans);
-            EchoArbitrageTableItem2($arbi_trans, $qdii_convert_trans); 
-            EchoArbitrageTableItem2($arbi_convert_trans, $etf_convert_trans); 
-        }
-        else
-        {
-            $arbi_convert_trans = new MyStockTransaction($stock_ref, $strGroupId);
-            $this->ConvertToQdiiTransaction($fund, $fCNY, $arbi_convert_trans, $arbi_trans);
-            EchoArbitrageTableItem2($arbi_convert_trans, $qdii_convert_trans); 
-            EchoArbitrageTableItem2($arbi_trans, $etf_convert_trans); 
-        }
-        EchoTableParagraphEnd();
-    }
-
     function EchoDebugParagraph()
     {
     	if ($this->IsAdmin())
     	{
     		$ref = $this->GetRef();
     		$strDebug = $ref->DebugLink();
-   			EchoParagraph($strDebug);
+   			EchoHtmlElement($strDebug);
     	}
     }
 } 

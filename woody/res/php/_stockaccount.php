@@ -110,17 +110,18 @@ class StockAccount extends TitleAccount
     
     function EchoLinks($strVer = false, $callback = false)
     {
+    	$strPage = $this->GetPage();
     	$strNewLine = GetBreakElement();
-    	$strWeixinPay = GetHtmlElement(GetWeixinPay(($this->GetPage() == 'autotractor') ? 2 : 0));
+    	$strWechatPay = GetHtmlElement(GetWechatPay(($strPage == 'autotractor') ? 4 : 0));
     	$bAdmin = $this->IsAdmin();
     	
-    	$str = GetStockMenuLinks().$strNewLine.GetAllLofLink().' '.GetAhCompareLink().' '.GetAutoTractorLink().' '.GetAccountToolLink('simpletest').' '.GetDevLink('entertainment/20150818cn.php'.($strVer ? '#'.$strVer : '')).$strNewLine;
+    	$str = GetStockMenuLinks().$strNewLine.GetAllLofLink().' '.GetOvernightLink().' '.GetAhCompareLink().' '.GetAutoTractorLink().' '.GetAccountToolLink('simpletest').' '.GetDevLink('entertainment/20150818cn.php#'.($strVer ? $strVer : $strPage)).$strNewLine;
 		if ($strLoginId = $this->GetLoginId())
     	{
     		$str .= GetMyPortfolioLink().$this->_getPersonalLinks($strLoginId);
     		if ($bAdmin)
     		{
-    			$strWeixinPay = '';
+    			$strWechatPay = GetEmptyElement();
 				$strMemberId = $this->GetMemberId();
     			if (method_exists($this, 'GetGroupId'))
     			{
@@ -144,7 +145,7 @@ class StockAccount extends TitleAccount
 			
 	$strHead
 	$str
-	$strWeixinPay
+	$strWechatPay
 END;
     }
     
@@ -163,14 +164,19 @@ END;
     		{
     			if ($ref->IsFundA())
     			{
-    				SqlCreateFundPurchaseTable();
-    				$strStockId = $ref->GetStockId();
+//    				SqlCreateFundPurchaseTable();
     				$strSymbol = $ref->GetSymbol();
-    				if (($strAmount = SqlGetFundPurchaseAmount($this->GetLoginId(), $strStockId)) === false)		$strAmount = FUND_PURCHASE_AMOUNT;
-    				$strQuery = sprintf('groupid=%s&fundid=%s&amount=%s&netvalue=%.3f', $strGroupId, $strStockId, $strAmount, floatval($ref->GetOfficialNav()));
-    				$str = GetOnClickLink(PATH_STOCK.'submittransaction.php?'.$strQuery, '确认添加对冲申购记录?', '申购').$strSymbol.'人民币'.$strAmount.'元';
-    				$str .= ' '.GetStockOptionLink(STOCK_OPTION_AMOUNT, $strSymbol);
-    				EchoParagraph($str);
+    				$strStockId = $ref->GetStockId();
+//    				if (($strAmount = SqlGetFundPurchaseAmount($this->GetLoginId(), $strStockId)) === false)		$strAmount = FUND_PURCHASE_AMOUNT;
+					$amount_sql = new GroupItemAmountSql();
+					if ($strGroupItemId = SqlGetStockGroupItemId($strGroupId, $strStockId))
+					{
+						$strAmount = $amount_sql->ReadAmount($strGroupItemId);
+						$strQuery = sprintf('groupid=%s&fundid=%s&amount=%s&netvalue=%.3f', $strGroupId, $strStockId, $strAmount, floatval($ref->GetOfficialNav()));
+						$str = GetOnClickLink(PATH_STOCK.'submittransaction.php?'.$strQuery, '确认添加对冲申购记录?', STOCK_DISP_ORDER).$strSymbol.'人民币'.$strAmount.'元';
+						$str .= ' '.GetStockOptionLink(STOCK_OPTION_AMOUNT, $strSymbol);
+						EchoHtmlElement($str);
+					}
     			}
     		}
     		StockEditTransactionForm($this, STOCK_TRANSACTION_NEW, $strGroupId);

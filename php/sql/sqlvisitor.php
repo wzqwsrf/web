@@ -24,7 +24,7 @@ class VisitorSql extends KeySql
     function CreateVisitorTable($str = '')
     {
     	$str = $this->ComposeKeyStr().','
-    		 . $this->ComposeIdStr($this->strSrcKey).','
+    		 . $this->ComposeIntStr($this->strSrcKey).','
     		 . $this->ComposeDateStr().','
     		 . $this->ComposeTimeStr().','
     		 . $str

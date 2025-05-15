@@ -6,7 +6,7 @@ function _echoStockHistoryItem($record, $ref, $csv, $bAdmin)
 	$ar = array();
 	
 	$strDate = $record['date'];
-   	$ar[] = $bAdmin ? GetOnClickLink('/php/_submitdelete.php?'.'stockhistory'.'='.$record['id'], '确认删除'.$strDate.'历史记录？', $strDate) : $strDate;
+   	$ar[] = $bAdmin ? GetOnClickLink('/php/_submitdelete.php?'.'stockhistory'.'='.$record['id'], '确认删除'.$strDate.STOCK_HISTORY_DISPLAY.'？', $strDate) : $strDate;
    	
 	$strPrev = $ref->GetPrevPrice();
 	$ar[] = $ref->GetPriceDisplay($record['open'], $strPrev);
@@ -44,7 +44,7 @@ function EchoStockHistoryParagraph($ref, $str = false, $csv = false, $iStart = 0
 								   new TableColumn(STOCK_DISP_HIGH),
 								   new TableColumn(STOCK_DISP_LOW),
 								   new TableColumnPrice(),
-								   new TableColumnQuantity(),
+								   new TableColumnQuantity(120),
 								   new TableColumnPrice('复权')
 								   ), $strSymbol.'stockhistory', $str.'<br />'.$strMenuLink);
    

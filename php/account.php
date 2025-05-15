@@ -6,7 +6,6 @@ require_once('ui/table.php');
 require_once('sql/sqlipaddress.php');
 require_once('sql/sqlstocksymbol.php');
 require_once('sql/sqlstockgroup.php');
-require_once('sql/sqlfundpurchase.php');
 
 define('DISP_ALL_US', 'All');
 define('DISP_EDIT_US', 'Edit');
@@ -28,29 +27,44 @@ class Account
     
     var $strLoginEmail = false;
 
-    var $ip_sql;
+    var $ip_crawler_sql;
+    var $ip_malicious_sql;
+    var $ip_visit_sql;
+    var $ip_login_sql;
+    
     var $page_sql;
     var $visitor_sql;
 
-    var $bAllowCurl;
+    var $bAllowCurl = true;
     
     public function __construct() 
     {
     	session_start();
     	SqlConnectDatabase();
 
-	    $strIp = UrlGetIp();
-	    $this->ip_sql = new IpSql();
-	    $strStatus = $this->ip_sql->GetStatus($strIp);
-	    if ($strStatus == IP_STATUS_MALICIOUS)	die('403 Forbidden');
-//	    if ($strStatus != IP_STATUS_NORMAL)	die('401 Unauthorized');
-    	$this->bAllowCurl = ($strStatus != IP_STATUS_NORMAL) ? false : true;
+		$this->ip_crawler_sql = new IpAddressSql('ipcrawler');
+		$this->ip_malicious_sql = new IpAddressSql('ipmalicious');
+		$this->ip_visit_sql = new IpIntSql('ipvisit');
+		$this->ip_login_sql = new IpIntSql('iplogin');
+	    $tick_sql = new IpIntSql('iptick', 'tick');
 
-		$this->ip_sql->InsertIp($strIp);
+	    $strIp = UrlGetIp();
+   		$ymd = GetNowYMD();
+   		$iCurTick = $ymd->GetTick();
+    	
+	    if ($this->IsMalicious($strIp))		die('403 Forbidden');
+	    else if ($this->IsCrawler($strIp))
+	    {
+	    	if ($iTick = $tick_sql->ReadInt($strIp))
+	    	{
+	    		if ($iCurTick - $iTick < SECONDS_IN_DAY)		SwitchToLink('/account/code429.php');
+	    	}
+	    	$this->bAllowCurl = false;
+	    }
 
 	    $strUri = UrlGetUri();
 	    $this->page_sql = new PageSql();
-   		$this->page_sql->InsertKey($strUri);
+   		$this->page_sql->InsertUri($strUri);
 	    
 	    $this->visitor_sql = new VisitorSql();
 	    $strId = GetIpId($strIp);
@@ -62,7 +76,11 @@ class Account
 	    	$iPageCount = $this->visitor_sql->CountUniqueDst($strId);
 	    	$strDebug = '访问次数: '.strval($iCount).'<br />不同页面数: '.strval($iPageCount).'<br />';
 	    	if ($this->GetLoginId())						$strDebug .= 'logined!<br />';
-	    	if ($strStatus == IP_STATUS_CRAWLER)			$strDebug .= '已标注的老爬虫';
+	    	if ($this->bAllowCurl === false)
+	    	{
+	    		$strDebug .= '已标注的老爬虫';
+	    		$tick_sql->WriteInt($strIp, $iCurTick);
+	    	}
 	    	else
 	    	{
 	    		if ($iPageCount >= ($iCount / 100))		$strDebug .= '疑似爬虫';
@@ -70,11 +88,10 @@ class Account
 	    		{
 	    			$strDebug .= '新标注爬虫';
 	    			$this->SetCrawler($strIp);
-	    			$strStatus = IP_STATUS_CRAWLER;
 	    		}
 	    	}
-	    	trigger_error($strDebug);
-	    	$this->ip_sql->AddVisit($strIp, $iCount);
+			trigger_error($strDebug);
+	    	$this->AddVisit($strIp, $iCount);
 	    	$this->visitor_sql->DeleteBySrc($strId);        
 	    }
 
@@ -85,24 +102,55 @@ class Account
 		InitGlobalStockSql();
     }
 
+    function IsCrawler($strIp)
+    {
+    	return $this->ip_crawler_sql->GetRecord($strIp);
+    }
+
+    function IsMalicious($strIp)
+    {
+    	return $this->ip_malicious_sql->GetRecord($strIp);
+    }
+
     function SetCrawler($strIp)
     {
-    	return $this->ip_sql->SetStatus($strIp, IP_STATUS_CRAWLER);
+    	return $this->ip_crawler_sql->InsertIp($strIp);
     }
     
     function SetMalicious($strIp)
     {
-    	return $this->ip_sql->SetStatus($strIp, IP_STATUS_MALICIOUS);
+    	return $this->ip_malicious_sql->InsertIp($strIp);
     }
     
-    function GetIpSql()
+    function SetNormal($strIp)
     {
-    	return $this->ip_sql;
+		if ($this->ip_crawler_sql->DeleteByIp($strIp))	return true;
+    	return $this->ip_malicious_sql->DeleteByIp($strIp);
     }
     
+    function IncLogin($strIp)
+    {
+		return $this->ip_login_sql->Inc($strIp);
+    }
+
+    function GetLogin($strIp)
+    {
+		return $this->ip_login_sql->ReadInt($strIp);
+    }
+
+    function AddVisit($strIp, $iCount)
+    {
+		return $this->ip_visit_sql->Add($strIp, $iCount);
+    }
+
+    function GetVisit($strIp)
+    {
+		return $this->ip_visit_sql->ReadInt($strIp);
+    }
+
     function GetPageUri($strPageId)
     {
-    	return $this->page_sql->GetPageUri($strPageId);
+    	return $this->page_sql->GetUri($strPageId);
     }
     
     function GetPageId($strPageUri = false)
@@ -192,6 +240,17 @@ class Account
     	return $this->bAllowCurl;
     }
     
+    function IsPalmmicro()
+    {
+    	$str = '@palmmicro.com';
+    	$iLen = strlen($str);
+    	if (substr($this->GetLoginEmail(), -$iLen, $iLen) == $str)
+    	{
+    		return true;
+    	}
+    	return false;
+    }
+    
     function IsAdmin()
     {
     	if ($this->GetLoginEmail() == ADMIN_EMAIL)
@@ -200,7 +259,7 @@ class Account
     	}
     	return false;
     }
-    
+
     public function AdminProcess()
     {
     	DebugString('Empty Admin Process');

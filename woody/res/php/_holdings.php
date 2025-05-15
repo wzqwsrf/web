@@ -4,24 +4,6 @@ require_once('_emptygroup.php');
 require_once('../../php/ui/referenceparagraph.php');
 require_once('../../php/ui/fundestparagraph.php');
 
-function RefSortBySymbol($arRef)
-{
-    $ar = array();
-    foreach ($arRef as $ref)
-    {
-        $strSymbol = $ref->GetSymbol();
-		if (isset($ar[$strSymbol]) == false)		 $ar[$strSymbol] = $ref; 
-    }
-    ksort($ar);
-    
-    $arSort = array();
-    foreach ($ar as $str => $ref)
-    {
-        $arSort[] = $ref;
-    }
-    return $arSort;
-}
-
 function RefSort($arRef)
 {
 	$arA = array();
@@ -38,8 +20,19 @@ function RefSort($arRef)
 	return array_merge(RefSortBySymbol($arA), RefSortBySymbol($arH), RefSortBySymbol($arUS));
 }
 
-function _echoHoldingItem($ref, $arRatio, $strDate, $his_sql, $fTotalChange, $fAdjustCny, $fAdjustHkd)
+function _echoHoldingItem($ref, $arRatio, $strDate, $his_sql, $fNavChange, $fAdjustCny, $fAdjustHkd)
 {
+	static $fTotalOld = 0.0;
+	static $fTotalNew = 0.0;
+	static $fTotalChange = 0.0;
+	
+	if ($ref == false)
+	{
+		$ar = array(DISP_ALL_CN, strval_round($fTotalOld, 2), '', strval_round(($fNavChange - 1.0) * 100, 2).'%', strval_round($fTotalNew, 2), strval_round($fTotalChange, 2));
+	    EchoTableColumn($ar);
+	    return;
+	}
+	
 	if ($ref->IsSymbolA())		$fAdjust = $fAdjustCny;
 	else if ($ref->IsSymbolH())	$fAdjust = $fAdjustHkd;
 	else							$fAdjust = false;
@@ -48,16 +41,28 @@ function _echoHoldingItem($ref, $arRatio, $strDate, $his_sql, $fTotalChange, $fA
 	$strClose = $his_sql->GetAdjClose($strStockId, $strDate);
 	$strPrice = $ref->GetPrice();
 	$fRatio = floatval($arRatio[$strStockId]);
-	$fChange = $ref->GetPercentage($strClose, $strPrice) / 100.0;
+//	$fChange = $ref->GetPercentage($strClose, $strPrice) / 100.0;
+	$fClose = floatval($strClose);
+	$fChange = ($fClose > MIN_FLOAT_VAL) ? floatval($strPrice) / $fClose : 0.0;
     if ($fAdjust)		$fChange *= $fAdjust;
 	
 	$ar = array();
 	$ar[] = RefGetMyStockLink($ref);
-    $ar[] = strval($fRatio);
-    $ar[] = $strClose;
+	
+	$fTotalOld += $fRatio;
+    $ar[] = strval_round($fRatio, 2);
+    
+    $ar[] = mysql_round($strClose, 2);
     $ar[] = $ref->GetPercentageDisplay($strClose, $strPrice);
-    $ar[] = strval_round($fRatio * (1 + $fChange) / $fTotalChange, 2);
-    $ar[] = strval_round($fRatio * $fChange, 4);
+    
+    $fNewRatio = $fRatio * $fChange / $fNavChange;
+	$fTotalNew += $fNewRatio;
+    $ar[] = strval_round($fNewRatio, 2);
+    
+    $fRatioChange = $fRatio * ($fChange - 1.0);
+	$fTotalChange += $fRatioChange;
+    $ar[] = strval_round($fRatioChange, 4);
+    
     if ($fAdjust)		$ar[] = strval_round($fAdjust, 4);
     
     RefEchoTableColumn($ref, $ar);
@@ -94,10 +99,11 @@ function EchoAll()
 			{
 				_echoHoldingItem($holding_ref, $arRatio, $strDate, $his_sql, $fNavChange, $fAdjustCny, $fAdjustHkd);
 			}
+			_echoHoldingItem(false, $arRatio, $strDate, $his_sql, $fNavChange, $fAdjustCny, $fAdjustHkd);
 			EchoTableParagraphEnd();
 		}
     }
-    $acct->EchoLinks('holdings');
+    $acct->EchoLinks();
 }
 
 function GetMetaDescription()

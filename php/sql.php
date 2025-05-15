@@ -1,5 +1,4 @@
 <?php
-require_once('url.php');
 require_once('debug.php');
 require_once('email.php');
 require_once('httplink.php');
@@ -16,7 +15,6 @@ require_once('sql/_sqlcommon.php');
 
 define('DB_DATABASE', 'n5gl0n39mnyn183l_camman');
 
-define('TABLE_FUND_PURCHASE', 'fundpurchase');
 define('TABLE_MEMBER', 'member');
 define('TABLE_PAGE', 'page');
 define('TABLE_PAGE_COMMENT', 'pagecomment');
@@ -26,6 +24,8 @@ define('TABLE_STOCK_GROUP', 'stockgroup');
 define('TABLE_STOCK_GROUP_ITEM', 'stockgroupitem');
 define('TABLE_STOCK_SPLIT', 'stocksplit');
 define('TABLE_VISITOR', 'visitor');
+define('TABLE_TELEGRAM_BOT', 'telegrambot');
+define('TABLE_WECHAT_BOT', 'wechatbot');
 
 $g_link = false;
 
@@ -125,7 +125,7 @@ function SqlCountTableData($strTableName, $strWhere = false)
 	if ($result = mysqli_query($g_link, $strQry))
 	{
 		$record = mysqli_fetch_array($result);
-		return intval($record['total']);
+		if (isset($record['total']))		return intval($record['total']);
 	}
 	return 0;
 }

@@ -5,12 +5,13 @@ require_once('_sseholdings.php');
 require_once('_szseholdings.php');
 
 // SH501225 全球芯片LOF SOXX*75%+SH516640*15%
-// SH501312 海外科技LOF ARKW*19.57;ARKK*19.54;ARKF*16.61;ARKG*12.08;ARKQ*5.33;QQQ*8.95;SOXX*7.35;XLK*5.25
-// SZ160644 NVDA*9.92;MSFT*9.57;TSM*7.97;PDD*7.44;GOOGL*7.34;00700*7.07;09988*6.69;META*6.49;AMZN*5.58;03690*4.37
+// SH501312 海外科技LOF ARKW*19.56;ARKK*19.66;ARKF*16.75;ARKG*11.86;ARKQ*5.37;QQQ*8.88;SOXX*7.44;XLK*5.2
+// SZ160644 NVDA*9.48;MSFT*7.33;TSM*9.21;PDD*7.27;GOOGL*6.38;00700*6.26;09988*4.85;META*4.85;AMZN*5.8;03690*3.62
 
 class _QdiiMixAccount extends FundGroupAccount
 {
     var $us_ref;
+    var $pair_ref;
     var $cnh_ref;
 
     function Create()
@@ -19,7 +20,7 @@ class _QdiiMixAccount extends FundGroupAccount
         $strSymbol = $this->GetName();
         StockPrefetchExtendedData($strSymbol, $strCNH);
 
-        $this->cnh_ref = new ForexReference($strCNH);
+        $this->cnh_ref = new MyStockReference($strCNH);
         $this->ref = new HoldingsReference($strSymbol);
         switch ($strSymbol)
         {
@@ -29,14 +30,18 @@ class _QdiiMixAccount extends FundGroupAccount
         	
         case 'SZ164906':
         	$this->us_ref = new HoldingsReference('KWEB');
+        	$this->pair_ref = new FundPairReference($strSymbol);
         	break;
         	
 		default:
         	$this->us_ref = false;
+        	$this->pair_ref = false;
         	break;
         }
 
         $this->_updateStockHoldings($strSymbol);
+		if ($this->pair_ref)	$this->pair_ref->DailyCalibration();
+
         $arRef = array($this->ref);
         if ($this->us_ref)	$arRef[] = $this->us_ref; 
 
@@ -61,6 +66,7 @@ class _QdiiMixAccount extends FundGroupAccount
     	switch ($strSymbol)
     	{
 		case 'SZ160644':
+		case 'SZ164701':
 		case 'SH501225':
 		case 'SH501312':
         	if ($strNavDate != $strHoldingsDate)		
@@ -73,25 +79,21 @@ class _QdiiMixAccount extends FundGroupAccount
 			$us_ref = $this->us_ref;
 			$strUsId = $us_ref->GetStockId();
 			if ($strHoldingsDate != $date_sql->ReadDate($strUsId))		$bUpdated = CopyHoldings($date_sql, $strUsId, $strStockId);
-			if ($strUsNav = $nav_sql->GetClose($strUsId, $strNavDate))
-			{
-				$uscny_ref = $ref->GetUscnyRef();
-				$fFactor = QdiiGetCalibration($strUsNav, $nav_sql->GetClose($uscny_ref->GetStockId(), $strNavDate), $nav_sql->GetClose($strStockId, $strNavDate));
-				$calibration_sql = new CalibrationSql();
-				$calibration_sql->WriteDaily($strStockId, $strNavDate, strval($fFactor));
-			}
 			break;
 			
 		default:
-    		$fund_est_sql = $ref->GetFundEstSql();
+    		$fund_est_sql = GetFundEstSql();
     		$strEstDate = $fund_est_sql->GetDateNow($strStockId);
     		if ($strEstDate == $strNavDate)													return;	//
     		$strDate = $ref->GetDate();
-    		if ($strEstDate == $strDate)													return;	// A day too early
+    		if (!in_arrayHkMix($strSymbol))
+    		{
+    			if ($strEstDate == $strDate)													return;	// A day too early
+    		}
     		
     		$iHourMinute = $ref->GetHourMinute();
     		if ($iHourMinute < 930)															return;	// Data not updated until 9:30
-			else if ($iHourMinute > 1600 && $iHourMinute < 2230)							return;	// 美股休市后第2天的盘前，有可能会有数据看上去像休市日数据，导致5分钟一次频繁下载老文件。这里有意错过每天美股盘前时间，并且考虑了夏令时的不同最坏情况。
+			else if ($iHourMinute > 1455)													return;	// Stop autoupdate after market close. 美股休市后第2天的盘前，有可能会有数据看上去像休市日数据，导致5分钟一次频繁下载老文件。这里有意错过每天美股盘前时间，并且考虑了夏令时的不同最坏情况。
 
     		$strSymbol = $ref->GetSymbol();
     		if ($ref->IsShangHaiEtf())		$bUpdated = ReadSseHoldingsFile($strSymbol, $strStockId);
@@ -111,21 +113,16 @@ class _QdiiMixAccount extends FundGroupAccount
     {
     	return $this->us_ref;
     }
+    
+    function GetPairRef()
+    {
+    	return $this->pair_ref;
+    }
 }
 
 function _callbackQdiiMixSma($ref, $strEst = false)
 {
-	if ($strEst)
-	{
-		$uscny_ref = $ref->GetUscnyRef();
-		$strStockId = $ref->GetStockId();
-		$calibration_sql = new CalibrationSql();
-		$strDate = $calibration_sql->GetDateNow($strStockId);
-		
-		$fVal = QdiiGetVal(floatval($strEst), floatval($uscny_ref->GetPrice()), floatval($calibration_sql->GetCloseNow($strStockId)));
-		$fVal = FundAdjustPosition(RefGetPosition($ref), $fVal, floatval(SqlGetNavByDate($strStockId, $strDate)));
-		return strval_round($fVal);
-	}
+	if ($strEst)	return strval_round($ref->EstFromPair(floatval($strEst)));
 	return $ref;
 }
 
@@ -133,24 +130,19 @@ function _callbackQdiiMixTrading($strVal = false)
 {
 	global $acct;
     
-	$us_ref = $acct->GetUsRef();
+	$ref = $acct->GetPairRef();
+	$us_ref = $ref->GetPairRef();
     if ($strVal)
     {
     	if ($strVal == '0')	return '';
-    	else
-    	{
-    		$ref = $acct->GetRef();
-    		$uscny_ref = $ref->GetUscnyRef();
-    		$strStockId = $ref->GetStockId();
-    		$calibration_sql = new CalibrationSql();
-    		$strDate = $calibration_sql->GetDateNow($strStockId);
-    		
-    		$fVal = FundReverseAdjustPosition(RefGetPosition($ref), floatval($strVal), floatval(SqlGetNavByDate($strStockId, $strDate)));
-    		$fEst = QdiiGetPeerVal($fVal, floatval($uscny_ref->GetPrice()), floatval($calibration_sql->GetCloseNow($strStockId)));
-    		return $us_ref->GetPriceDisplay(strval($fEst));
-    	}
+    	else		    	return $us_ref->GetPriceDisplay(strval($ref->EstToPair(floatval($strVal))));
     }
    	return GetTableColumnStock($us_ref).GetTableColumnPrice();
+}
+
+function _callbackFundList($fRatio, $fFactor)
+{
+   	return strval(round($fFactor / $fRatio));
 }
 
 function EchoAll()
@@ -159,7 +151,7 @@ function EchoAll()
     
     $ref = $acct->GetRef();
     $us_ref = $acct->GetUsRef();
-    $uscny_ref = $ref->GetUscnyRef();
+    $uscny_ref = $ref->GetCnyRef();
     $hkcny_ref = $ref->GetHkcnyRef();
     
 	EchoHoldingsEstParagraph($ref);
@@ -171,7 +163,9 @@ function EchoAll()
 	{
 		EchoFundTradingParagraph($ref, '_callbackQdiiMixTrading');
 		EchoHoldingsEstParagraph($us_ref);
-		EchoSmaParagraph($us_ref, false, $ref, '_callbackQdiiMixSma');
+		$pair_ref = $acct->GetPairRef();
+		EchoFundListParagraph(array($pair_ref), '_callbackFundList');
+		EchoSmaParagraph($us_ref, false, $pair_ref, '_callbackQdiiMixSma');
 	}
 	else	
 	{
@@ -181,6 +175,7 @@ function EchoAll()
 
     EchoFundHistoryParagraph($ref);
    	EchoFundShareParagraph($ref);
+	if ($us_ref)	EchoNvCloseHistoryParagraph($us_ref);
 
     if ($group = $acct->EchoTransaction()) 
     {

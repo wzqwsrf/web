@@ -47,7 +47,7 @@ function EchoNvCloseHistoryParagraph($ref, $str = false, $csv = false, $iStart =
     $strSymbol = $ref->GetSymbol();
     $his_sql = GetStockHistorySql();
    	$strMenuLink = IsTableCommonDisplay($iStart, $iNum) ? '' : StockGetMenuLink($strSymbol, $his_sql->Count($strStockId), $iStart, $iNum);
-   	if ($str == false)	$str = GetNvCloseHistoryLink($strSymbol);
+   	if ($str == false)	$str = GetYahooNavLink($strSymbol).'的'.GetNvCloseHistoryLink($strSymbol);
 
 	EchoTableParagraphBegin(array(new TableColumnDate(),
 								   new TableColumnPrice(),
