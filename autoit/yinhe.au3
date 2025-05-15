@@ -806,39 +806,39 @@ EndFunc
 ;~ ===================申购代码===================================
 
 Func YinheConvertBond($hWnd, $idProgress, $idDebug, Const ByRef $arAccountNumber, Const ByRef $arAccountPassword, Const ByRef $arAccountChecked, $iMax, $iCur)
-  $htzqchtz=WinGetTitle("[REGEXPTITLE:(?i)(通达信网上交易.*)]")
-  $HWND = ControlGetHandle($htzqchtz, "", "[CLASS:SysTreeView32; INSTANCE:1]")
-  ControlTreeView($htzqchtz,"","SysTreeView321","Select", '#5|#0|#3')
-  $hItem = _GUICtrlTreeView_GetSelection($hWnd)
-  _GUICtrlTreeView_ClickItem($hWnd, $hItem)
-  Sleep(500)
-  $hWndx = ControlGetHandle($htzqchtz, "", "[CLASS:SysListView32; INSTANCE:1]") ;控件句柄
-  $hItemx = _GUICtrlListView_GetItemCount  ($hWndx)
-
-  For $i = 0 To ($hItemx - 1)
-    _GUICtrlListView_ClickItem($hWndx, $i, "left", False, 2,2.5)
-    Sleep(1000)
-    ControlClick($htzqchtz, '', '[CLASS:Button; TEXT:全部]')
-    ControlClick($htzqchtz, '', '[CLASS:Button; TEXT:申 购]')
-    Sleep(500)
-    ControlClick("提示", '', '[CLASS:Button; TEXT:确认]')
-    _DlgClickButton($idDebug, '提示', '确认')
-    Next
-  EndFunc
-
-;~ ===================查询代码===================================
-  Func YinheAllocate($hWnd, $idProgress, $idDebug, Const ByRef $arAccountNumber, Const ByRef $arAccountPassword, Const ByRef $arAccountChecked, $iMax, $iCur)
     $htzqchtz=WinGetTitle("[REGEXPTITLE:(?i)(通达信网上交易.*)]")
     $HWND = ControlGetHandle($htzqchtz, "", "[CLASS:SysTreeView32; INSTANCE:1]")
-    ControlTreeView($htzqchtz,"","SysTreeView321","Select", '#9|#0|#7')
+    ControlTreeView($htzqchtz,"","SysTreeView321","Select", '#5|#0|#3')
     $hItem = _GUICtrlTreeView_GetSelection($hWnd)
     _GUICtrlTreeView_ClickItem($hWnd, $hItem)
-    Sleep(3500)
-    Local $Getxmsl=ControlGetText($htzqchtz, "", "[CLASS:Static; INSTANCE:12]")
-    $num=StringTrimLeft ($Getxmsl, 2)
-    MsgBox(64,"提示",$num&"条记录切换下个账号",2)
-    Return $num
-  EndFunc
+    Sleep(500)
+    $hWndx = ControlGetHandle($htzqchtz, "", "[CLASS:SysListView32; INSTANCE:1]") ;控件句柄
+    $hItemx = _GUICtrlListView_GetItemCount  ($hWndx)
+
+    For $i = 0 To ($hItemx - 1)
+      _GUICtrlListView_ClickItem($hWndx, $i, "left", False, 2,2.5)
+      Sleep(1000)
+      ControlClick($htzqchtz, '', '[CLASS:Button; TEXT:全部]')
+      ControlClick($htzqchtz, '', '[CLASS:Button; TEXT:申 购]')
+      Sleep(500)
+      ControlClick("提示", '', '[CLASS:Button; TEXT:确认]')
+      _DlgClickButton($idDebug, '提示', '确认')
+      Next
+    EndFunc
+
+;~ ===================查询代码===================================
+ Func YinheAllocate($hWnd, $idProgress, $idDebug, Const ByRef $arAccountNumber, Const ByRef $arAccountPassword, Const ByRef $arAccountChecked, $iMax, $iCur)
+     $htzqchtz=WinGetTitle("[REGEXPTITLE:(?i)(通达信网上交易.*)]")
+     $HWND = ControlGetHandle($htzqchtz, "", "[CLASS:SysTreeView32; INSTANCE:1]")
+     ControlTreeView($htzqchtz,"","SysTreeView321","Select", '#9|#0|#7')
+     $hItem = _GUICtrlTreeView_GetSelection($hWnd)
+     _GUICtrlTreeView_ClickItem($hWnd, $hItem)
+     Sleep(3500)
+     Local $Getxmsl=ControlGetText($htzqchtz, "", "[CLASS:Static; INSTANCE:12]")
+     $num=StringTrimLeft ($Getxmsl, 2)
+     MsgBox(64,"提示",$num&"条记录切换下个账号",2)
+     Return $num
+    EndFunc
 
 
 Func HuabaoOrderOutFund($hWnd, $idDebug, $strSymbol)
@@ -885,18 +885,18 @@ Func HuabaoOrderOutFund($hWnd, $idDebug, $strSymbol)
     HuabaoQue()
     _DlgClickButton($idDebug, '', '确认')
     _DlgClickButton($idDebug, '', '确认')
-    Sleep(500)
-  _DlgClickButton($idDebug, '适当性匹配检查', '确认')
+	AutoItSetOption('WinTitleMatchMode', 2)
+	$hFileWnd = WinWait('请认真阅读产品信息', '我已阅读并理解', 10)
+	AutoItSetOption('WinTitleMatchMode', 1)
+	If $hFileWnd <> 0 Then
+		WinActivate($hFileWnd)
+		_CtlCheckButton($hFileWnd, '', 'Button11')	;本人已认真阅读并确认上述内容
+		Sleep(500)
+		ControlClick($hFileWnd, '', 'Button1')	;确认
+		Sleep(500)
+	EndIf
     HuabaoQue()
     Sleep(500)
-  _DlgClickButton($idDebug, '适当性匹配检查', '确认')
-  _DlgClickButton($idDebug, '金融产品适当性评估结果确认书', '确认')
-  _DlgClickButton($idDebug, '适当性匹配检查', '确认')
-  _DlgClickButton($idDebug, '适当性匹配检查', '确认')
-    _DlgClickButton($idDebug, '请认真阅读产品信息', '本人已阅读并确认了解' & $strSymbol & '基金产品情况及购买风险')
-    _DlgClickButton($idDebug, '请认真阅读产品信息', '下一步')
-    HuabaoQue()
-    Sleep(1000)
     _DlgClickButton($idDebug, '基金交易', '确认')
     _DlgClickButton($idDebug, '提示', '确认')
 EndFunc
