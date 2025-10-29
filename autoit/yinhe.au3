@@ -614,7 +614,7 @@ EndFunc
 Func YinheOrderOutTransferFund($hWnd, $idDebug, $strSymbol)
     _CtlDebug($idDebug, "YinheOrderOutTransferFund start...")
     ; 获取 Afx 控件句柄
-    Local $controlID = "[CLASS:Afx:10000000:0:10003:0:0; INSTANCE:1]" ; 根据实际类名和实例号替换
+    Local $controlID = "[CLASS:Afx:10000000:0:00010003:00000000:00000000; INSTANCE:1]" ; 根据实际类名和实例号替换
     Local $hControl = ControlGetHandle($hWnd, "", $controlID)
 
     ; 确保控件句柄有效
