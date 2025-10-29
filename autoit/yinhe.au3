@@ -990,7 +990,7 @@ Func YinheRedeemFund($hWnd, $idDebug, $strSymbol, $strSellQuantity, ByRef $iRema
 EndFunc
 
 Func _sendSellSymbol($hWnd, $iSoftware, $idDebug, $strSymbol)
-	If _CtlSendString($hWnd, $idDebug, 'AfxWnd423', $strSymbol) Then _addSymbolSpecialKey($iSoftware, $idDebug, $strSymbol)
+	If _CtlSendString($hWnd, $idDebug, 'AfxWnd421', $strSymbol) Then _addSymbolSpecialKey($iSoftware, $idDebug, $strSymbol)
 EndFunc
 
 Func _getSellStaticIndex($iSoftware, $iIndex)
@@ -1163,7 +1163,7 @@ Func _addOtherAccount($hWnd, $iSoftware, $idDebug, $strAccount, $strPassword)
 	Send('{ENTER}')
 	Sleep(1000)
 	_closeNewDlg($idDebug)
-	_loginDlg($iSoftware, $idDebug, '添加帐号', $strAccount, $strPassword)
+	_loginDlg($iSoftware, $idDebug, '加账号', $strAccount, $strPassword)
 EndFunc
 
 Func RunLoginOnly($hWnd, $idProgress, $iSoftware, $idDebug, Const ByRef $arAccountNumber, Const ByRef $arAccountPassword, Const ByRef $arAccountChecked, $iMax, $iCur)
@@ -1420,7 +1420,7 @@ Func _loadListViewAccount($iSoftware, $idListViewAccount, ByRef $arCheckboxAccou
 EndFunc
 
 Func AppMain()
-	$idFormMain = GUICreate("通达信单独委托版全自动拖拉机0.88", 803, 590, 289, 0)
+	$idFormMain = GUICreate("通达信单独委托版全自动拖拉机0.93", 803, 590, 289, 0)
 
 	$idListViewAccount = GUICtrlCreateListView("客户号", 24, 24, 146, 552, BitOR($GUI_SS_DEFAULT_LISTVIEW,$WS_VSCROLL), BitOR($WS_EX_CLIENTEDGE,$LVS_EX_CHECKBOXES))
 	GUICtrlSendMsg(-1, $LVM_SETCOLUMNWIDTH, 0, 118)
