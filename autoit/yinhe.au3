@@ -584,15 +584,15 @@ Func _getFundAmount($strSymbol)
     Case '161129'
       $strAmount = '100'
     Case '161125'
-      $strAmount = '100'
+      $strAmount = '50'
     Case '161126'
       $strAmount = '100'
     Case '161127'
       $strAmount = '100'
     Case '161128'
-      $strAmount = '100'
+      $strAmount = '50'
     Case '161130'
-      $strAmount = '100'
+      $strAmount = '50'
     Case '161226'
       $strAmount = '50000'
     Case '162411'
@@ -672,7 +672,7 @@ EndFunc
 Func YinheOrderOutFund($hWnd, $idDebug, $strSymbol)
     _CtlDebug($idDebug, "YinheOrderOutFund start...")
     ; 获取 Afx 控件句柄
-    Local $controlID = "[CLASS:Afx:10000000:0:10003:0:0; INSTANCE:1]" ; 根据实际类名和实例号替换
+    Local $controlID = "[CLASS:Afx:10000000:0:00010003:00000000:00000000; INSTANCE:1]" ; 根据实际类名和实例号替换
     Local $hControl = ControlGetHandle($hWnd, "", $controlID)
 
     ; 确保控件句柄有效
@@ -1431,7 +1431,7 @@ Func AppMain()
 
 	$idLabelSymbol = GUICtrlCreateLabel("基金代码", 192, 24, 52, 17)
 	$idListSymbol = GUICtrlCreateList("", 192, 48, 121, 97)
-	GUICtrlSetData(-1, '160216|160416|160717|161116|161124|161125|161126|161127|161128|161129|161130|161226|162411|162415|163208|164824|164906|501225|501300|501018', _getProfileString('Symbol', '161116'))
+	GUICtrlSetData(-1, '160216|160416|160717|161116|161124|161125|161126|161127|161128|161129|161130|161226|162411|162415|163208|164824|164906|501225|501300|501018|501312', _getProfileString('Symbol', '161116'))
 
 	$idLabelSellPrice = GUICtrlCreateLabel("卖出价格", 192, 160, 52, 17)
 	$idInputSellPrice = GUICtrlCreateInput("", 192, 184, 121, 21)
