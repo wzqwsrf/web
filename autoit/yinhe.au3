@@ -687,6 +687,7 @@ Func YinheOrderOutFund($hWnd, $idDebug, $strSymbol)
 
     $strControlID = 'SysTreeView323'
     _clickTreeItemOut($hWnd, $idDebug, $strControlID, '基金申购')
+	Sleep(1000)
     _CtlWaitText($hWnd, $idDebug, 'Static1', '基金代码:')
 
     $controlID = "Edit1"
