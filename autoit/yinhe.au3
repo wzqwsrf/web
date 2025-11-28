@@ -565,50 +565,29 @@ Func _yinheClickFund($hWnd, $idDebug, $strType)
 EndFunc
 
 Func _getFundAmount($strSymbol)
- $strAmount = '100'
-  Switch $strSymbol
-    Case '501300'
-      $strAmount = '100'
-    Case '164906'
-      $strAmount = '10000'
-    Case '501018'
-      $strAmount = '100'
-    Case '160216'
-      $strAmount = '10000'
-    Case '160416'
-      $strAmount = '2000'
-    Case '161116'
-      $strAmount = '100'
-    Case '161124'
-      $strAmount = '100'
-    Case '161129'
-      $strAmount = '100'
-    Case '161125'
-      $strAmount = '50'
-    Case '161126'
-      $strAmount = '100'
-    Case '161127'
-      $strAmount = '100'
-    Case '161128'
-      $strAmount = '50'
-    Case '161130'
-      $strAmount = '50'
-    Case '161226'
-      $strAmount = '50000'
-    Case '162411'
-      $strAmount = '100'
-    Case '163208'
-      $strAmount = '100'
-    Case '164824'
-      $strAmount = '100'
-    Case '162415'
-      $strAmount = '100'
-    Case '164906'
-      $strAmount = '5000'
-    Case '501225'
-      $strAmount = '1000'
-  EndSwitch
-  return $strAmount
+	Switch $strSymbol
+		Case '160216'
+			$strAmount = '300000'
+		Case '160416'
+			$strAmount = '10000'
+		Case '161125'
+			$strAmount = '10'
+		Case '161128'
+			$strAmount = '10'
+		Case '161129'
+			$strAmount = '20'
+		Case '161130'
+			$strAmount = '10'
+		Case '164906'
+			$strAmount = '1000000'
+		Case '501018'
+			$strAmount = '1000'
+		Case '501225'
+			$strAmount = '1000'
+		Case Else
+			$strAmount = '100'
+	EndSwitch
+	return $strAmount
 EndFunc
 
 Func YinheOrderOutTransferFund($hWnd, $idDebug, $strSymbol)
@@ -991,7 +970,12 @@ Func YinheRedeemFund($hWnd, $idDebug, $strSymbol, $strSellQuantity, ByRef $iRema
 EndFunc
 
 Func _sendSellSymbol($hWnd, $iSoftware, $idDebug, $strSymbol)
-	If _CtlSendString($hWnd, $idDebug, 'AfxWnd421', $strSymbol) Then _addSymbolSpecialKey($iSoftware, $idDebug, $strSymbol)
+	If ($iSoftware == $YINHE)	Then
+		$strControl = 'AfxWnd421'
+	Else
+		$strControl = 'AfxWnd423'
+	EndIf
+	If _CtlSendString($hWnd, $idDebug, $strControl, $strSymbol) Then _addSymbolSpecialKey($iSoftware, $idDebug, $strSymbol)
 EndFunc
 
 Func _getSellStaticIndex($iSoftware, $iIndex)
@@ -1140,7 +1124,7 @@ Func RunCashBack($hWnd, $idDebug, $strPassword)
 		$strCash = ControlGetText($hWnd, '', 'Static13')
 	Until $strCash <> ''
 	If Number($strCash, 3) > 0.009 Then
-		_CtlSendPassword($hWnd, $idDebug, 'AfxWnd424', $strPassword)
+		_CtlSendPassword($hWnd, $idDebug, 'AfxWnd422', $strPassword)
 		_CtlSetText($hWnd, $idDebug, 'Edit1', $strCash)
 		ControlClick($hWnd, '', 'Button1')
 		Sleep(1000)
