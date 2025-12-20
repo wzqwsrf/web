@@ -578,6 +578,8 @@ Func _getFundAmount($strSymbol)
 			$strAmount = '20'
 		Case '161130'
 			$strAmount = '10'
+		Case '161226'
+        	$strAmount = '500'
 		Case '164906'
 			$strAmount = '1000000'
 		Case '501018'
