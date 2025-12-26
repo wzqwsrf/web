@@ -567,9 +567,9 @@ EndFunc
 Func _getFundAmount($strSymbol)
 	Switch $strSymbol
 		Case '160216'
-			$strAmount = '300000'
+			$strAmount = '1000'
 		Case '160416'
-			$strAmount = '10000'
+			$strAmount = '5000'
 		Case '161125'
 			$strAmount = '10'
 		Case '161128'
@@ -584,6 +584,8 @@ Func _getFundAmount($strSymbol)
 			$strAmount = '10'
 		Case '162415'
 			$strAmount = '10'
+		Case '164701'
+        	$strAmount = '10'
 		Case '164906'
 			$strAmount = '1000000'
 		Case '501018'
