@@ -1413,7 +1413,7 @@ Func _loadListViewAccount($iSoftware, $idListViewAccount, ByRef $arCheckboxAccou
 EndFunc
 
 Func AppMain()
-	$idFormMain = GUICreate("通达信单独委托版全自动拖拉机0.93", 803, 590, 289, 0)
+	$idFormMain = GUICreate("通达信单独委托版全自动拖拉机0.99", 803, 590, 289, 0)
 
 	$idListViewAccount = GUICtrlCreateListView("客户号", 24, 24, 146, 552, BitOR($GUI_SS_DEFAULT_LISTVIEW,$WS_VSCROLL), BitOR($WS_EX_CLIENTEDGE,$LVS_EX_CHECKBOXES))
 	GUICtrlSendMsg(-1, $LVM_SETCOLUMNWIDTH, 0, 118)
@@ -1443,9 +1443,9 @@ Func AppMain()
 
 	$GroupSoftware = GUICtrlCreateGroup("软件", 336, 400, 225, 81)
 	$iSoftware = 0
-	$RadioYinhe = GUICtrlCreateRadio("银河证券海王星单独委托版3.23", 352, 424, 193, 17)
+	$RadioYinhe = GUICtrlCreateRadio("银河证券海王星单独委托版3.29", 352, 424, 193, 17)
 	GUICtrlSetState(-1, _getRadioState($RadioYinhe, $iSoftware, 'Yinhe', $GUI_CHECKED))
-	$RadioHuabao = GUICtrlCreateRadio("华宝证券通达信版独立交易8.25", 352, 448, 193, 17)
+	$RadioHuabao = GUICtrlCreateRadio("华宝证券通达信版独立交易8.28", 352, 448, 193, 17)
 	GUICtrlSetState(-1, _getRadioState($RadioHuabao, $iSoftware, 'Huabao', $GUI_UNCHECKED))
 	GUICtrlCreateGroup("", -99, -99, 1, 1)
 	$iMax = _onRadioSoftware($iSoftware, $RadioYinhe, $RadioHuabao)
