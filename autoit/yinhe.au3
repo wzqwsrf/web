@@ -569,7 +569,7 @@ Func _getFundAmount($strSymbol)
 		Case '160216'
 			$strAmount = '1000'
 		Case '160416'
-			$strAmount = '5000'
+			$strAmount = '100'
 		Case '161125'
 			$strAmount = '10'
 		Case '161128'
@@ -579,7 +579,7 @@ Func _getFundAmount($strSymbol)
 		Case '161130'
 			$strAmount = '10'
 		Case '161226'
-			$strAmount = '500'
+			$strAmount = '100'
 		Case '162411'
 			$strAmount = '10'
 		Case '162415'
@@ -589,9 +589,11 @@ Func _getFundAmount($strSymbol)
 		Case '164906'
 			$strAmount = '1000000'
 		Case '501018'
-			$strAmount = '1000'
+			$strAmount = '10'
 		Case '501225'
-			$strAmount = '1000'
+			$strAmount = '100'
+		Case '501300'
+        	$strAmount = '1000'
 		Case Else
 			$strAmount = '100'
 	EndSwitch
@@ -674,7 +676,7 @@ Func YinheOrderOutFund($hWnd, $idDebug, $strSymbol)
 
     $strControlID = 'SysTreeView323'
     _clickTreeItemOut($hWnd, $idDebug, $strControlID, '基金申购')
-	Sleep(1000)
+    Sleep(1000)
     _CtlWaitText($hWnd, $idDebug, 'Static1', '基金代码:')
 
     $controlID = "Edit1"
@@ -845,46 +847,43 @@ Func HuabaoOrderOutFund($hWnd, $idDebug, $strSymbol)
     ; 聚焦控件
     ControlFocus($hWnd, "", $hControl)
     ControlClick($hControl, '', '', 'Left', 1, 125, 30)
-    Sleep(1000)
+    Sleep(500)
     $strControlID = 'SysTreeView323'
     $strLevel1 = '基金申购'
     _clickTreeItemOut($hWnd, $idDebug, $strControlID, $strLevel1)
-    Sleep(1000)
+    Sleep(500)
+    ControlSetText($hWnd, "", "Edit17", "")
+    Sleep(500)
     _CtlWaitText($hWnd, $idDebug, 'Static98', '基金代码:')
     _CtlSendString($hWnd, $idDebug, 'Edit17', $strSymbol)
     ControlClick($hWnd, '', 'Button20')
-    Sleep(2000)
-;~     Sleep(100)
+    Sleep(500)
+
     $strControlID = 'SysListView322'
     $idListView = ControlGetHandle($hWnd, '', $strControlID)
-     $iItemCount = _GUICtrlListView_GetItemCount($idListView)
-      $iItemCount = ControlListView($hWnd, '', $strControlID, 'GetItemCount')
-      $iItemCount=1
-      $arWinPos = WinGetPos($idListView)
- For $i = 0 To $iItemCount - 1
-    $arRect = _GUICtrlListView_GetItemPosition($idListView, $i)
+    $iItemCount = ControlListView($hWnd, '', $strControlID, 'GetItemCount')
+    If $iItemCount < 1 Then
+        _CtlDebug($idDebug, "错误：查询结果列表为空，无法双击。")
+        Return
+    EndIf
+    $arWinPos = WinGetPos($idListView)
+
+    $arRect = _GUICtrlListView_GetItemPosition($idListView, 0)
     MouseClick($MOUSE_CLICK_PRIMARY, $arWinPos[0] + $arRect[0] + 10, $arWinPos[1] + $arRect[1] + 10, 2)
-  Next
-  _CtlDebug($idDebug, "HuabaoOrderOutFund amount:" & $strAmount)
-    Sleep(1000)
+    Sleep(500)
+
+    _CtlDebug($idDebug, "HuabaoOrderOutFund amount:" & $strAmount)
+
     _CtlWaitText($hWnd, $idDebug, 'Static72', '申购金额:')
     _CtlSendString($hWnd, $idDebug, 'Edit12', $strAmount)
     ControlClick($hWnd, '', 'Button19')
-    HuabaoQue()
     _DlgClickButton($idDebug, '', '确认')
     _DlgClickButton($idDebug, '', '确认')
+    _DlgClickButton($idDebug, '请认真阅读产品信息', '我已阅读并理解以上基金合同、招募说明书、基金产品资料概要、适当性评估结果确认书、风险揭示书、风险申明书、客户维护费揭示等电子协议，同意并签署协议，即已理解并愿意自行承担风险和损失')
+    _DlgClickButton($idDebug, '请认真阅读产品信息', '签署协议')
     Sleep(500)
-  _DlgClickButton($idDebug, '适当性匹配检查', '确认')
-    HuabaoQue()
+    _DlgClickButton($idDebug, '', '确认')
     Sleep(500)
-  _DlgClickButton($idDebug, '适当性匹配检查', '确认')
-  _DlgClickButton($idDebug, '金融产品适当性评估结果确认书', '确认')
-  _DlgClickButton($idDebug, '适当性匹配检查', '确认')
-  _DlgClickButton($idDebug, '适当性匹配检查', '确认')
-    _DlgClickButton($idDebug, '请认真阅读产品信息', '本人已阅读并确认了解' & $strSymbol & '基金产品情况及购买风险')
-    _DlgClickButton($idDebug, '请认真阅读产品信息', '下一步')
-    HuabaoQue()
-    Sleep(1000)
     _DlgClickButton($idDebug, '基金交易', '确认')
     _DlgClickButton($idDebug, '提示', '确认')
 EndFunc
@@ -1424,7 +1423,7 @@ Func AppMain()
 
 	$idLabelSymbol = GUICtrlCreateLabel("基金代码", 192, 24, 52, 17)
 	$idListSymbol = GUICtrlCreateList("", 192, 48, 121, 97)
-	GUICtrlSetData(-1, '160216|160416|160717|161116|161124|161125|161126|161127|161128|161129|161130|161226|162411|162415|163208|164824|164906|501225|501300|501018|501312', _getProfileString('Symbol', '161116'))
+	GUICtrlSetData(-1, '160216|160416|160717|161116|161124|161125|161126|161127|161128|161129|161130|161226|162411|162415|163208|164824|164906|501225|501300|501018|501300|501312', _getProfileString('Symbol', '161116'))
 
 	$idLabelSellPrice = GUICtrlCreateLabel("卖出价格", 192, 160, 52, 17)
 	$idInputSellPrice = GUICtrlCreateInput("", 192, 184, 121, 21)
