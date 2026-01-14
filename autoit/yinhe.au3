@@ -91,7 +91,7 @@ Func _CtlSendString($hWnd, $idDebug, $strControl, $str)
 ;		Send('{BACKSPACE}')
 		ControlSend($hWnd, '', $strControl, $str)
 ;		ControlSetText($hWnd, '', $strControl, $str)
-		Sleep(1000)
+		Sleep(200)
 ;		$iCount += 1
 ;		If $iCount == 50 Then
 ;			_CtlDebug($idDebug, $strDebug & '在5秒后放弃')
@@ -568,30 +568,30 @@ Func _getFundAmount($strSymbol)
 	Switch $strSymbol
 		Case '160216'
 			$strAmount = '1000'
-		Case '160416'
-			$strAmount = '100'
+		Case '161116'
+			$strAmount = '10'	
 		Case '161125'
 			$strAmount = '10'
+		Case '161126'
+			$strAmount = '10'	
+		Case '161127'
+			$strAmount = '10'	
 		Case '161128'
 			$strAmount = '10'
 		Case '161129'
-			$strAmount = '20'
-		Case '161130'
 			$strAmount = '10'
-		Case '161226'
-			$strAmount = '100'
-		Case '162411'
+		Case '161130'
 			$strAmount = '10'
 		Case '162415'
 			$strAmount = '10'
+		Case '162719'
+			$strAmount = '500'	
 		Case '164701'
         	$strAmount = '10'
+		Case '164824'
+        	$strAmount = '1000'	
 		Case '164906'
 			$strAmount = '1000000'
-		Case '501018'
-			$strAmount = '10'
-		Case '501225'
-			$strAmount = '100'
 		Case '501300'
         	$strAmount = '1000'
 		Case Else
@@ -762,7 +762,7 @@ Func YinheOrderFund($hWnd, $idDebug, $strSymbol)
 	Next
 
 	ControlClick($hWnd, '', 'Button1')
-	Sleep(1000)
+	Sleep(500)
 	_DlgClickButton($idDebug, '基金风险揭示', '我已阅读并同意签署')
 	AutoItSetOption('WinTitleMatchMode', 2)
 	$hFileWnd = WinWait('概要文件', '本人已认真阅读并确认上述内容', 10)
@@ -770,9 +770,9 @@ Func YinheOrderFund($hWnd, $idDebug, $strSymbol)
 	If $hFileWnd <> 0 Then
 		WinActivate($hFileWnd)
 		_CtlCheckButton($hFileWnd, '', 'Button11')	;本人已认真阅读并确认上述内容
-		Sleep(1000)
+		Sleep(500)
 		ControlClick($hFileWnd, '', 'Button1')	;确认
-		Sleep(1000)
+		Sleep(500)
 	EndIf
 	_DlgClickButton($idDebug, '提示信息', '确认')
 	_DlgClickButton($idDebug, '提示', '确认')
@@ -792,44 +792,6 @@ Func YinheOrderFund($hWnd, $idDebug, $strSymbol)
 	WEnd
 #ce
 EndFunc
-
-;~ ===================申购代码===================================
-
-Func YinheConvertBond($hWnd, $idProgress, $idDebug, Const ByRef $arAccountNumber, Const ByRef $arAccountPassword, Const ByRef $arAccountChecked, $iMax, $iCur)
-  $htzqchtz=WinGetTitle("[REGEXPTITLE:(?i)(通达信网上交易.*)]")
-  $HWND = ControlGetHandle($htzqchtz, "", "[CLASS:SysTreeView32; INSTANCE:1]")
-  ControlTreeView($htzqchtz,"","SysTreeView321","Select", '#5|#0|#3')
-  $hItem = _GUICtrlTreeView_GetSelection($hWnd)
-  _GUICtrlTreeView_ClickItem($hWnd, $hItem)
-  Sleep(500)
-  $hWndx = ControlGetHandle($htzqchtz, "", "[CLASS:SysListView32; INSTANCE:1]") ;控件句柄
-  $hItemx = _GUICtrlListView_GetItemCount  ($hWndx)
-
-  For $i = 0 To ($hItemx - 1)
-    _GUICtrlListView_ClickItem($hWndx, $i, "left", False, 2,2.5)
-    Sleep(1000)
-    ControlClick($htzqchtz, '', '[CLASS:Button; TEXT:全部]')
-    ControlClick($htzqchtz, '', '[CLASS:Button; TEXT:申 购]')
-    Sleep(500)
-    ControlClick("提示", '', '[CLASS:Button; TEXT:确认]')
-    _DlgClickButton($idDebug, '提示', '确认')
-    Next
-  EndFunc
-
-;~ ===================查询代码===================================
-  Func YinheAllocate($hWnd, $idProgress, $idDebug, Const ByRef $arAccountNumber, Const ByRef $arAccountPassword, Const ByRef $arAccountChecked, $iMax, $iCur)
-    $htzqchtz=WinGetTitle("[REGEXPTITLE:(?i)(通达信网上交易.*)]")
-    $HWND = ControlGetHandle($htzqchtz, "", "[CLASS:SysTreeView32; INSTANCE:1]")
-    ControlTreeView($htzqchtz,"","SysTreeView321","Select", '#9|#0|#7')
-    $hItem = _GUICtrlTreeView_GetSelection($hWnd)
-    _GUICtrlTreeView_ClickItem($hWnd, $hItem)
-    Sleep(3500)
-    Local $Getxmsl=ControlGetText($htzqchtz, "", "[CLASS:Static; INSTANCE:12]")
-    $num=StringTrimLeft ($Getxmsl, 2)
-    MsgBox(64,"提示",$num&"条记录切换下个账号",2)
-    Return $num
-  EndFunc
-
 
 Func HuabaoOrderOutFund($hWnd, $idDebug, $strSymbol)
     $strAmount = _getFundAmount($strSymbol)
@@ -1284,14 +1246,6 @@ Func RunOperation($iSoftware, $idProgress, $idDebug)
 					AppClose($hWnd, $idDebug)
 					ExitLoop
 				EndIf
-			;~ ===================申购==========================
-			ElseIf _getProfileInt('ConvertBond') == $GUI_CHECKED Then
-				YinheConvertBond($hWnd, $idProgress, $idDebug, $arAccountNumber, $arAccountPassword, $arAccountChecked, $iMax, $i)
-;~    ===================查询==========================
-			ElseIf _getProfileInt('Allocate') == $GUI_CHECKED Then
-				If YinheAllocate($hWnd, $idProgress, $idDebug, $arAccountNumber, $arAccountPassword, $arAccountChecked, $iMax, $i) > 0 Then
-                    ExitLoop
-                EndIf
 			ElseIf _getProfileInt('Money') == $GUI_CHECKED Then
 				RunMoneyManage($hWnd, $iSoftware, $idDebug)
 			ElseIf _getProfileInt('Cash') == $GUI_CHECKED Then
@@ -1412,7 +1366,7 @@ Func _loadListViewAccount($iSoftware, $idListViewAccount, ByRef $arCheckboxAccou
 EndFunc
 
 Func AppMain()
-	$idFormMain = GUICreate("通达信单独委托版全自动拖拉机0.99", 803, 590, 289, 0)
+	$idFormMain = GUICreate("通达信单独委托版全自动拖拉机1.00", 803, 590, 289, 0)
 
 	$idListViewAccount = GUICtrlCreateListView("客户号", 24, 24, 146, 552, BitOR($GUI_SS_DEFAULT_LISTVIEW,$WS_VSCROLL), BitOR($WS_EX_CLIENTEDGE,$LVS_EX_CHECKBOXES))
 	GUICtrlSendMsg(-1, $LVM_SETCOLUMNWIDTH, 0, 118)
@@ -1468,10 +1422,10 @@ Func AppMain()
 	GUICtrlSetState(-1, _getRadioState($RadioOrderOutTransfer, $iMsg, 'OrderOutTransfer', $GUI_UNCHECKED))
 	$RadioOrderOut = GUICtrlCreateRadio("场外申购", 208, 504, 89, 17)
 	GUICtrlSetState(-1, _getRadioState($RadioOrderOut, $iMsg, 'OrderOut', $GUI_UNCHECKED))
-	$RadioLoginConvertBond = GUICtrlCreateRadio("可转债申购", 208, 528, 89, 17)
-	GUICtrlSetState(-1, _getRadioState($RadioLoginConvertBond, $iMsg, 'Loginx', $GUI_UNCHECKED))
-	$RadioAllocate = GUICtrlCreateRadio("中签查询", 208, 552, 89, 17)
-	GUICtrlSetState(-1, _getRadioState($RadioAllocate, $iMsg, 'Loginx1', $GUI_UNCHECKED))
+	; $RadioLoginConvertBond = GUICtrlCreateRadio("可转债申购", 208, 528, 89, 17)
+	; GUICtrlSetState(-1, _getRadioState($RadioLoginConvertBond, $iMsg, 'Loginx', $GUI_UNCHECKED))
+	; $RadioAllocate = GUICtrlCreateRadio("中签查询", 208, 552, 89, 17)
+	; GUICtrlSetState(-1, _getRadioState($RadioAllocate, $iMsg, 'Loginx1', $GUI_UNCHECKED))
 	If ($iSoftware == $YINHE)	Then
 		GUICtrlSetState($RadioCash, _getRadioState($RadioCash, $iMsg, 'Cash', $GUI_UNCHECKED))
 		GUICtrlSetState($RadioCancel, _getRadioState($RadioCancel, $iMsg, 'Cancel', $GUI_UNCHECKED))
@@ -1557,8 +1511,6 @@ Func AppMain()
 				_putProfileInt('Sell', GUICtrlRead($RadioSell))
 				_putProfileInt('Cancel', GUICtrlRead($RadioCancel))
 				_putProfileInt('Login', GUICtrlRead($RadioLogin))
-				_putProfileInt('ConvertBond', GUICtrlRead($RadioLoginConvertBond))
-				_putProfileInt('Allocate', GUICtrlRead($RadioAllocate))
 				_putProfileInt('Yinhe', GUICtrlRead($RadioYinhe))
 				_putProfileInt('Huabao', GUICtrlRead($RadioHuabao))
 				_putProfileString('SellPrice', GUICtrlRead($idInputSellPrice))
