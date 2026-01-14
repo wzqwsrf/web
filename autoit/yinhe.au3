@@ -518,6 +518,8 @@ Func _yinheAddShenzhenOrderEntry($hWnd, $idDebug, $strControlID, $strAccount, $s
 
   $hFileWnd = WinWait('基金概要文件', '本人已认真阅读并确认上述内容', 10)
   If $hFileWnd <> 0 Then
+	CloseDownloadDialog()
+	Sleep(200)
     WinActivate($hFileWnd)
     ControlClick($hFileWnd, '', 'Button11') ;本人已认真阅读并确认上述内容
     Sleep(1000)
@@ -646,6 +648,8 @@ Func YinheOrderOutTransferFund($hWnd, $idDebug, $strSymbol)
     $hFileWnd = WinWait('基金产品资料概要文件', '本人已认真阅读并确认上述内容', 10)
     AutoItSetOption('WinTitleMatchMode', 1)
     If $hFileWnd <> 0 Then
+	  CloseDownloadDialog()
+	  Sleep(200)
       WinActivate($hFileWnd)
       _CtlCheckButton($hFileWnd, '', 'Button11')  ;本人已认真阅读并确认上述内容
       Sleep(1000)
@@ -657,6 +661,20 @@ Func YinheOrderOutTransferFund($hWnd, $idDebug, $strSymbol)
     _DlgClickButton($idDebug, '提示', '确认')
 
 EndFunc
+
+Func CloseDownloadDialog()
+	; ==== 处理“文件下载”窗口 ====
+	AutoItSetOption('WinTitleMatchMode', 2)        ; 模糊匹配标题
+	Local $hDown = WinWait('文件下载', '', 2)       ; 标题包含“文件下载”的窗口，超时 5 秒
+
+	If $hDown <> 0 Then
+    	WinActivate($hDown)
+    	Sleep(200)
+    	; 方法1：直接点“取消”按钮（通常是 Button3，文字“取消”）
+    	ControlClick($hDown, '取消', 'Button3')
+	EndIf
+
+EndFunc	
 
 Func YinheOrderOutFund($hWnd, $idDebug, $strSymbol)
     _CtlDebug($idDebug, "YinheOrderOutFund start...")
@@ -694,6 +712,8 @@ Func YinheOrderOutFund($hWnd, $idDebug, $strSymbol)
     $hFileWnd = WinWait('基金产品资料概要文件', '本人已认真阅读并确认上述内容', 10)
     _CtlDebug($idDebug, "hFileWnd." & $hFileWnd)
     If $hFileWnd <> 0 Then
+	  CloseDownloadDialog()
+	  Sleep(200)	
       WinActivate($hFileWnd)
       ControlClick($hFileWnd, '', 'Button11') ;本人已认真阅读并确认上述内容
       Sleep(1000)
@@ -768,6 +788,8 @@ Func YinheOrderFund($hWnd, $idDebug, $strSymbol)
 	$hFileWnd = WinWait('概要文件', '本人已认真阅读并确认上述内容', 10)
 	AutoItSetOption('WinTitleMatchMode', 1)
 	If $hFileWnd <> 0 Then
+		CloseDownloadDialog()
+	  	Sleep(200)
 		WinActivate($hFileWnd)
 		_CtlCheckButton($hFileWnd, '', 'Button11')	;本人已认真阅读并确认上述内容
 		Sleep(500)
