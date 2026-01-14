@@ -500,6 +500,23 @@ Func _clickTreeItemOut($hWnd, $idDebug, $strControlID, $strLevel1, $strLevel2 = 
   _closeNewDlg($idDebug)
 EndFunc
 
+Func _CtlWaitControl($hWnd, $idDebug, $strControlID, $iTimeout = 10)
+	_CtlDebug($idDebug, '等待控件"' & $strControlID & '"加载')
+	$iCount = 0
+	$iMaxCount = $iTimeout * 1  ; 每10ms检查一次，默认10秒超时
+	Do
+		$hControl = ControlGetHandle($hWnd, '', $strControlID)
+		If $hControl <> 0 Then
+			_CtlDebug($idDebug, '控件"' & $strControlID & '"已加载')
+			Return True
+		EndIf
+		Sleep(100)
+		$iCount += 1
+	Until $iCount >= $iMaxCount
+	_CtlDebug($idDebug, '等待控件"' & $strControlID & '"超时')
+	Return False
+EndFunc
+
 #cs
 Func _yinheAddShenzhenOrderEntry($hWnd, $idDebug, $strControlID, $strAccount, $strSymbol, $strAmount)
   If _CtlSendString($hWnd, $idDebug, 'Edit1', $strSymbol) Then _addSymbolSpecialKey($idDebug, $strSymbol)
@@ -694,7 +711,8 @@ Func YinheOrderOutFund($hWnd, $idDebug, $strSymbol)
 
     $strControlID = 'SysTreeView323'
     _clickTreeItemOut($hWnd, $idDebug, $strControlID, '基金申购')
-    Sleep(1000)
+    Sleep(200)
+    _CtlWaitControl($hWnd, $idDebug, 'SysTreeView321', 10)
     _CtlWaitText($hWnd, $idDebug, 'Static1', '基金代码:')
 
     $controlID = "Edit1"
@@ -838,7 +856,7 @@ Func HuabaoOrderOutFund($hWnd, $idDebug, $strSymbol)
     Sleep(500)
     ControlSetText($hWnd, "", "Edit17", "")
     Sleep(500)
-    _CtlWaitText($hWnd, $idDebug, 'Static98', '基金代码:')
+    _CtlWaitText($hWnd, $idDebug, 'Static66', '基金代码:')
     _CtlSendString($hWnd, $idDebug, 'Edit17', $strSymbol)
     ControlClick($hWnd, '', 'Button20')
     Sleep(500)
@@ -858,7 +876,7 @@ Func HuabaoOrderOutFund($hWnd, $idDebug, $strSymbol)
 
     _CtlDebug($idDebug, "HuabaoOrderOutFund amount:" & $strAmount)
 
-    _CtlWaitText($hWnd, $idDebug, 'Static72', '申购金额:')
+    _CtlWaitText($hWnd, $idDebug, 'Static74', '申购金额:')
     _CtlSendString($hWnd, $idDebug, 'Edit12', $strAmount)
     ControlClick($hWnd, '', 'Button19')
     _DlgClickButton($idDebug, '', '确认')
