@@ -106,16 +106,28 @@ EndFunc
 Func _CtlSetText($hWnd, $idDebug, $strControl, $strText)
 	$strDebug = '写入"' & $strText & '"......'
 	_CtlDebug($idDebug, $strDebug)
+	
+	; 先聚焦控件
+	ControlFocus($hWnd, '', $strControl)
+	Sleep(50)
+	
+	; 使用 ControlSend 全选后输入，通常比 ControlSetText 更快
+	ControlSend($hWnd, '', $strControl, '^a')  ; Ctrl+A 全选
+	Sleep(50)
+	ControlSend($hWnd, '', $strControl, $strText)  ; 直接输入新文本
+	Sleep(100)
+	
+	; 验证是否设置成功（最多尝试3次，减少等待时间）
 	$iCount = 0
-	While $strText <> ControlGetText($hWnd, '', $strControl)
+	While $strText <> ControlGetText($hWnd, '', $strControl) And $iCount < 3
 		ControlSetText($hWnd, '', $strControl, $strText)
 		Sleep(100)
 		$iCount += 1
-		If $iCount == 50 Then
-			_CtlDebug($idDebug, $strDebug & '在5秒后放弃')
-			ExitLoop
-		EndIf
 	WEnd
+	
+	If $iCount >= 3 And $strText <> ControlGetText($hWnd, '', $strControl) Then
+		_CtlDebug($idDebug, $strDebug & '设置可能未完全成功')
+	EndIf
 EndFunc
 
 Func _CtlSelectString($hWnd, $idDebug, $strControlID, ByRef $iSel)
@@ -1417,7 +1429,7 @@ Func AppMain()
 
 	$idLabelSymbol = GUICtrlCreateLabel("基金代码", 192, 24, 52, 17)
 	$idListSymbol = GUICtrlCreateList("", 192, 48, 121, 97)
-	GUICtrlSetData(-1, '160216|160416|160717|161116|161124|161125|161126|161127|161128|161129|161130|161226|162411|162415|163208|164824|164906|501225|501300|501018|501312', _getProfileString('Symbol', '161116'))
+	GUICtrlSetData(-1, '160216|160416|160717|160723|161116|161124|161125|161126|161127|161128|161129|161130|161226|162411|162415|163208|164824|164906|501225|501300|501018|501312', _getProfileString('Symbol', '161116'))
 
 	$idLabelSellPrice = GUICtrlCreateLabel("卖出价格", 192, 160, 52, 17)
 	$idInputSellPrice = GUICtrlCreateInput("", 192, 184, 121, 21)
