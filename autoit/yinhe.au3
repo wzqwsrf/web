@@ -514,18 +514,37 @@ EndFunc
 
 Func _CtlWaitControl($hWnd, $idDebug, $strControlID, $iTimeout = 10)
 	_CtlDebug($idDebug, '等待控件"' & $strControlID & '"加载')
+    Do
+        $idListView = ControlGetHandle($hWnd, '', $strControlID)
+        $iItemCount = _GUICtrlListView_GetItemCount($idListView)
+    	_CtlDebug($idDebug, "控件大小" & $iItemCount)
+    	Sleep(100)
+    Until $iItemCount > 0
+EndFunc
+
+Func _CtlWaitTreeViewReady($hWnd, $idDebug, $strControlID, $iTimeout = 10)
+	_CtlDebug($idDebug, '等待TreeView控件"' & $strControlID & '"完全加载（列表大小>0）')
+	
+	$iMaxCount = $iTimeout * 10
 	$iCount = 0
-	$iMaxCount = $iTimeout * 1  ; 每10ms检查一次，默认10秒超时
+	
 	Do
+		; 1. 先检查控件是否存在
 		$hControl = ControlGetHandle($hWnd, '', $strControlID)
 		If $hControl <> 0 Then
-			_CtlDebug($idDebug, '控件"' & $strControlID & '"已加载')
-			Return True
+			; 2. 直接检查列表大小（item count）是否大于0
+			$iItemCount = _GUICtrlTreeView_GetCount($hControl)
+			If $iItemCount > 0 Then
+				_CtlDebug($idDebug, 'TreeView控件"' & $strControlID & '"已完全加载（列表大小：' & $iItemCount & '）')
+				Return True
+			EndIf
 		EndIf
+		
 		Sleep(100)
 		$iCount += 1
 	Until $iCount >= $iMaxCount
-	_CtlDebug($idDebug, '等待控件"' & $strControlID & '"超时')
+	
+	_CtlDebug($idDebug, '等待TreeView控件"' & $strControlID & '"完全加载超时（' & $iTimeout & '秒）')
 	Return False
 EndFunc
 
@@ -710,21 +729,22 @@ Func YinheOrderOutFund($hWnd, $idDebug, $strSymbol)
     ; 获取 Afx 控件句柄
     Local $controlID = "[CLASS:Afx:10000000:0:00010003:00000000:00000000; INSTANCE:1]" ; 根据实际类名和实例号替换
     Local $hControl = ControlGetHandle($hWnd, "", $controlID)
-
+    
     ; 确保控件句柄有效
     If $hControl = 0 Then
         MsgBox("ok", "Error", "无法获取 Afx 控件句柄。")
         Exit
     EndIf
-
-    ; 聚焦控件
+    
+    ; 聚焦并点击左侧控件（填充基金列表）
     ControlFocus($hWnd, "", $hControl)
     ControlClick($hControl, '', '', 'Left', 1, 100, 50)
+    Sleep(200)  ; 等待左侧数据填充完成
 
     $strControlID = 'SysTreeView323'
     _clickTreeItemOut($hWnd, $idDebug, $strControlID, '基金申购')
     Sleep(200)
-    _CtlWaitControl($hWnd, $idDebug, 'SysTreeView321', 10)
+    _CtlWaitControl($hWnd, $idDebug, "SysListView321")
     _CtlWaitText($hWnd, $idDebug, 'Static1', '基金代码:')
 
     $controlID = "Edit1"
