@@ -1,4 +1,4 @@
-﻿#cs
+#cs
 	Title:   		拖拉机自动化
 	Filename:  		yinhe.au3
 	Description: 	拖拉机账户自动申购、卖出、撤单、逆回购和银证转账回银行。
@@ -35,6 +35,7 @@
 #include <GuiTreeView.au3>
 #include <GuiListView.au3>
 #include <Date.au3>
+#include <GuiComboBox.au3>
 
 #include <yinheaccounts.au3>
 
@@ -106,17 +107,17 @@ EndFunc
 Func _CtlSetText($hWnd, $idDebug, $strControl, $strText)
 	$strDebug = '写入"' & $strText & '"......'
 	_CtlDebug($idDebug, $strDebug)
-	
+
 	; 先聚焦控件
 	ControlFocus($hWnd, '', $strControl)
 	Sleep(50)
-	
+
 	; 使用 ControlSend 全选后输入，通常比 ControlSetText 更快
 	ControlSend($hWnd, '', $strControl, '^a')  ; Ctrl+A 全选
 	Sleep(50)
 	ControlSend($hWnd, '', $strControl, $strText)  ; 直接输入新文本
 	Sleep(100)
-	
+
 	; 验证是否设置成功（最多尝试3次，减少等待时间）
 	$iCount = 0
 	While $strText <> ControlGetText($hWnd, '', $strControl) And $iCount < 3
@@ -124,7 +125,7 @@ Func _CtlSetText($hWnd, $idDebug, $strControl, $strText)
 		Sleep(100)
 		$iCount += 1
 	WEnd
-	
+
 	If $iCount >= 3 And $strText <> ControlGetText($hWnd, '', $strControl) Then
 		_CtlDebug($idDebug, $strDebug & '设置可能未完全成功')
 	EndIf
@@ -524,10 +525,10 @@ EndFunc
 
 Func _CtlWaitTreeViewReady($hWnd, $idDebug, $strControlID, $iTimeout = 10)
 	_CtlDebug($idDebug, '等待TreeView控件"' & $strControlID & '"完全加载（列表大小>0）')
-	
+
 	$iMaxCount = $iTimeout * 10
 	$iCount = 0
-	
+
 	Do
 		; 1. 先检查控件是否存在
 		$hControl = ControlGetHandle($hWnd, '', $strControlID)
@@ -539,11 +540,11 @@ Func _CtlWaitTreeViewReady($hWnd, $idDebug, $strControlID, $iTimeout = 10)
 				Return True
 			EndIf
 		EndIf
-		
+
 		Sleep(100)
 		$iCount += 1
 	Until $iCount >= $iMaxCount
-	
+
 	_CtlDebug($idDebug, '等待TreeView控件"' & $strControlID & '"完全加载超时（' & $iTimeout & '秒）')
 	Return False
 EndFunc
@@ -619,13 +620,13 @@ Func _getFundAmount($strSymbol)
 		Case '160216'
 			$strAmount = '1000'
 		Case '161116'
-			$strAmount = '10'	
+			$strAmount = '10'
 		Case '161125'
 			$strAmount = '10'
 		Case '161126'
-			$strAmount = '10'	
+			$strAmount = '10'
 		Case '161127'
-			$strAmount = '10'	
+			$strAmount = '10'
 		Case '161128'
 			$strAmount = '10'
 		Case '161129'
@@ -635,11 +636,11 @@ Func _getFundAmount($strSymbol)
 		Case '162415'
 			$strAmount = '10'
 		Case '162719'
-			$strAmount = '500'	
+			$strAmount = '500'
 		Case '164701'
         	$strAmount = '10'
 		Case '164824'
-        	$strAmount = '1000'	
+        	$strAmount = '1000'
 		Case '164906'
 			$strAmount = '1000000'
 		Case '501300'
@@ -722,20 +723,20 @@ Func CloseDownloadDialog()
     	ControlClick($hDown, '取消', 'Button3')
 	EndIf
 
-EndFunc	
+EndFunc
 
 Func YinheOrderOutFund($hWnd, $idDebug, $strSymbol)
     _CtlDebug($idDebug, "YinheOrderOutFund start...")
     ; 获取 Afx 控件句柄
     Local $controlID = "[CLASS:Afx:10000000:0:00010003:00000000:00000000; INSTANCE:1]" ; 根据实际类名和实例号替换
     Local $hControl = ControlGetHandle($hWnd, "", $controlID)
-    
+
     ; 确保控件句柄有效
     If $hControl = 0 Then
         MsgBox("ok", "Error", "无法获取 Afx 控件句柄。")
         Exit
     EndIf
-    
+
     ; 聚焦并点击左侧控件（填充基金列表）
     ControlFocus($hWnd, "", $hControl)
     ControlClick($hControl, '', '', 'Left', 1, 100, 50)
@@ -763,7 +764,7 @@ Func YinheOrderOutFund($hWnd, $idDebug, $strSymbol)
     _CtlDebug($idDebug, "hFileWnd." & $hFileWnd)
     If $hFileWnd <> 0 Then
 	  CloseDownloadDialog()
-	  Sleep(200)	
+	  Sleep(200)
       WinActivate($hFileWnd)
       ControlClick($hFileWnd, '', 'Button11') ;本人已认真阅读并确认上述内容
       Sleep(1000)
@@ -1256,6 +1257,21 @@ Func _toggleAccounts(Const ByRef $arCheckbox, $iMax)
 	Next
 EndFunc
 
+Func _getSymbolConfigValue($strConfig, $strSymbol, $strDefault = '')
+	If $strConfig == '' Then Return $strDefault
+	Local $aItems = StringSplit($strConfig, '|')
+	For $i = 1 To $aItems[0]
+		Local $strEntry = $aItems[$i]
+		Local $iPos = StringInStr($strEntry, '=')
+		If $iPos > 1 Then
+			If StringLeft($strEntry, $iPos - 1) == $strSymbol Then
+				Return StringMid($strEntry, $iPos + 1)
+			EndIf
+		EndIf
+	Next
+	Return $strDefault
+EndFunc
+
 Func _getSoftwarePrefix($iSoftware)
 	If ($iSoftware == $YINHE)	Then
 		$strPrefix = ''
@@ -1437,62 +1453,101 @@ Func _loadListViewAccount($iSoftware, $idListViewAccount, ByRef $arCheckboxAccou
 	Next
 EndFunc
 
-Func AppMain()
-	$idFormMain = GUICreate("通达信单独委托版全自动拖拉机1.01", 803, 590, 289, 0)
+Func _getSelectedListViewSymbol($idListSymbol, $strDefault)
+	Local $iSel = _GUICtrlListView_GetNextItem($idListSymbol, -1, $LVNI_SELECTED)
+	If $iSel < 0 Then Return $strDefault
+	Return _GUICtrlListView_GetItemText($idListSymbol, $iSel, 0)
+EndFunc
 
-	$idListViewAccount = GUICtrlCreateListView("客户号", 24, 24, 146, 552, BitOR($GUI_SS_DEFAULT_LISTVIEW,$WS_VSCROLL), BitOR($WS_EX_CLIENTEDGE,$LVS_EX_CHECKBOXES))
-	GUICtrlSendMsg(-1, $LVM_SETCOLUMNWIDTH, 0, 118)
+Func AppMain()
+	$idFormMain = GUICreate("通达信单独委托版全自动拖拉机1.01", 904, 590, 289, 0)
+
+	$idListViewAccount = GUICtrlCreateListView("客户号", 24, 24, 180, 552, BitOR($GUI_SS_DEFAULT_LISTVIEW,$WS_VSCROLL), BitOR($WS_EX_CLIENTEDGE,$LVS_EX_CHECKBOXES))
+	GUICtrlSendMsg(-1, $LVM_SETCOLUMNWIDTH, 0, 152)
 
 	$idMenuAccount = GUICtrlCreateContextMenu($idListViewAccount)
 	$idMenuEdit = GUICtrlCreateMenuItem('添加或者修改选中客户号', $idMenuAccount)
 	$idMenuDel = GUICtrlCreateMenuItem('清除全部客户号记录', $idMenuAccount)
 
-	$idLabelSymbol = GUICtrlCreateLabel("基金代码", 192, 24, 52, 17)
-	$idListSymbol = GUICtrlCreateList("", 192, 48, 121, 97)
-	GUICtrlSetData(-1, '160216|160416|160717|160723|161116|161124|161125|161126|161127|161128|161129|161130|161226|162411|162415|163208|164824|164906|501225|501300|501018|501312', _getProfileString('Symbol', '161116'))
+	;$idLabelSymbol = GUICtrlCreateLabel("基金代码", 224, 24, 52, 17)
+	$idListSymbol = GUICtrlCreateListView("基金代码|基金名称|申购金额", 224, 24, 460, 200, _
+		BitOR($GUI_SS_DEFAULT_LISTVIEW, $WS_VSCROLL, $LVS_SINGLESEL), $WS_EX_CLIENTEDGE)
+	_GUICtrlListView_SetExtendedListViewStyle($idListSymbol, BitOR($LVS_EX_FULLROWSELECT, $LVS_EX_GRIDLINES))
+	GUICtrlSendMsg($idListSymbol, $LVM_SETCOLUMNWIDTH, 0, 86)
+	GUICtrlSendMsg($idListSymbol, $LVM_SETCOLUMNWIDTH, 1, 120)
+	GUICtrlSendMsg($idListSymbol, $LVM_SETCOLUMNWIDTH, 2, 86)
 
-	$idLabelSellPrice = GUICtrlCreateLabel("卖出价格", 192, 160, 52, 17)
-	$idInputSellPrice = GUICtrlCreateInput("", 192, 184, 121, 21)
+	Local $aFundsInit = [ _
+		"160216|国泰商品", "160416|石油基金", "160717|恒生H股", "160719|嘉实黄金", "160723|嘉实原油", _
+		"161116|易基黄金", "161124|香港小盘", "161125|标普500", "161126|标普医药", "161127|标普生物", _
+		"161128|标普科技", "161129|原油基金", "161130|纳指LOF", "161226|白银基金", "161815|抗通胀LOF", _
+		"162411|华宝油气LOF", "162415|美国消费LOF", "162719|石油LOF", "163208|全球油气能源LOF", "164824|印度基金LOF", _
+		"164701|黄金LOF", "165513|中信保诚商品LOF", "164906|中国互联", "501018|南方原油LOF", _
+		"501225|全球芯片LOF", "501300|美元债LOF", "501312|海外科技LOF" _
+	]
+
+	Local $strDefaultSymbol = _getProfileString('Symbol', '161116')
+	Local $iSelectRow = -1
+	For $i = 0 To UBound($aFundsInit) - 1
+		Local $aInitItem = StringSplit($aFundsInit[$i], "|")
+		Local $strCode = ''
+		Local $strFundName = ''
+		If $aInitItem[0] > 0 Then $strCode = $aInitItem[1]
+		If $aInitItem[0] > 1 Then $strFundName = $aInitItem[2]
+
+		Local $strAmount = _getFundAmount($strCode)
+		Local $iRow = _GUICtrlListView_AddItem($idListSymbol, $strCode)
+		_GUICtrlListView_AddSubItem($idListSymbol, $iRow, $strFundName, 1)
+		_GUICtrlListView_AddSubItem($idListSymbol, $iRow, $strAmount, 2)
+		If $strCode = $strDefaultSymbol Then $iSelectRow = $iRow
+	Next
+	If $iSelectRow < 0 Then $iSelectRow = 0
+	_GUICtrlListView_SetItemSelected($idListSymbol, $iSelectRow, True, True)
+
+	$GroupPriceOperation = GUICtrlCreateGroup("价格或数量", 704, 24, 180, 140)
+
+	$idLabelSellPrice = GUICtrlCreateLabel("卖出价格", 720, 48, 52, 17)
+	$idInputSellPrice = GUICtrlCreateInput("", 720, 72, 140, 21)
 	GUICtrlSetData(-1, _getProfileString('SellPrice'))
 
-	$idLabelSellQuantity = GUICtrlCreateLabel("卖出或者赎回总数量", 192, 224, 112, 17)
-	$idInputSellQuantity = GUICtrlCreateInput("", 192, 248, 121, 21)
+	$idLabelSellQuantity = GUICtrlCreateLabel("卖出或者赎回总数量", 720, 104, 112, 17)
+	$idInputSellQuantity = GUICtrlCreateInput("", 720, 128, 140, 21)
 	GUICtrlSetData(-1, _getProfileString('SellQuantity'))
 
-	$idProgressDebug = GUICtrlCreateProgress(336, 24, 438, 17)
+	$idProgressDebug = GUICtrlCreateProgress(224, 234, 460, 17)
 	GUICtrlSetState(-1, $GUI_DISABLE)
-	$idListDebug = GUICtrlCreateList("", 336, 48, 441, 344, BitOR($LBS_NOTIFY,$LBS_MULTIPLESEL,$WS_VSCROLL,$WS_BORDER))
+	$idListDebug = GUICtrlCreateList("", 224, 261, 460, 317, BitOR($LBS_NOTIFY,$LBS_MULTIPLESEL,$WS_VSCROLL,$WS_BORDER))
 
 	$idMenuDebug = GUICtrlCreateContextMenu($idListDebug)
 	$idMenuCopy = GUICtrlCreateMenuItem('复制到剪贴板', $idMenuDebug)
 
-	$GroupSoftware = GUICtrlCreateGroup("软件", 336, 400, 225, 81)
+	$GroupSoftware = GUICtrlCreateGroup("软件", 704, 434, 184, 80)
 	$iSoftware = 0
-	$RadioYinhe = GUICtrlCreateRadio("银河证券海王星单独委托版3.29", 352, 424, 193, 17)
+	$RadioYinhe = GUICtrlCreateRadio("银河海王星单独委托版3.29", 720, 458, 180, 17)
 	GUICtrlSetState(-1, _getRadioState($RadioYinhe, $iSoftware, 'Yinhe', $GUI_CHECKED))
-	$RadioHuabao = GUICtrlCreateRadio("华宝证券通达信版独立交易8.29", 352, 448, 193, 17)
+	$RadioHuabao = GUICtrlCreateRadio("华宝通达信版独立交易8.29", 720, 482, 180, 17)
 	GUICtrlSetState(-1, _getRadioState($RadioHuabao, $iSoftware, 'Huabao', $GUI_UNCHECKED))
 	GUICtrlCreateGroup("", -99, -99, 1, 1)
 	$iMax = _onRadioSoftware($iSoftware, $RadioYinhe, $RadioHuabao)
 	Local $arCheckboxAccount[$iMax]
 	_loadListViewAccount($iSoftware, $idListViewAccount, $arCheckboxAccount, $iMax)
 
-	$GroupOperation = GUICtrlCreateGroup("操作", 192, 288, 121, 292)
+	$GroupOperation = GUICtrlCreateGroup("操作", 704, 174, 180, 250)
 	$iMsg = 0
-	$RadioCash = GUICtrlCreateRadio("转账回银行", 208, 312, 89, 17)
-	$RadioMoney = GUICtrlCreateRadio("逆回购", 208, 336, 89, 17)
+	$RadioCash = GUICtrlCreateRadio("转账回银行", 720, 198, 140, 17)
+	$RadioMoney = GUICtrlCreateRadio("逆回购", 720, 222, 140, 17)
 	GUICtrlSetState(-1, _getRadioState($RadioMoney, $iMsg, 'Money', $GUI_UNCHECKED))
-	$RadioOrder = GUICtrlCreateRadio("场内申购", 208, 360, 89, 17)
+	$RadioOrder = GUICtrlCreateRadio("场内申购", 720, 246, 140, 17)
 	GUICtrlSetState(-1, _getRadioState($RadioOrder, $iMsg, 'Order', $GUI_CHECKED))
-	$RadioRedeem = GUICtrlCreateRadio("赎回", 208, 384, 89, 17)
-	$RadioSell = GUICtrlCreateRadio("卖出", 208, 408, 89, 17)
+	$RadioRedeem = GUICtrlCreateRadio("赎回", 720, 270, 140, 17)
+	$RadioSell = GUICtrlCreateRadio("卖出", 720, 294, 140, 17)
 	GUICtrlSetState(-1, _getRadioState($RadioSell, $iMsg, 'Sell', $GUI_UNCHECKED))
-	$RadioCancel = GUICtrlCreateRadio("全部撤单", 208, 432, 89, 17)
-	$RadioLogin = GUICtrlCreateRadio("仅登录查询", 208, 456, 89, 17)
+	$RadioCancel = GUICtrlCreateRadio("全部撤单", 720, 318, 140, 17)
+	$RadioLogin = GUICtrlCreateRadio("仅登录查询", 720, 342, 140, 17)
 	GUICtrlSetState(-1, _getRadioState($RadioLogin, $iMsg, 'Login', $GUI_UNCHECKED))
-	$RadioOrderOutTransfer = GUICtrlCreateRadio("场外转托管", 208, 480, 89, 17)
+	$RadioOrderOutTransfer = GUICtrlCreateRadio("场外转托管", 720, 368, 140, 17)
 	GUICtrlSetState(-1, _getRadioState($RadioOrderOutTransfer, $iMsg, 'OrderOutTransfer', $GUI_UNCHECKED))
-	$RadioOrderOut = GUICtrlCreateRadio("场外申购", 208, 504, 89, 17)
+	$RadioOrderOut = GUICtrlCreateRadio("场外申购", 720, 392, 140, 17)
 	GUICtrlSetState(-1, _getRadioState($RadioOrderOut, $iMsg, 'OrderOut', $GUI_UNCHECKED))
 	; $RadioLoginConvertBond = GUICtrlCreateRadio("可转债申购", 208, 528, 89, 17)
 	; GUICtrlSetState(-1, _getRadioState($RadioLoginConvertBond, $iMsg, 'Loginx', $GUI_UNCHECKED))
@@ -1508,7 +1563,7 @@ Func AppMain()
 	EndIf
 	GUICtrlCreateGroup("", -99, -99, 1, 1)
 
-	$idButtonRun = GUICtrlCreateButton("执行自动操作(&R)", 672, 552, 107, 25)
+	$idButtonRun = GUICtrlCreateButton("执行自动操作(&R)", 777, 524, 107, 25)
 	GUICtrlSetState(-1, $GUI_FOCUS)
 	GUISetState(@SW_SHOW)
 
@@ -1573,7 +1628,7 @@ Func AppMain()
 				For $i = 0 to $iMax - 1
 					_putProfileInt($strPrefix & 'AccountState' & String($i), GUICtrlRead($arCheckboxAccount[$i], $GUI_READ_EXTENDED))
 				Next
-				_putProfileString('Symbol', GUICtrlRead($idListSymbol))
+				_putProfileString('Symbol', _getSelectedListViewSymbol($idListSymbol, _getProfileString('Symbol', '161116')))
 				_putProfileInt('Cash', GUICtrlRead($RadioCash))
 				_putProfileInt('Money', GUICtrlRead($RadioMoney))
 				_putProfileInt('Order', GUICtrlRead($RadioOrder))
