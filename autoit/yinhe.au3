@@ -1454,9 +1454,17 @@ Func _loadListViewAccount($iSoftware, $idListViewAccount, ByRef $arCheckboxAccou
 EndFunc
 
 Func _getSelectedListViewSymbol($idListSymbol, $strDefault)
-	Local $iSel = _GUICtrlListView_GetNextItem($idListSymbol, -1, $LVNI_SELECTED)
-	If $iSel < 0 Then Return $strDefault
-	Return _GUICtrlListView_GetItemText($idListSymbol, $iSel, 0)
+	Local $hList = GUICtrlGetHandle($idListSymbol)
+	If $hList = 0 Then Return $strDefault
+
+	Local $iSel = _GUICtrlListView_GetNextItem($hList, -1, $LVNI_SELECTED)
+	If $iSel >= 0 Then Return _GUICtrlListView_GetItemText($hList, $iSel, 0)
+
+	; 某些情况下仅有焦点行，未标记为 Selected，做一次兜底
+	$iSel = _GUICtrlListView_GetSelectionMark($hList)
+	If $iSel >= 0 Then Return _GUICtrlListView_GetItemText($hList, $iSel, 0)
+
+	Return $strDefault
 EndFunc
 
 Func AppMain()
@@ -1502,7 +1510,8 @@ Func AppMain()
 		If $strCode = $strDefaultSymbol Then $iSelectRow = $iRow
 	Next
 	If $iSelectRow < 0 Then $iSelectRow = 0
-	_GUICtrlListView_SetItemSelected($idListSymbol, $iSelectRow, True, True)
+	Local $hList = GUICtrlGetHandle($idListSymbol)
+	_GUICtrlListView_SetItemSelected($hList, $iSelectRow, True, True)
 
 	$GroupPriceOperation = GUICtrlCreateGroup("价格或数量", 704, 24, 180, 140)
 
@@ -1628,7 +1637,9 @@ Func AppMain()
 				For $i = 0 to $iMax - 1
 					_putProfileInt($strPrefix & 'AccountState' & String($i), GUICtrlRead($arCheckboxAccount[$i], $GUI_READ_EXTENDED))
 				Next
-				_putProfileString('Symbol', _getSelectedListViewSymbol($idListSymbol, _getProfileString('Symbol', '161116')))
+				Local $strSymbolSelected = _getSelectedListViewSymbol($idListSymbol, _getProfileString('Symbol', '161116'))
+				_putProfileString('Symbol', $strSymbolSelected)
+				_CtlDebug($idListDebug, '当前基金代码：' & $strSymbolSelected)
 				_putProfileInt('Cash', GUICtrlRead($RadioCash))
 				_putProfileInt('Money', GUICtrlRead($RadioMoney))
 				_putProfileInt('Order', GUICtrlRead($RadioOrder))
