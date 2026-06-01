@@ -697,18 +697,35 @@ Func YinheOrderOutTransferFund($hWnd, $idDebug, $strSymbol)
     $hFileWnd = WinWait('基金产品资料概要文件', '本人已认真阅读并确认上述内容', 10)
     AutoItSetOption('WinTitleMatchMode', 1)
     If $hFileWnd <> 0 Then
-	  CloseDownloadDialog()
-	  Sleep(200)
-      WinActivate($hFileWnd)
-      _CtlCheckButton($hFileWnd, '', 'Button11')  ;本人已认真阅读并确认上述内容
-      Sleep(1000)
-      ControlClick($hFileWnd, '', 'Button1')  ;确认
-      Sleep(1000)
+	  	_DlgClickButton($idDebug, '文件下载', '取消')
+	  	Sleep(200)
+		WinActivate($hFileWnd)
+		_CtlCheckButton($hFileWnd, '', 'Button11')	;本人已认真阅读并确认上述内容
+		Sleep(200)
+		ControlClick($hFileWnd, '', 'Button1')	;确认
+		Sleep(200)
+		_CloseIEScriptError()
+		Sleep(200)
     EndIf
     _DlgClickButton($idDebug, '提示信息', '确认')
     _DlgClickButton($idDebug, '转托管确认', '确认')
     _DlgClickButton($idDebug, '提示', '确认')
 
+EndFunc
+
+; 关闭IE“脚本错误”弹窗函数
+Func _CloseIEScriptError()
+    Local $hDlg = WinWait("[CLASS:Internet Explorer_TridentDlgFrame; TITLE:脚本错误]", "", 3)
+    If $hDlg Then
+        ; 点“否(N)”
+        ControlClick($hDlg, "", "[CLASS:Button; TEXT:否(&N)]")
+        Sleep(100)
+        ; 再关闭
+        WinClose($hDlg)
+        ConsoleWrite("【已关闭】IE脚本错误窗口" & @CRLF)
+    Else
+        ConsoleWrite("【未找到】IE脚本错误窗口" & @CRLF)
+    EndIf
 EndFunc
 
 Func CloseDownloadDialog()
@@ -763,13 +780,15 @@ Func YinheOrderOutFund($hWnd, $idDebug, $strSymbol)
     $hFileWnd = WinWait('基金产品资料概要文件', '本人已认真阅读并确认上述内容', 10)
     _CtlDebug($idDebug, "hFileWnd." & $hFileWnd)
     If $hFileWnd <> 0 Then
-	  CloseDownloadDialog()
-	  Sleep(200)
-      WinActivate($hFileWnd)
-      ControlClick($hFileWnd, '', 'Button11') ;本人已认真阅读并确认上述内容
-      Sleep(1000)
-      ControlClick($hFileWnd, '', 'Button1')  ;确认
-      Sleep(1000)
+	 	_DlgClickButton($idDebug, '文件下载', '取消')
+	  	Sleep(200)
+		WinActivate($hFileWnd)
+		_CtlCheckButton($hFileWnd, '', 'Button11')	;本人已认真阅读并确认上述内容
+		Sleep(200)
+		ControlClick($hFileWnd, '', 'Button1')	;确认
+		Sleep(200)
+		_CloseIEScriptError()
+		Sleep(200)
     EndIf
     _DlgClickButton($idDebug, '提示信息', '确认')
     _DlgClickButton($idDebug, '基金交易确认', '确认')
@@ -839,13 +858,15 @@ Func YinheOrderFund($hWnd, $idDebug, $strSymbol)
 	$hFileWnd = WinWait('概要文件', '本人已认真阅读并确认上述内容', 10)
 	AutoItSetOption('WinTitleMatchMode', 1)
 	If $hFileWnd <> 0 Then
-		CloseDownloadDialog()
+		_DlgClickButton($idDebug, '文件下载', '取消')
 	  	Sleep(200)
 		WinActivate($hFileWnd)
 		_CtlCheckButton($hFileWnd, '', 'Button11')	;本人已认真阅读并确认上述内容
-		Sleep(500)
+		Sleep(200)
 		ControlClick($hFileWnd, '', 'Button1')	;确认
-		Sleep(500)
+		Sleep(200)
+		_CloseIEScriptError()
+		Sleep(200)
 	EndIf
 	_DlgClickButton($idDebug, '提示信息', '确认')
 	_DlgClickButton($idDebug, '提示', '确认')
